@@ -53,7 +53,7 @@ h1 small { display: block; margin-top: 14px; font-size: 11px; font-weight: 400; 
 #stage:active { cursor: grabbing; }
 .status { position: absolute; inset: 0; display: grid; place-items: center; align-content: center;
           gap: 16px; text-align: center; color: var(--dim); font-size: 13.5px; padding: 32px; }
-.status b { font-size: 17px; font-weight: 300; color: var(--text); letter-spacing: .01em; }
+.status b { font-size: 17px; font-weight: 400; color: var(--text); letter-spacing: .01em; }
 .status img { max-width: min(72%, 500px); max-height: 44vh; border: 1px solid var(--hair); }
 .status .bar { width: min(200px, 54%); height: 1px; background: var(--hair); overflow: hidden; }
 .status .bar i { display: block; height: 100%; width: 32%; background: var(--gold); animation: slide 1.9s ease-in-out infinite; }
@@ -77,6 +77,32 @@ h1 small { display: block; margin-top: 14px; font-size: 11px; font-weight: 400; 
   .stats div:nth-child(3) { border-left: 0; }
   .stats div:nth-child(n+3) { border-top: 1px solid var(--hair); }
 }
+
+/* ---- 等待的十分钟 ---- */
+.progress { border: 1px solid var(--hair); border-top: 0; background: var(--panel);
+            display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px 24px;
+            padding: 16px 20px; }
+.phases { list-style: none; display: flex; flex-wrap: wrap; align-items: center; gap: 0; margin: 0; padding: 0; }
+.phases li { font-size: 10.5px; font-weight: 400; letter-spacing: .18em; text-transform: uppercase;
+             color: #44444a; padding: 0 16px 0 0; margin-right: 16px; position: relative;
+             transition: color .4s ease; white-space: nowrap; }
+.phases li::after { content: ""; position: absolute; right: 0; top: 50%; width: 8px; height: 1px;
+                    background: #2c2c32; }
+.phases li:last-child { padding-right: 0; margin-right: 0; }
+.phases li:last-child::after { display: none; }
+.phases li.seen { color: var(--dim); }
+.phases li.now { color: var(--gold); }
+.phases li.now::before { content: ""; position: absolute; left: -11px; top: 50%; width: 4px; height: 4px;
+                         margin-top: -2px; background: var(--gold); animation: pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .25; } }
+.meters { display: flex; align-items: baseline; gap: 18px; font-family: var(--font-mono);
+          font-size: 11px; font-weight: 300; letter-spacing: .1em; color: var(--faint); margin-left: auto; }
+#pg-time { font-size: 17px; font-weight: 200; color: var(--text); letter-spacing: .04em;
+           font-variant-numeric: tabular-nums; }
+@media (max-width: 720px) { .phases li { font-size: 9.5px; padding-right: 10px; margin-right: 10px; } }
+
+/* 它自己渲出来的那张图：当成证据大图放，不是缩略图 */
+.status .shot-note { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--faint); }
 
 /* ---- 回放 ---- */
 .rail { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 14px 24px;
@@ -131,6 +157,16 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .msg.bot .body { border-left: 1px solid #ffffff26; padding-left: 15px; }
 .msg img.shot { max-width: min(300px, 70%); border: 1px solid var(--hair); display: block; }
 .msg.me img.shot { margin-left: auto; }
+.raw { border-left: 1px solid var(--hair); padding-left: 15px; }
+.raw > summary { list-style: none; cursor: pointer; display: flex; align-items: baseline; gap: 14px;
+                 font-family: var(--font-mono); font-size: 11px; font-weight: 300; color: var(--faint); }
+.raw > summary::-webkit-details-marker { display: none; }
+.raw > summary::before { content: "▸"; font-size: 9px; color: #3f3f45; transition: transform .2s; }
+.raw[open] > summary::before { transform: rotate(90deg); }
+.raw > summary:hover { color: var(--dim); }
+.raw .now { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.raw .n { white-space: nowrap; letter-spacing: .1em; }
+.raw .trace { margin-top: 9px; }
 .trace { font-family: var(--font-mono); font-size: 11px; font-weight: 300; color: var(--faint);
          display: grid; gap: 3px; max-height: 164px; overflow-y: auto; scrollbar-width: thin;
          scrollbar-color: #ffffff1f transparent;
@@ -223,6 +259,17 @@ dialog::backdrop { background: #000d; }
     <div class="hint" id="hint" hidden>拖动旋转 · 滚轮缩放 · 右键平移</div>
     <div class="compass" id="compass" hidden>真实零件 · 已通过 BrickAgent 检查</div>
   </section>
+
+  <div class="progress" id="progress" hidden>
+    <ol class="phases">
+      <li data-cell="search">挑零件</li>
+      <li data-cell="write">写搭建代码</li>
+      <li data-cell="build">试搭</li>
+      <li data-cell="render">渲图自检</li>
+      <li data-cell="verify">检查打包</li>
+    </ol>
+    <div class="meters"><span id="pg-time">00:00</span><span id="pg-counts"></span></div>
+  </div>
 
   <dl class="stats">
     <div><dt>零件</dt><dd id="st-parts">–</dd></div>

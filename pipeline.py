@@ -127,6 +127,7 @@ class Job:
 
     def emit(self, **event: object) -> None:
         """Record one event and wake everyone watching this job."""
+        event.setdefault("at", round(time.time(), 3))         # 刷新回来也能算出跑了多久
         with self.waiters:
             self.events.append(event)
             with (self.dir / "events.jsonl").open("a", encoding="utf-8") as log:
@@ -160,7 +161,8 @@ class Job:
             self.emit(type="user", text=text, image=self._url(photo) if photo else None)
             try:
                 prompt = self._prompt(text, photo)
-                self.emit(type="stage", text="正在读你的照片，挑零件…" if photo else "正在想怎么搭…")
+                self.emit(type="stage", text="正在读你的照片，挑零件…" if photo else "正在想怎么搭…",
+                          phase="look" if photo else "search")
                 self._run_agent(prompt)
                 self._finish()
             except Exception as error:                       # noqa: BLE001 - the page shows every failure
@@ -236,12 +238,12 @@ class Job:
                 elif block.get("type") == "thinking" and block.get("thinking", "").strip():
                     self.emit(type="thinking", text=_clip(block["thinking"], 160))
                 elif block.get("type") == "tool_use":
-                    self.emit(type="tool", text=_tool(block))
+                    self.emit(type="tool", text=_tool(block), phase=_phase(block))
         elif kind == "user":
             self._new_renders()
             for block in event.get("message", {}).get("content", []) or []:
                 if isinstance(block, dict) and block.get("type") == "tool_result" and block.get("is_error"):
-                    self.emit(type="tool", text="  ↳ " + _clip(_text_of(block), 160), error=True)
+                    self.emit(type="tool", text="  ↳ " + _clip(_text_of(block), 160), error=True, phase="fix")
         elif kind == "result":
             self._new_renders()
             self.stats = {                                    # 它搭完了，但还要检查和打包，收尾那行最后一起发
@@ -276,9 +278,9 @@ class Job:
             return
         self.model_hash = digest
 
-        self.emit(type="stage", text="在检查碰撞和稳定性…")
+        self.emit(type="stage", text="在检查碰撞和稳定性…", phase="verify")
         valid = self._verify()
-        self.emit(type="stage", text="在整理零件清单…")
+        self.emit(type="stage", text="在整理零件清单…", phase="pack")
         self._export()
         self.emit(
             type="model",
@@ -352,6 +354,30 @@ def _text_of(block: dict) -> str:
     if isinstance(content, list):
         return " ".join(part.get("text", "") for part in content if isinstance(part, dict))
     return str(content)
+
+
+def _phase(block: dict) -> str | None:
+    """这一步在干什么。页面靠它把一屏命令变成一条看得懂的进度。"""
+    name = (block.get("name") or "").lower()
+    args = block.get("input") or {}
+    text = " ".join(str(v) for v in args.values()).lower()
+    if name == "read":
+        path = str(args.get("file_path", "")).lower()
+        if path.endswith(".png"):
+            return "look" if "reference" in path else "render"
+        return None
+    if name in ("write", "edit", "notebookedit"):
+        return "write" if "build" in str(args.get("file_path", "")).lower() else None
+    if name == "bash":
+        if ".png" in text or "view(" in text:
+            return "render"
+        if "build.py" in text and "python" in text:
+            return "build"                                    # 真的跑了一遍
+        if any(k in text for k in ("find(", "describe(", "connectors(", "parts(", "measure(", "catalog")):
+            return "search"
+        if "build.py" in text:
+            return "write"                                    # 写进去但还没跑
+    return None
 
 
 def _tool(block: dict) -> str:

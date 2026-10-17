@@ -81,19 +81,24 @@ function stage(text) {
   return append(el);
 }
 
-/** 工具调用等过程信息：一行一条，灰色，不喧宾夺主。 */
-let trace = null;
+/** 它敲的每一条命令都留着，但折起来：摘要上滚动最新一行，想看全的点开。 */
+let raw = null, rawCount = 0;
 function traceLine(text, isError) {
-  if (!trace || !trace.isConnected || trace !== log.lastElementChild) {
-    trace = append(Object.assign(document.createElement('div'), { className: 'trace' }));
+  if (!raw || !raw.isConnected) {                  // 一轮只开一个，中间插进来的渲染图不打断它
+    raw = append(Object.assign(document.createElement('details'), { className: 'raw' }));
+    raw.innerHTML = '<summary><span class="now"></span><span class="n"></span></summary><div class="trace"></div>';
+    rawCount = 0;
   }
   const line = document.createElement('div');
   if (isError) line.className = 'err';
   line.textContent = text;
   const stick = atBottom();
-  trace.append(line);
-  while (trace.children.length > 40) trace.firstChild.remove();
-  trace.scrollTop = trace.scrollHeight;             // 小窗里始终看最新的一行
+  const body = raw.querySelector('.trace');
+  body.append(line);
+  while (body.children.length > 200) body.firstChild.remove();
+  body.scrollTop = body.scrollHeight;
+  raw.querySelector('.now').textContent = text.replace(/^\s*↳\s*/, '');
+  raw.querySelector('.n').textContent = `${++rawCount} 行`;
   if (stick) log.scrollTop = log.scrollHeight;
 }
 
@@ -125,6 +130,9 @@ $('lightbox').addEventListener('click', () => $('lightbox').close());
 
 function working(on, note) {
   busy = on;
+  $('progress').hidden = !on;          // 还在跑的时候，数据牌那一格让给进度
+  document.querySelector('.stats').hidden = on;
+  if (!on) runClock(false);
   $('send').disabled = on;
   $('state').textContent = note || (on ? '生成中…' : '闲置');
   $('state').classList.toggle('live', on);
@@ -150,6 +158,54 @@ function doneLine(event) {
   return [`搭好了 ${what}　${cost.join(' · ')}`, true];
 }
 
+/* ---------- 等待的十分钟 ----------
+ * 它不是在卡着，是在翻零件库、写代码、撞错误、自己改。把这件事说出来。 */
+
+const CELL = { look: 'search', search: 'search', write: 'write', build: 'build',
+               fix: 'build', render: 'render', verify: 'verify', pack: 'verify' };
+let started = 0, ticker = null, builds = 0, fixes = 0;
+const seen = new Set();
+
+function phase(name) {
+  const cell = CELL[name];
+  if (!cell) return;
+  seen.add(cell);
+  for (const li of document.querySelectorAll('.phases li')) {
+    li.classList.toggle('seen', seen.has(li.dataset.cell));
+    li.classList.toggle('now', li.dataset.cell === cell);
+  }
+}
+
+function counts() {
+  const bits = [];
+  if (builds) bits.push(`第 ${builds} 次试搭`);
+  if (fixes) bits.push(`改了 ${fixes} 次`);
+  $('pg-counts').textContent = bits.join(' · ');
+}
+
+function clock() {
+  const s = Math.max(0, Math.round((Date.now() - started) / 1000));
+  $('pg-time').textContent = `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+}
+
+function runClock(on, from) {
+  clearInterval(ticker);
+  ticker = null;
+  if (!on) return;
+  started = from ? from * 1000 : Date.now();
+  clock();
+  ticker = setInterval(clock, 1000);
+}
+
+function resetProgress() {
+  raw = null;
+  seen.clear();
+  builds = fixes = 0;
+  counts();
+  for (const li of document.querySelectorAll('.phases li')) li.classList.remove('seen', 'now');
+  runClock(false);
+}
+
 /* ---------- 后端事件 ---------- */
 
 function listen(id) {
@@ -162,17 +218,23 @@ function listen(id) {
 function handle(event) {
   switch (event.type) {
     case 'user': say('me', '你', event.text, event.image); break;
-    case 'stage': stage(event.text); break;
+    case 'stage': stage(event.text); phase(event.phase); break;
     case 'assistant': say('bot', '砖语', event.text); break;
     case 'thinking': traceLine('· ' + event.text); break;
-    case 'tool': traceLine(event.text, event.error); break;
+    case 'tool':
+      traceLine(event.text, event.error);
+      if (event.phase === 'build') builds++;
+      if (event.phase === 'fix') fixes++;
+      phase(event.phase);
+      if (event.phase === 'build' || event.phase === 'fix') counts();
+      break;
     case 'renders': shots(event.urls); if (!model) peek(event.urls.at(-1)); break;
     case 'model': showModel(event); break;
     case 'result': stage(`模型搭完 · ${event.turns} 轮 · ${Math.round(event.seconds / 60)} 分钟 · $${event.cost.toFixed(2)}`); break;
     case 'done': { const [text, ok] = doneLine(event); stage(text).classList.add(ok ? 'done' : 'failed'); break; }
     case 'error': say('bot', '出错了', event.text); break;
     case 'idle': working(false); break;
-    case 'busy': working(true); break;
+    case 'busy': resetProgress(); runClock(true, event.at); working(true); break;
   }
 }
 

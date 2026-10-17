@@ -186,6 +186,7 @@ html { scroll-behavior: smooth; }
           <span class="cover-cell cell-bottom-b" aria-hidden="true"></span>
           <span class="cover-cell cell-bottom-c" aria-hidden="true"></span>
           <button class="lego-piece red" id="start-project-brick" type="button" aria-label="Starting a project，点击进入照片创作工作台"><span class="stud-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="piece-label">Starting a project</span></button>
+          <button class="lego-piece black-showcase" id="showcase-brick" type="button" aria-label="Showcase，点击查看 BrickAgent 模型展示"><span class="stud-grid" aria-hidden="true"><i></i><i></i></span><span class="piece-label">Showcase</span></button>
           <div class="lego-piece yellow-strip" aria-hidden="true"><span class="stud-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></div>
           <button class="lego-piece yellow-main" id="your-model-brick" type="button" aria-label="Your model，点击进入模型结果区域"><span class="stud-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="piece-label">Your model</span></button>
           <button class="lego-piece blue" id="history-brick" type="button" aria-label="Model history，点击查看以前做过的模型"><span class="stud-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="piece-label">Model history</span></button>
@@ -196,6 +197,20 @@ html { scroll-behavior: smooth; }
   </div>
 
 </div>
+<section class="showcase-page" id="showcase" aria-labelledby="showcase-title">
+  <div class="showcase-inner">
+    <div class="showcase-heading">
+      <span class="showcase-index">BRICKAGENT / MODEL SHOWCASE</span>
+      <h2 id="showcase-title">A world built brick by brick.</h2>
+      <p>从角色到建筑，从动物到机械。看看积木模型可以有多少种形状。</p>
+    </div>
+    <figure class="showcase-gallery">
+      <img src="./brickagent-showcase.avif" alt="BrickBench 展示的十五件不同主题积木模型，包括动物、人物、机械和场景" loading="lazy">
+      <figcaption><span>BrickAgent / BrickBench 公开作品示例。这里展示的是技术参考，不是本站根据你的照片生成的结果。</span><a href="https://gallery.brickben.ch/" target="_blank" rel="noopener noreferrer">View original gallery ↗</a></figcaption>
+    </figure>
+    <a class="showcase-next" href="#studio">Start your own project <span aria-hidden="true">↗</span></a>
+  </div>
+</section>
 <div class="wrap">
   <header>
     <div class="title">
@@ -289,6 +304,7 @@ html { scroll-behavior: smooth; }
 <script>
 const coverBricks = [
   ['start-project-brick', 'studio'],
+  ['showcase-brick', 'showcase'],
   ['your-model-brick', 'result'],
   ['history-brick', 'history'],
 ];

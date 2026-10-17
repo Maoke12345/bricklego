@@ -13,6 +13,89 @@ let busy = false;      // 后端正在跑
 let source = null;     // SSE 连接
 let model = null;      // 当前模型的 { mpd, manifest }
 
+/* ---------- 本机模型历史 ---------- */
+
+const historyKey = 'brickstudio.models.v1';
+
+function savedModels() {
+  try {
+    const entries = JSON.parse(localStorage.getItem(historyKey) || '[]');
+    return Array.isArray(entries) ? entries.filter(entry => /^[\w-]+$/.test(entry?.id || '') && Number.isFinite(Number(entry.savedAt))) : [];
+  } catch {
+    return [];
+  }
+}
+
+function renderHistory() {
+  const entries = savedModels();
+  $('history-count').textContent = `${entries.length} 件作品`;
+  $('history-empty').hidden = entries.length > 0;
+  $('history-list').hidden = entries.length === 0;
+  const list = $('history-list');
+  list.replaceChildren();
+  for (const entry of entries) {
+    const card = document.createElement('article');
+    card.className = 'history-item';
+    const title = document.createElement('h3');
+    title.textContent = entry.title || '未命名模型';
+    const meta = document.createElement('div');
+    meta.className = 'history-meta';
+    const savedAt = document.createElement('span');
+    savedAt.textContent = new Intl.DateTimeFormat('zh-CN', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}).format(new Date(entry.savedAt));
+    const parts = document.createElement('span');
+    parts.textContent = `${Number(entry.parts || 0).toLocaleString()} 块零件`;
+    const check = document.createElement('span');
+    check.textContent = entry.valid ? '已通过检查' : '未通过完整检查';
+    meta.append(savedAt, parts, check);
+    const open = document.createElement('button');
+    open.type = 'button';
+    open.textContent = '打开模型';
+    const error = document.createElement('div');
+    error.className = 'history-error';
+    error.setAttribute('aria-live', 'polite');
+    open.addEventListener('click', async () => {
+      open.disabled = true;
+      open.textContent = '正在打开…';
+      error.textContent = '';
+      try {
+        const response = await fetch(`/api/jobs/${entry.id}`);
+        if (!response.ok) throw new Error(response.status === 404 ? '原始任务已不在当前服务中。' : '当前无法读取这个任务。');
+        const url = new URL(location.href);
+        url.searchParams.set('job', entry.id);
+        url.hash = 'result';
+        location.assign(url);
+      } catch (reason) {
+        error.textContent = reason instanceof TypeError ? '暂时无法连接当前服务。' : reason.message;
+        open.disabled = false;
+        open.textContent = '打开模型';
+      }
+    });
+    card.append(title, meta, open, error);
+    list.append(card);
+  }
+}
+
+function rememberModel(event, info) {
+  if (!job) return;
+  const entries = savedModels();
+  const old = entries.find(entry => entry.id === job);
+  const entry = {
+    id: job,
+    title: event.card?.title || old?.title || '未命名模型',
+    parts: info.parts,
+    valid: !!event.valid,
+    savedAt: old?.savedAt || Date.now(),
+  };
+  try {
+    localStorage.setItem(historyKey, JSON.stringify([entry, ...entries.filter(item => item.id !== job)].slice(0, 30)));
+  } catch {
+    return;
+  }
+  renderHistory();
+}
+
+renderHistory();
+
 /* ---------- 对话记录 ---------- */
 
 const log = $('log');
@@ -190,6 +273,7 @@ async function showModel(event) {
       body.append(tr);
     }
     $('text').placeholder = '想改点什么？例如：把屋顶换成红色，再加一扇窗。';
+    rememberModel(event, info);
   } catch (error) {
     $('status').querySelector('b').textContent = '模型载入失败';
     $('status-note').textContent = error.message;

@@ -77,7 +77,7 @@ button[aria-pressed="true"] { background: var(--accent); border-color: var(--acc
 button.primary { background: #ffc61a; border-color: #ffc61a; color: #111; font-size: 14px; font-weight: 800; padding: 8px 18px; }
 button.primary:hover:not(:disabled) { background: #ffd93b; border-color: #ffc61a; }
 button.primary:focus-visible { outline-color: #ffc61a; }
-button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 @media (max-width: 640px) { .rail { grid-template-columns: 1fr; } .rail .btns { justify-content: flex-start; } }
 
 /* 对话框 */
@@ -133,11 +133,27 @@ dialog::backdrop { background: #000a; }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; scroll-behavior: auto !important; } }
 /* Approved Mondrian cover leads into the existing creation and result flow. */
 html { scroll-behavior: smooth; }
-#studio, #result { scroll-margin-top: 24px; }
+#studio, #result, #history { scroll-margin-top: 24px; }
 .section-intro { border-top: 5px solid #f7f7f3; padding-top: 18px; margin-top: 26px; }
 .section-intro > span { display:table; padding: 4px 8px; background: #f7f7f3; font: 800 11px/1.4 var(--font-mono); letter-spacing: .14em; color: #2825bd; }
+.section-intro > div > span:first-child { display:table; padding: 4px 8px; background: #f7f7f3; font: 800 11px/1.4 var(--font-mono); letter-spacing: .14em; color: #2825bd; }
 .section-intro h2 { font: 900 clamp(24px,3vw,38px)/1.2 var(--font-body); margin: 8px 0 5px; letter-spacing: -.03em; }
 .section-intro p { margin:0; color:var(--muted); }
+.history-head { display:flex; align-items:end; justify-content:space-between; gap:16px; }
+.history-count { color:#b8b5ff; font:700 13px/1.4 var(--font-mono); white-space:nowrap; }
+.history-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; }
+.history-item, .history-empty { border:1px solid var(--rule); background:var(--panel); padding:22px; }
+.history-item { border-top:5px solid #2825bd; display:grid; gap:16px; align-content:start; }
+.history-item h3 { margin:0; font:800 23px/1.25 var(--font-body); }
+.history-meta { display:flex; flex-wrap:wrap; gap:8px 18px; color:var(--muted); font-size:13px; }
+.history-item button { justify-self:start; padding:8px 18px; border-color:#413bdc; color:#fff; }
+.history-item button:hover:not(:disabled) { background:#2825bd; border-color:#413bdc; }
+.history-error { color:#ff9587; font-size:13px; min-height:1.3em; }
+.history-empty { min-height:190px; border-left:5px solid #2825bd; display:grid; align-content:center; gap:9px; }
+.history-empty strong { font-size:21px; }
+.history-empty p { margin:0; color:var(--muted); }
+.history-empty a { color:#ffd43b; text-underline-offset:4px; }
+.history-page { min-height:calc(100svh - 170px); display:grid; align-content:start; gap:16px; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 </style>
 </head>
@@ -146,7 +162,7 @@ html { scroll-behavior: smooth; }
 <div class="shell">
     <div class="topbar">
       <a class="brand" href="#top" aria-label="BRICKFORM 首页"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>BRICKFORM</span><small>PHOTO TO BRICKS</small></a>
-      <nav class="nav" aria-label="页面导航"><a href="#top">首页</a><a href="#studio">创作工作台</a><a href="#result">结果展示</a></nav>
+      <nav class="nav" aria-label="页面导航"><a href="#top">首页</a><a href="#studio">创作工作台</a><a href="#result">结果展示</a><a href="#history">模型历史</a></nav>
     </div>
     <div id="top">
       <section class="hero" aria-label="产品首页">
@@ -162,7 +178,7 @@ html { scroll-behavior: smooth; }
           <button class="lego-piece red" id="start-project-brick" type="button" aria-label="Starting a project，点击进入照片创作工作台"><span class="stud-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="piece-label">Starting a project</span></button>
           <div class="lego-piece yellow-strip" aria-hidden="true"><span class="stud-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></div>
           <button class="lego-piece yellow-main" id="your-model-brick" type="button" aria-label="Your model，点击进入模型结果区域"><span class="stud-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="piece-label">Your model</span></button>
-          <div class="lego-piece blue" aria-hidden="true"><span class="stud-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span></div>
+          <button class="lego-piece blue" id="history-brick" type="button" aria-label="Model history，点击查看以前做过的模型"><span class="stud-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="piece-label">Model history</span></button>
         </div></div>
       </section>
     </div>
@@ -250,12 +266,20 @@ html { scroll-behavior: smooth; }
       <div class="tbl"><table><thead><tr><th>零件</th><th>编号</th><th>颜色</th><th class="num">数量</th></tr></thead><tbody id="allBody"></tbody></table></div>
     </section>
   </div>
+
+  <div class="section-intro history-head" id="history"><div><span>03 / MODEL HISTORY</span><h2>以前做过的模型</h2><p>从这里重新打开你完成过的作品。</p></div><span class="history-count" id="history-count">0 件作品</span></div>
+  <section class="history-page" aria-label="模型历史">
+    <div class="history-empty" id="history-empty"><strong>这里还没有完成的模型</strong><p>完成第一件作品后，它会出现在这里。</p><a href="#studio">开始第一件作品</a></div>
+    <div class="history-list" id="history-list" hidden></div>
+    <p class="sub">历史目录保存在此浏览器；重新打开模型需要原始任务仍在当前服务中。</p>
+  </section>
 </div>
 <dialog id="lightbox"><img id="lightbox-img" alt=""></dialog>
 <script>
 const coverBricks = [
   ['start-project-brick', 'studio'],
   ['your-model-brick', 'result'],
+  ['history-brick', 'history'],
 ];
 for (const [brickId, targetId] of coverBricks) {
   const brick = document.getElementById(brickId);
@@ -263,7 +287,10 @@ for (const [brickId, targetId] of coverBricks) {
     for (const [otherId] of coverBricks) document.getElementById(otherId).classList.remove('is-pushed');
     brick.classList.add('is-pushed');
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    window.setTimeout(() => document.getElementById(targetId).scrollIntoView({behavior: reducedMotion ? 'instant' : 'smooth'}), reducedMotion ? 0 : 560);
+    window.setTimeout(() => {
+      location.hash = targetId;
+      document.getElementById(targetId).scrollIntoView({behavior: reducedMotion ? 'instant' : 'smooth'});
+    }, reducedMotion ? 0 : 700);
   });
 }
 </script>

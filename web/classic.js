@@ -139,8 +139,12 @@ export function createClassic(container, { onStep = () => {} } = {}) {
   function frame(az = 35, el = 22) {
     const size = bounds.getSize(new THREE.Vector3()), center = bounds.getCenter(new THREE.Vector3());
     if (!Number.isFinite(size.length()) || size.length() === 0) return;
-    const dist = size.length() / 2 / Math.sin(THREE.MathUtils.degToRad(camera.fov / 2)) * 0.70;
-    center.y -= size.y * 0.06;            // a tall model's top is less interesting: aim slightly low
+    // fit both ways: a tall bottle overflows vertically, a wide scene horizontally
+    const fovV = THREE.MathUtils.degToRad(camera.fov);
+    const wide = Math.hypot(size.x, size.z);        // widest face you can turn towards the camera
+    const dist = Math.max(size.y / 2 / Math.tan(fovV / 2),
+                          wide / 2 / Math.tan(Math.atan(Math.tan(fovV / 2) * camera.aspect))) * 1.25;
+    center.y -= size.y * 0.04;            // a tall model's top is less interesting: aim slightly low
     const A = THREE.MathUtils.degToRad(az), E = THREE.MathUtils.degToRad(el);
     camera.position.set(center.x + dist * Math.cos(E) * Math.sin(A), center.y + dist * Math.sin(E), center.z + dist * Math.cos(E) * Math.cos(A));
     camera.near = dist / 100; camera.far = dist * 20; camera.updateProjectionMatrix();

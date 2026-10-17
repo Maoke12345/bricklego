@@ -1,4 +1,5 @@
-/** 砖语：照片 + 一句话 -> 乐高模型。页面负责取景、对话和回放，真正的搭建在后端的 BrickAgent 容器里。 */
+/** BRICKFORM: a photo plus one line -> a LEGO model. This page frames, talks and replays;
+ *  the actual building happens in the BrickAgent container on the server. */
 import { createClassic } from './classic.js';
 
 const $ = id => document.getElementById(id);
@@ -7,14 +8,97 @@ const viewer = createClassic($('stage'), {
   onStep(k) { $('stepNo').textContent = k + 1; $('slider').value = k; },
 });
 
-let job = null;        // 当前这次对话的任务号
-let photo = null;      // 待发送的照片（data URL）
-let busy = false;      // 后端正在跑
-let source = null;     // SSE 连接
-let model = null;      // 当前模型的 { mpd, manifest }
+let job = null;        // the job this conversation belongs to
+let photo = null;      // photo waiting to be sent (data URL)
+let busy = false;      // the backend is working
+let source = null;     // SSE connection
+let model = null;      // the current model's { mpd, manifest }
 
-/* ---------- 对话记录 ---------- */
-/** agent 的回复里有 **粗体**、`行内代码` 和 - 列表，照着排一下版。先转义，再加标记。 */
+/* ---------- Model history, kept in this browser ---------- */
+
+const historyKey = 'brickstudio.models.v1';
+
+function savedModels() {
+  try {
+    const entries = JSON.parse(localStorage.getItem(historyKey) || '[]');
+    return Array.isArray(entries) ? entries.filter(entry => /^[\w-]+$/.test(entry?.id || '') && Number.isFinite(Number(entry.savedAt))) : [];
+  } catch {
+    return [];
+  }
+}
+
+function renderHistory() {
+  const entries = savedModels();
+  $('history-count').textContent = `${entries.length} model${entries.length === 1 ? '' : 's'}`;
+  $('history-empty').hidden = entries.length > 0;
+  $('history-list').hidden = entries.length === 0;
+  const list = $('history-list');
+  list.replaceChildren();
+  for (const entry of entries) {
+    const card = document.createElement('article');
+    card.className = 'history-item';
+    const title = document.createElement('h3');
+    title.textContent = entry.title || 'Untitled model';
+    const meta = document.createElement('div');
+    meta.className = 'history-meta';
+    const savedAt = document.createElement('span');
+    savedAt.textContent = new Intl.DateTimeFormat('zh-CN', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}).format(new Date(entry.savedAt));
+    const parts = document.createElement('span');
+    parts.textContent = `${Number(entry.parts || 0).toLocaleString()} parts`;
+    const check = document.createElement('span');
+    check.textContent = entry.valid ? 'passed the checks' : 'did not pass every check';
+    meta.append(savedAt, parts, check);
+    const open = document.createElement('button');
+    open.type = 'button';
+    open.textContent = 'Open model';
+    const error = document.createElement('div');
+    error.className = 'history-error';
+    error.setAttribute('aria-live', 'polite');
+    open.addEventListener('click', async () => {
+      open.disabled = true;
+      open.textContent = 'Opening…';
+      error.textContent = '';
+      try {
+        const response = await fetch(`/api/jobs/${entry.id}`);
+        if (!response.ok) throw new Error(response.status === 404 ? 'That job is no longer on this server.' : 'Cannot read that job right now.');
+        const url = new URL(location.href);
+        url.searchParams.set('job', entry.id);
+        url.hash = 'result';
+        location.assign(url);
+      } catch (reason) {
+        error.textContent = reason instanceof TypeError ? 'Cannot reach the server right now.' : reason.message;
+        open.disabled = false;
+        open.textContent = 'Open model';
+      }
+    });
+    card.append(title, meta, open, error);
+    list.append(card);
+  }
+}
+
+function rememberModel(event, info) {
+  if (!job) return;
+  const entries = savedModels();
+  const old = entries.find(entry => entry.id === job);
+  const entry = {
+    id: job,
+    title: event.card?.title || old?.title || 'Untitled model',
+    parts: info.parts,
+    valid: !!event.valid,
+    savedAt: old?.savedAt || Date.now(),
+  };
+  try {
+    localStorage.setItem(historyKey, JSON.stringify([entry, ...entries.filter(item => item.id !== job)].slice(0, 30)));
+  } catch {
+    return;
+  }
+  renderHistory();
+}
+
+renderHistory();
+
+/* ---------- Transcript ---------- */
+/** The agent writes Markdown: **bold**, `inline code`, - lists. Escape first, then mark it up. */
 function esc(text) {
   return text.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 }
@@ -29,7 +113,7 @@ function rich(text) {
     const flushPara = () => { if (para.length) out.push(`<p>${para.join('<br>')}</p>`), para = []; };
     const flushList = () => { if (list.length) out.push(`<ul>${list.map(i => `<li>${i}</li>`).join('')}</ul>`), list = []; };
     for (const line of block.split('\n')) {
-      const item = line.match(/^\s*[-*]\s+(.*)$/);     // 段落和列表可以在同一块里交替
+      const item = line.match(/^\s*[-*]\s+(.*)$/);     // a block can alternate between prose and list items
       if (item) { flushPara(); list.push(item[1]); } else { flushList(); para.push(line); }
     }
     flushPara(); flushList();
@@ -45,7 +129,7 @@ function atBottom() {
 }
 
 function append(node) {
-  log.querySelector('.empty')?.remove();        // 第一条消息一来，开场白就该让位
+  log.querySelector('.empty')?.remove();        // the opening note steps aside once the first message lands
   const stick = atBottom();
   log.append(node);
   if (stick) log.scrollTop = log.scrollHeight;
@@ -81,10 +165,10 @@ function stage(text) {
   return append(el);
 }
 
-/** 它敲的每一条命令都留着，但折起来：摘要上滚动最新一行，想看全的点开。 */
+/** Every command it runs is kept, but folded: the summary scrolls the latest line, open it for all of them. */
 let raw = null, rawCount = 0;
 function traceLine(text, isError) {
-  if (!raw || !raw.isConnected) {                  // 一轮只开一个，中间插进来的渲染图不打断它
+  if (!raw || !raw.isConnected) {                  // one per turn; renders landing in between do not split it
     raw = append(Object.assign(document.createElement('details'), { className: 'raw' }));
     raw.innerHTML = '<summary><span class="now"></span><span class="n"></span></summary><div class="trace"></div>';
     rawCount = 0;
@@ -98,7 +182,7 @@ function traceLine(text, isError) {
   while (body.children.length > 200) body.firstChild.remove();
   body.scrollTop = body.scrollHeight;
   raw.querySelector('.now').textContent = text.replace(/^\s*↳\s*/, '');
-  raw.querySelector('.n').textContent = `${++rawCount} 行`;
+  raw.querySelector('.n').textContent = `${++rawCount} lines`;
   if (stick) log.scrollTop = log.scrollHeight;
 }
 
@@ -107,19 +191,19 @@ function shots(urls) {
   for (const url of urls) {
     const img = document.createElement('img');
     img.src = url;
-    img.alt = '模型渲染';
+    img.alt = 'Model render';
     img.addEventListener('click', () => zoom(url));
     box.append(img);
   }
 }
 
-/** 还没有可交互的模型时，视口里先放 agent 刚渲出来的那张图。 */
+/** Until there is a model to turn, show the picture the agent just rendered. */
 function peek(url) {
   $('status').hidden = false;
   $('status-shot').src = url;
   $('status-shot').hidden = false;
-  $('status').querySelector('b').textContent = '正在搭…';
-  $('status-note').textContent = '这是它刚刚渲出来的样子，还在改。';
+  $('status').querySelector('b').textContent = 'Building…';
+  $('status-note').textContent = 'This is how it looks right now. It is still working.';
 }
 
 function zoom(src) {
@@ -130,36 +214,35 @@ $('lightbox').addEventListener('click', () => $('lightbox').close());
 
 function working(on, note) {
   busy = on;
-  $('progress').hidden = !on;          // 还在跑的时候，数据牌那一格让给进度
-  document.querySelector('.stats').hidden = on;
+  $('progress').hidden = !on;          // while it runs, a progress strip sits above the transcript
   if (!on) runClock(false);
   $('send').disabled = on;
-  $('state').textContent = note || (on ? '生成中…' : '闲置');
+  $('state').textContent = note || (on ? 'Working…' : 'Idle');
   $('state').classList.toggle('live', on);
   $('status-bar').hidden = !on;
   if (!model) {
     $('status').hidden = false;
-    $('status').querySelector('b').textContent = on ? '正在搭…' : '上传一张照片，告诉我你想要什么';
+    $('status').querySelector('b').textContent = on ? 'Building…' : 'Upload a photo and tell me what you want';
     $('status-note').textContent = on
-      ? '过程在下面的对话框里实时显示。'
-      : '下面的对话框里写一句话就行。生成一个模型大约十来分钟，过程会实时显示。';
+      ? 'You can watch it happen in the chat above.'
+      : 'Write one line in the studio above. A model takes about ten minutes, and you can watch it happen.';
   }
 }
 
-/** 一轮结束时的收尾：说清楚到底出了什么，页面才不像还在跑。 */
+/** How a turn ends: say plainly what came out, so the page does not look stuck. */
 function doneLine(event) {
   const cost = [];
-  if (event.turns) cost.push(`${event.turns} 轮`);
-  if (event.seconds) cost.push(`${Math.max(1, Math.round(event.seconds / 60))} 分钟`);
+  if (event.turns) cost.push(`${event.turns} turns`);
+  if (event.seconds) cost.push(`${Math.max(1, Math.round(event.seconds / 60))} min`);
   if (event.cost) cost.push(`$${event.cost.toFixed(2)}`);
-  if (event.changed === false) return ['这一轮没有改动模型 · ' + cost.join(' · '), false];
-  if (!event.total) return ['这一轮没能做出模型 · ' + cost.join(' · '), false];
-  const what = `${event.total} 个零件 · ${event.kinds} 种` + (event.valid ? ' · 无碰撞、物理稳定' : ' · 未通过完整检查');
-  return [`搭好了 ${what}　${cost.join(' · ')}`, true];
+  if (event.changed === false) return ['Nothing changed this time · ' + cost.join(' · '), false];
+  if (!event.total) return ['No model came out of this one · ' + cost.join(' · '), false];
+  const what = `${event.total} parts · ${event.kinds} kinds` + (event.valid ? ' · no collisions, physically stable' : ' · did not pass every check');
+  return [`Built ${what}\u2003${cost.join(' · ')}`, true];
 }
 
-/* ---------- 等待的十分钟 ----------
- * 它不是在卡着，是在翻零件库、写代码、撞错误、自己改。把这件事说出来。 */
+/* ---------- The ten minutes you wait ----------
+ * It is not stuck. It is searching the part library, writing code, hitting errors and fixing them. Say so. */
 
 const CELL = { look: 'search', search: 'search', write: 'write', build: 'build',
                fix: 'build', render: 'render', verify: 'verify', pack: 'verify' };
@@ -178,8 +261,8 @@ function phase(name) {
 
 function counts() {
   const bits = [];
-  if (builds) bits.push(`第 ${builds} 次试搭`);
-  if (fixes) bits.push(`改了 ${fixes} 次`);
+  if (builds) bits.push(`assembly attempt ${builds}`);
+  if (fixes) bits.push(`${fixes} fix${fixes === 1 ? '' : 'es'}`);
   $('pg-counts').textContent = bits.join(' · ');
 }
 
@@ -206,20 +289,20 @@ function resetProgress() {
   runClock(false);
 }
 
-/* ---------- 后端事件 ---------- */
+/* ---------- Events from the backend ---------- */
 
 function listen(id) {
   source?.close();
   source = new EventSource(`/api/jobs/${id}/events`);
   source.onmessage = event => handle(JSON.parse(event.data));
-  source.onerror = () => { if (busy) $('state').textContent = '连接中断，正在重连…'; };
+  source.onerror = () => { if (busy) $('state').textContent = 'Connection lost, reconnecting…'; };
 }
 
 function handle(event) {
   switch (event.type) {
-    case 'user': say('me', '你', event.text, event.image); break;
+    case 'user': say('me', 'You', event.text, event.image); break;
     case 'stage': stage(event.text); phase(event.phase); break;
-    case 'assistant': say('bot', '砖语', event.text); break;
+    case 'assistant': say('bot', 'BRICKFORM', event.text); break;
     case 'thinking': traceLine('· ' + event.text); break;
     case 'tool':
       traceLine(event.text, event.error);
@@ -230,23 +313,23 @@ function handle(event) {
       break;
     case 'renders': shots(event.urls); if (!model) peek(event.urls.at(-1)); break;
     case 'model': showModel(event); break;
-    case 'result': stage(`模型搭完 · ${event.turns} 轮 · ${Math.round(event.seconds / 60)} 分钟 · $${event.cost.toFixed(2)}`); break;
+    case 'result': stage(`Model written · ${event.turns} turns · ${Math.round(event.seconds / 60)} min · $${event.cost.toFixed(2)}`); break;
     case 'done': { const [text, ok] = doneLine(event); stage(text).classList.add(ok ? 'done' : 'failed'); break; }
-    case 'error': say('bot', '出错了', event.text); break;
+    case 'error': say('bot', 'Something broke', event.text); break;
     case 'idle': working(false); break;
     case 'busy': resetProgress(); runClock(true, event.at); working(true); break;
   }
 }
 
-/* ---------- 展示模型 ---------- */
+/* ---------- Showing the model ---------- */
 
 async function showModel(event) {
   $('status').hidden = false;
-  $('status').querySelector('b').textContent = '正在载入零件…';
+  $('status').querySelector('b').textContent = 'Loading parts…';
   $('status-note').textContent = '';
   try {
     const text = await fetch(event.mpd).then(response => {
-      if (!response.ok) throw new Error('模型文件读不到');
+      if (!response.ok) throw new Error('Could not read the model file');
       return response.text();
     });
     const info = await viewer.load(text, palette.colors);
@@ -256,12 +339,12 @@ async function showModel(event) {
     $('status').hidden = true;
     $('status-shot').hidden = true;
     $('hint').hidden = $('compass').hidden = $('rail').hidden = false;
-    $('compass').textContent = event.valid ? '真实零件 · 已通过 BrickAgent 检查' : '真实零件 · 未通过完整检查';
+    $('compass').textContent = event.valid ? 'Real parts · checked by BrickAgent' : 'Real parts · did not pass every check';
     $('st-parts').textContent = info.parts.toLocaleString();
     $('st-kinds').textContent = event.manifest.kinds;
     const size = event.manifest.size;
     $('st-size').textContent = `${size.studs[0]}×${size.studs[1]}`;
-    $('st-size').insertAdjacentHTML('beforeend', ` <span>颗粒 · 高 ${size.height_cm} cm</span>`);
+    $('st-size').insertAdjacentHTML('beforeend', ` <span>studs · ${size.height_cm} cm tall</span>`);
     $('st-steps').textContent = info.steps;
     $('stepMax').textContent = info.steps;
     $('slider').max = info.steps - 1;
@@ -274,7 +357,7 @@ async function showModel(event) {
     }
     if (event.card?.eyebrow) $('eyebrow').textContent = event.card.eyebrow;
     $('card-sub').textContent = event.card?.summary || '';
-    $('card-body').innerHTML = `<span class="badge ${event.valid ? 'ok' : ''}">${event.valid ? '无碰撞 · 物理稳定' : '仅渲染，未通过检查'}</span>`;
+    $('card-body').innerHTML = `<span class="badge ${event.valid ? 'ok' : ''}">${event.valid ? 'No collisions · physically stable' : 'Rendered only, checks not passed'}</span>`;
     if (event.reference) { $('ref-shot').src = event.reference; $('ref-shot').hidden = false; }
 
     const body = $('allBody');
@@ -290,26 +373,27 @@ async function showModel(event) {
       cells[3].textContent = row.n;
       body.append(tr);
     }
-    $('text').placeholder = '想改点什么？例如：把屋顶换成红色，再加一扇窗。';
+    $('text').placeholder = 'Change anything? For example: make the roof red and add a window.';
+    rememberModel(event, info);
   } catch (error) {
-    $('status').querySelector('b').textContent = '模型载入失败';
+    $('status').querySelector('b').textContent = 'Could not load the model';
     $('status-note').textContent = error.message;
     console.error(error);
   }
 }
 
-/* ---------- 回放控制 ---------- */
+/* ---------- Replay controls ---------- */
 
 $('slider').addEventListener('input', () => viewer.setStep(+$('slider').value));
 let timer = null;
-function stop() { clearInterval(timer); timer = null; $('play').setAttribute('aria-pressed', 'false'); $('play').textContent = '播放'; }
+function stop() { clearInterval(timer); timer = null; $('play').setAttribute('aria-pressed', 'false'); $('play').textContent = 'Play'; }
 $('prev').onclick = () => { stop(); viewer.setStep(viewer.step - 1); };
 $('next').onclick = () => { stop(); viewer.setStep(viewer.step + 1); };
 $('play').onclick = () => {
   if (timer) return stop();
   if (viewer.step >= viewer.maxStep) viewer.setStep(0);
   $('play').setAttribute('aria-pressed', 'true');
-  $('play').textContent = '暂停';
+  $('play').textContent = 'Pause';
   timer = setInterval(() => (viewer.step >= viewer.maxStep ? stop() : viewer.setStep(viewer.step + 1)), 380);
 };
 $('hl').onclick = () => {
@@ -323,7 +407,7 @@ addEventListener('keydown', event => {
   if (event.key.toLowerCase() === 'f') viewer.frame(35, 22);
 });
 
-/* ---------- 从头开始 ---------- */
+/* ---------- Starting over ---------- */
 
 function reset() {
   source?.close();
@@ -336,23 +420,23 @@ function reset() {
   $('status-shot').hidden = true;
   for (const id of ['hint', 'compass', 'rail']) $(id).hidden = true;
   for (const id of ['st-parts', 'st-kinds', 'st-size', 'st-steps']) $(id).textContent = '–';
-  $('h1').innerHTML = '砖语<small>BrickStudio</small>';
-  $('eyebrow').textContent = '拍一张照片，说一句话，变成真能搭出来的乐高';
-  $('card-sub').textContent = '还没有模型。';
+  $('h1').innerHTML = 'BRICKFORM<small>Photo to bricks</small>';
+  $('eyebrow').textContent = 'Take a photo, say one line, get a model you can really build';
+  $('card-sub').textContent = 'No model yet.';
   $('card-body').innerHTML = '';
   $('ref-shot').hidden = true;
   $('allBody').innerHTML = '';
   $('jobline').textContent = '';
   $('fresh').hidden = true;
-  $('text').placeholder = '想搭什么？例如：按这张照片搭我家的猫，姿势是趴着的，颜色偏橘。';
+  $('text').placeholder = 'What should it build? For example: my cat from this photo, lying down, mostly orange.';
   working(false);
 }
 
-$('fresh').onclick = () => { if (!busy || confirm('这一轮还在跑，确定要丢下它另开一个？')) reset(); };
+$('fresh').onclick = () => { if (!busy || confirm('This one is still running. Leave it and start another?')) reset(); };
 
-/* ---------- 照片 ---------- */
+/* ---------- Photos ---------- */
 
-/** 缩到长边 1536 像素的 JPEG：够 agent 看清，又不会把上传撑大。 */
+/** Down to a 1536px JPEG: enough for the agent to see, small enough to upload. */
 async function shrink(file) {
   const bitmap = await createImageBitmap(file);
   const scale = Math.min(1, 1536 / Math.max(bitmap.width, bitmap.height));
@@ -390,7 +474,7 @@ for (const type of ['dragleave', 'drop']) {
 }
 addEventListener('drop', event => take(event.dataTransfer?.files[0]));
 
-/* ---------- 发送 ---------- */
+/* ---------- Sending ---------- */
 
 $('text').addEventListener('keydown', event => {
   if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) $('composer').requestSubmit();
@@ -406,7 +490,7 @@ $('composer').addEventListener('submit', async event => {
   const url = job ? `/api/jobs/${job}/messages` : '/api/jobs';
   working(true);
   $('text').value = '';
-  if (!job) say('me', '你', text, photo);     // 新任务的回显由服务端事件补上，但先让界面立刻有反应
+  if (!job) say('me', 'You', text, photo);     // the server echoes this back, but show it at once so the page reacts
   photo = null;
   $('thumb').hidden = true;
   $('file').value = '';
@@ -424,38 +508,39 @@ $('composer').addEventListener('submit', async event => {
       localStorage.setItem('brickstudio.job', job);
       $('fresh').hidden = false;
       log.innerHTML = '';
-      $('jobline').textContent = `任务 ${job}`;
+      $('jobline').textContent = `Job ${job}`;
       listen(job);
     }
   } catch (error) {
-    say('bot', '出错了', '没能提交：' + error.message);
+    say('bot', 'Something broke', 'Could not submit: ' + error.message);
     working(false);
   }
 });
 
-/* ---------- 刷新后接回上一次 ----------
- * 还在跑的才自动接回去——那是你关了页面还惦记着的东西。已经做完的不该每次
- * 打开都重放一遍，页面干净地开着，只在对话框里留一个入口能回去看。 */
+/* ---------- Picking up after a refresh ----------
+ * Only a job still running comes back by itself: that is the one you closed the page on and kept
+ * thinking about. A finished one should not replay every time; the page opens clean and leaves
+ * one way back into it. */
 
 function resume(id) {
   job = id;
   localStorage.setItem('brickstudio.job', id);
-  $('jobline').textContent = `任务 ${id}`;
+  $('jobline').textContent = `Job ${id}`;
   $('fresh').hidden = false;
   listen(id);
 }
 
-/** 上次那件已经做完了：不打扰，只留一行能点回去。 */
+/** The last one is finished: do not interrupt, just leave a line that goes back to it. */
 function offerResume(id) {
   const empty = log.querySelector('.empty');
   if (!empty) return;
   const line = document.createElement('p');
   line.className = 'fine resume';
-  line.innerHTML = '上一件已经做完了 · ';
+  line.innerHTML = 'Your last model is finished · ';
   const open = document.createElement('button');
   open.type = 'button';
   open.className = 'eg';
-  open.textContent = '回去看看';
+  open.textContent = 'Open it';
   open.onclick = () => { log.innerHTML = ''; working(false); resume(id); };
   line.append(open);
   empty.append(line);

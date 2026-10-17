@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-把一个已完成的任务打包成一个独立的 HTML 文件：没有服务器、没有 LDraw 库、双击就能看。
+Pack a finished job into one self-contained HTML file: no server, no LDraw library, just open it.
 
-    python3 standalone.py jobs/1017-0038-1738 out/黑骑士守桥.html
+    python3 standalone.py jobs/1017-0038-1738 out/black-knight.html
 
-页面结构、CSS 和交互都沿用 web/index.html，区别只在于：
-  * three.js 从 jsdelivr 取（省掉 vendor/ 目录），其余模块全部内联；
-  * 模型（packed.mpd）、调色板、零件清单、照片和整段对话都以 JS 常量嵌进文件；
-  * 对话框是只读的快照——静态文件没法再生成。
+The markup, CSS and interactions come straight from web/index.html. The differences:
+  * three.js is pulled from jsdelivr (so vendor/ can be left out) and every other module is inlined;
+  * the model (packed.mpd), palette, part list, photo and whole transcript are embedded as JS constants;
+  * the composer is a read-only snapshot - a static file cannot generate anything.
 """
 import base64
 import json
@@ -26,7 +26,7 @@ CDN = (
     "}}</script>"
 )
 
-# ---------------------------------------------------------------- 模块内联
+# ---------------------------------------------------------------- Inlining the modules
 
 IMPORT = re.compile(r"^import\s+([\s\S]*?)\s*from\s*'([^']+)';?[ \t]*$", re.M)
 
@@ -51,20 +51,20 @@ def bindings(clause):
 
 
 def inline(paths):
-    """把几个本地模块拼成一段代码：本地 import 删掉，裸模块的 import 合并去重。"""
+    """Concatenate local modules: drop local imports, merge and de-duplicate bare ones."""
     want = {}                     # 'three' -> {'ns': {...}, 'default': {...}, 'named': {local: imported}}
     bodies = []
     for path in paths:
         text = path.read_text()
         for clause, spec in IMPORT.findall(text):
             if spec.startswith("."):
-                continue          # 这个文件就在下面，不用 import
+                continue          # that file is right below; no import needed
             slot = want.setdefault(spec, {"ns": {}, "default": {}, "named": {}})
             for kind, value in bindings(clause):
                 if kind == "named":
                     imported, local = value
                     if local in slot["named"] and slot["named"][local] != imported:
-                        raise SystemExit(f"{path.name}: {local} 在不同模块里指向不同东西")
+                        raise SystemExit(f"{path.name}: {local} means different things in different modules")
                     slot["named"][local] = imported
                 else:
                     slot[kind][value] = True
@@ -85,7 +85,7 @@ def inline(paths):
     return "\n".join(head) + "\n\n" + "\n".join(bodies)
 
 
-# ---------------------------------------------------------------- 任务内容
+# ---------------------------------------------------------------- What the job holds
 
 def data_uri(path):
     kind = mimetypes.guess_type(path.name)[0] or "application/octet-stream"
@@ -93,14 +93,14 @@ def data_uri(path):
 
 
 def local(job, url):
-    """事件里的 /jobs/<id>/work/x.png?v=… -> 任务目录里的文件。"""
+    """Turn /jobs/<id>/work/x.png?v=... from an event into a file in the job directory."""
     name = url.split("?")[0].split(f"/jobs/{job.name}/", 1)[-1]
     path = job / name
     return path if path.is_file() else None
 
 
 def transcript(job, events):
-    """整段对话，重放用。中途那些预览图磁盘上只剩最后一版，所以只保留最后一组渲染。"""
+    """The whole transcript, for replay. Only the last render survives on disk, so keep only that set."""
     renders = [i for i, e in enumerate(events) if e["type"] == "renders"]
     last = renders[-1] if renders else None
     out = []
@@ -111,17 +111,17 @@ def transcript(job, events):
         if kind == "renders":
             urls = [u for u in event["urls"] if "reference" not in u]
             if i != last or not urls:
-                out.append({"type": "tool", "text": "  ↳ 渲了一版，自己看了看"})
+                out.append({"type": "tool", "text": "  \u21b3 rendered a version and looked at it"})
                 continue
             shots = [data_uri(p) for p in (local(job, u) for u in urls) if p]
             if shots:
                 out.append({"type": "renders", "urls": shots})
             continue
-        if kind == "result":                              # 老任务：agent 跑完，但还没检查打包
-            out.append({"type": "stage", "text": "模型搭完 · %d 轮 · %d 分钟 · $%.2f"
+        if kind == "result":                              # older jobs: the agent finished, but checks and packing had not run
+            out.append({"type": "stage", "text": "Model written · %d turns · %d min · $%.2f"
                         % (event["turns"], round(event["seconds"] / 60), event["cost"])})
             continue
-        if kind == "done":                                # 收尾那行，字段原样带过去
+        if kind == "done":                                # the closing line; pass its fields through as they are
             out.append(dict(event))
             continue
         row = {"type": kind, "text": event.get("text", "")}
@@ -133,7 +133,7 @@ def transcript(job, events):
                 row["image"] = data_uri(shot)
         out.append(row)
 
-    # 老任务跑在加收尾行之前，这里按已有数据补一行，免得快照停在半路
+    # jobs from before the closing line existed: rebuild one from what is there, so the snapshot does not stop halfway
     if not any(r["type"] == "done" for r in out):
         model = next((e for e in reversed(events) if e["type"] == "model"), None)
         last = next((e for e in reversed(events) if e["type"] == "result"), None)
@@ -150,7 +150,7 @@ def pack(job, out):
     events = [json.loads(line) for line in (job / "events.jsonl").read_text().splitlines() if line.strip()]
     model = next((e for e in reversed(events) if e["type"] == "model"), None)
     if not model:
-        raise SystemExit(f"{job}: 还没有做出模型")
+        raise SystemExit(f"{job}: no model was built yet")
 
     reference = next((local(job, model[k]) for k in ("reference",) if model.get(k)), None)
     data = {
@@ -171,8 +171,8 @@ def pack(job, out):
     html = html.replace(
         '<script type="importmap">{"imports":{"three":"./vendor/three/build/three.module.js",'
         '"three/addons/":"./vendor/three/examples/jsm/"}}</script>', CDN)
-    title = data["__CARD"].get("title") or "砖语"
-    html = re.sub(r"<title>.*?</title>", f"<title>{title} · 砖语</title>", html, count=1)
+    title = data["__CARD"].get("title") or "BRICKFORM"
+    html = re.sub(r"<title>.*?</title>", f"<title>{title} · BRICKFORM</title>", html, count=1)
     html = html.replace('<script type="module" src="./app.js"></script>',
                         '<script type="module">\n' + code + "\n</script>")
     out.parent.mkdir(parents=True, exist_ok=True)

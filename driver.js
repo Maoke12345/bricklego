@@ -1,13 +1,14 @@
 
-/* ---------------------------------------------------------------- 快照驱动
- * 和线上版同一套界面，只是数据来自文件里的常量：没有后端，对话是只读的。 */
+/* ---------------------------------------------------------------- Snapshot driver
+ * The same interface as the live page, but the data comes from constants in this file:
+ * no backend, and the transcript is read-only. */
 
 const $ = id => document.getElementById(id);
 const esc = text => text.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const log = $('log');
 
 function append(node) {
-  log.querySelector('.empty')?.remove();        // 快照里不需要开场白，整段对话顶上去
+  log.querySelector('.empty')?.remove();        // a snapshot needs no opening note; the transcript takes its place
   log.append(node);
   return node;
 }
@@ -15,7 +16,7 @@ function append(node) {
 function zoom(src) { $('lightbox-img').src = src; $('lightbox').showModal(); }
 $('lightbox').addEventListener('click', () => $('lightbox').close());
 
-/** agent 的回复里有 **粗体** 和 - 列表，快照里顺手排一下版。 */
+/** The agent writes **bold**, `inline code` and - lists. Set them properly here too. */
 function rich(text) {
   const html = esc(text)
     .replace(/`([^`\n]+)`/g, '<code>$1</code>')
@@ -26,7 +27,7 @@ function rich(text) {
     const flushPara = () => { if (para.length) out.push(`<p>${para.join('<br>')}</p>`), para = []; };
     const flushList = () => { if (list.length) out.push(`<ul>${list.map(i => `<li>${i}</li>`).join('')}</ul>`), list = []; };
     for (const line of block.split('\n')) {
-      const item = line.match(/^\s*[-*]\s+(.*)$/);     // 段落和列表可以在同一块里交替
+      const item = line.match(/^\s*[-*]\s+(.*)$/);     // a block can alternate between prose and list items
       if (item) { flushPara(); list.push(item[1]); } else { flushList(); para.push(line); }
     }
     flushPara(); flushList();
@@ -62,53 +63,53 @@ function traceLine(text, isError) {
 function shots(urls) {
   const box = append(Object.assign(document.createElement('div'), { className: 'renders' }));
   for (const url of urls) {
-    const img = Object.assign(document.createElement('img'), { src: url, alt: '模型渲染' });
+    const img = Object.assign(document.createElement('img'), { src: url, alt: 'Model render' });
     img.addEventListener('click', () => zoom(url));
     box.append(img);
   }
 }
 
-/** 一轮结束时的收尾：说清楚到底出了什么，页面才不像还在跑。 */
+/** How a turn ends: say plainly what came out, so the page does not look stuck. */
 function doneLine(event) {
   const cost = [];
-  if (event.turns) cost.push(`${event.turns} 轮`);
-  if (event.seconds) cost.push(`${Math.max(1, Math.round(event.seconds / 60))} 分钟`);
+  if (event.turns) cost.push(`${event.turns} turns`);
+  if (event.seconds) cost.push(`${Math.max(1, Math.round(event.seconds / 60))} min`);
   if (event.cost) cost.push(`$${event.cost.toFixed(2)}`);
-  if (event.changed === false) return ['这一轮没有改动模型 · ' + cost.join(' · '), false];
-  if (!event.total) return ['这一轮没能做出模型 · ' + cost.join(' · '), false];
-  const what = `${event.total} 个零件 · ${event.kinds} 种` + (event.valid ? ' · 无碰撞、物理稳定' : ' · 未通过完整检查');
-  return [`搭好了 ${what}　${cost.join(' · ')}`, true];
+  if (event.changed === false) return ['Nothing changed this time · ' + cost.join(' · '), false];
+  if (!event.total) return ['No model came out of this one · ' + cost.join(' · '), false];
+  const what = `${event.total} parts · ${event.kinds} kinds` + (event.valid ? ' · no collisions, physically stable' : ' · did not pass every check');
+  return [`Built ${what}\u2003${cost.join(' · ')}`, true];
 }
 
 for (const event of __CHAT) {
   switch (event.type) {
-    case 'user': say('me', '你', event.text, event.image); break;
+    case 'user': say('me', 'You', event.text, event.image); break;
     case 'stage': stage(event.text); break;
-    case 'assistant': say('bot', '砖语', event.text); break;
+    case 'assistant': say('bot', 'BRICKFORM', event.text); break;
     case 'thinking': traceLine('· ' + event.text); break;
     case 'tool': traceLine(event.text, event.error); break;
     case 'renders': shots(event.urls); break;
     case 'done': { const [text, ok] = doneLine(event); stage(text); log.lastElementChild.classList.add(ok ? 'done' : 'failed'); break; }
-    case 'error': say('bot', '出错了', event.text); break;
+    case 'error': say('bot', 'Something broke', event.text); break;
   }
 }
 
-/* ---------- 对话框：只读 ---------- */
+/* ---------- The composer: read-only ---------- */
 
 $('composer').addEventListener('submit', event => event.preventDefault());
 for (const id of ['text', 'send', 'pick', 'size']) $(id).disabled = true;
-$('text').placeholder = '这是一份离线快照，对话到此为止。要接着改这个模型，得回到在线版。';
-$('state').textContent = '离线快照';
-$('jobline').textContent = `任务 ${__JOB} · 单文件，可以直接转发`;
+$('text').placeholder = 'This is an offline snapshot; the conversation ends here. To keep changing this model, go back to the live page.';
+$('state').textContent = 'Offline snapshot';
+$('jobline').textContent = `Job ${__JOB} · one file, pass it on as it is`;
 
-/* ---------- 模型 ---------- */
+/* ---------- The model ---------- */
 
 const viewer = createClassic($('stage'), {
   onStep(k) { $('stepNo').textContent = k + 1; $('slider').value = k; },
 });
 
 $('status').hidden = false;
-$('status').querySelector('b').textContent = '正在载入零件…';
+$('status').querySelector('b').textContent = 'Loading parts…';
 $('status-note').textContent = '';
 
 const info = await viewer.load(__MPD, __COLORS);
@@ -117,11 +118,11 @@ viewer.frame(35, 22);
 $('status').hidden = true;
 $('status-shot').hidden = true;
 $('hint').hidden = $('compass').hidden = $('rail').hidden = false;
-$('compass').textContent = __VALID ? '真实零件 · 已通过 BrickAgent 检查' : '真实零件 · 未通过完整检查';
+$('compass').textContent = __VALID ? 'Real parts · checked by BrickAgent' : 'Real parts · did not pass every check';
 $('st-parts').textContent = info.parts.toLocaleString();
 $('st-kinds').textContent = __PARTS.kinds;
 $('st-size').textContent = `${__PARTS.size.studs[0]}×${__PARTS.size.studs[1]}`;
-$('st-size').insertAdjacentHTML('beforeend', ` <span>颗粒 · 高 ${__PARTS.size.height_cm} cm</span>`);
+$('st-size').insertAdjacentHTML('beforeend', ` <span>studs · ${__PARTS.size.height_cm} cm tall</span>`);
 $('st-steps').textContent = info.steps;
 $('stepMax').textContent = info.steps;
 $('slider').max = info.steps - 1;
@@ -133,7 +134,7 @@ if (__CARD.title) {
 }
 if (__CARD.eyebrow) $('eyebrow').textContent = __CARD.eyebrow;
 $('card-sub').textContent = __CARD.summary || '';
-$('card-body').innerHTML = `<span class="badge ${__VALID ? 'ok' : ''}">${__VALID ? '无碰撞 · 物理稳定' : '仅渲染，未通过检查'}</span>`;
+$('card-body').innerHTML = `<span class="badge ${__VALID ? 'ok' : ''}">${__VALID ? 'No collisions · physically stable' : 'Rendered only, checks not passed'}</span>`;
 if (__REF) { $('ref-shot').src = __REF; $('ref-shot').hidden = false; }
 
 const body = $('allBody');
@@ -149,18 +150,18 @@ for (const row of __PARTS.rows) {
   body.append(tr);
 }
 
-/* ---------- 回放 ---------- */
+/* ---------- Replay ---------- */
 
 $('slider').addEventListener('input', () => viewer.setStep(+$('slider').value));
 let timer = null;
-function stop() { clearInterval(timer); timer = null; $('play').setAttribute('aria-pressed', 'false'); $('play').textContent = '播放'; }
+function stop() { clearInterval(timer); timer = null; $('play').setAttribute('aria-pressed', 'false'); $('play').textContent = 'Play'; }
 $('prev').onclick = () => { stop(); viewer.setStep(viewer.step - 1); };
 $('next').onclick = () => { stop(); viewer.setStep(viewer.step + 1); };
 $('play').onclick = () => {
   if (timer) return stop();
   if (viewer.step >= viewer.maxStep) viewer.setStep(0);
   $('play').setAttribute('aria-pressed', 'true');
-  $('play').textContent = '暂停';
+  $('play').textContent = 'Pause';
   timer = setInterval(() => (viewer.step >= viewer.maxStep ? stop() : viewer.setStep(viewer.step + 1)), 380);
 };
 $('hl').onclick = () => {
@@ -179,4 +180,4 @@ addEventListener('keydown', event => {
   if (event.key.toLowerCase() === 'f') viewer.frame(35, 22);
 });
 
-log.scrollTop = log.scrollHeight;            // 快照直接停在最后那条回复上
+log.scrollTop = log.scrollHeight;            // a snapshot opens on the last thing it said

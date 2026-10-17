@@ -3,322 +3,358 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>砖语 · 照片变乐高</title>
+<title>BRICKFORM · Photo to Bricks</title>
 <link rel="icon" href="data:,">
+<link rel="stylesheet" href="./cover.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&family=JetBrains+Mono:wght@200;300;400&family=Noto+Sans+SC:wght@200;300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500&family=Noto+Serif+SC:wght@700;900&display=swap" rel="stylesheet">
 <script type="importmap">{"imports":{"three":"./vendor/three/build/three.module.js","three/addons/":"./vendor/three/examples/jsm/"}}</script>
 <style>
-/* 展柜：页面是一只黑盒子，模型是里面唯一的颜色。规格压成一块数据牌贴在展台下沿，
-   取自 UCS 那块 8×16 的黑色铭牌。除此之外只有发丝线和留白。 */
+/* Plate layout: title block - turnable model + build replay - chat - part list */
 :root {
-  color-scheme: dark;
-  --void:  #09090b;      /* 盒子外面 */
-  --panel: #0e0e11;      /* 面板 */
-  --raise: #17171b;      /* 抬起来一层 */
-  --hair:  #ffffff14;    /* 发丝线 */
-  --hair2: #ffffff0a;
-  --text:  #f2f1ee;
-  --dim:   #8c8c92;
-  --faint: #5a5a60;
-  --gold:  #c9a86a;      /* 唯一的暖色，只在"已验证"和当前层号上出现 */
-  --font-body: Inter, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --bg: #252a2e;
+  --panel: #343a3f;
+  --ink: #eae5d9;
+  --muted: #b7c0c7;
+  --rule: #59636a;
+  --accent: #e74731;
+  --sea-top: #343f46;
+  --sea-bot: #263037;
+  --font-display: "Noto Serif SC", "Songti SC", serif;
+  --font-latin: "IM Fell English", Georgia, "Noto Serif SC", "Songti SC", serif;
+  --font-body: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
   --font-mono: "JetBrains Mono", Consolas, "Noto Sans SC", "PingFang SC", monospace;
 }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #252a2e; --panel: #343a3f; --ink: #eae5d9; --muted: #b7c0c7; --rule: #59636a;
+    --accent: #e74731; --sea-top: #343f46; --sea-bot: #263037; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #252a2e; --panel: #343a3f; --ink: #eae5d9; --muted: #b7c0c7; --rule: #59636a;
+  --accent: #e74731; --sea-top: #343f46; --sea-bot: #263037; color-scheme: dark;
+}
 * { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.6; }
 [hidden] { display: none !important; }
-body {
-  margin: 0; background: var(--void); color: var(--text);
-  font-family: var(--font-body); font-size: 15px; font-weight: 300; line-height: 1.65;
-  -webkit-font-smoothing: antialiased; letter-spacing: .005em;
-}
-.wrap { max-width: 1120px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px) 96px; }
-.lbl { font-size: 10px; font-weight: 500; letter-spacing: .24em; text-transform: uppercase; color: var(--faint); }
+.wrap { max-width: 1180px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 56px; display: grid; gap: 26px; }
 
-/* ---- 片头 ---- */
-header { padding: clamp(44px, 9vw, 92px) 0 clamp(26px, 4vw, 40px); display: grid; gap: 14px; }
-.eyebrow { font-size: 11px; font-weight: 400; letter-spacing: .24em; text-transform: uppercase; color: var(--dim); }
-h1 { margin: 0; font-size: clamp(32px, 5.6vw, 56px); font-weight: 200; letter-spacing: -.025em; line-height: 1.08; text-wrap: balance; }
-h1 small { display: block; margin-top: 14px; font-size: 11px; font-weight: 400; letter-spacing: .3em; text-transform: uppercase; color: var(--faint); }
+header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 18px 32px; border-bottom: 1px solid var(--rule); padding-bottom: 18px; }
+.title { display: grid; gap: 2px; }
+.title .eyebrow { font-family: var(--font-latin); font-style: italic; color: var(--accent); font-size: 17px; }
+h1 { margin: 0; font-family: var(--font-display); font-weight: 900; font-size: clamp(34px, 6vw, 56px); line-height: 1.05; letter-spacing: 0.04em; text-wrap: balance; }
+h1 small { font-family: var(--font-latin); font-weight: 400; font-size: 0.48em; letter-spacing: 0; color: var(--muted); margin-left: 0.3em; }
+.stats { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: 0; }
+.stats div { display: grid; }
+.stats dt { font-size: 12px; color: var(--muted); letter-spacing: 0.08em; }
+.stats dd { margin: 0; font-family: var(--font-mono); font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.stats dd span { font-size: 13px; color: var(--muted); font-weight: 400; }
 
-/* ---- 展柜 ---- */
-.vitrine {
-  position: relative; overflow: hidden; border: 1px solid var(--hair);
-  background: radial-gradient(118% 86% at 50% 36%, #25252c 0%, #141418 46%, #0a0a0c 100%);
-}
-#stage { width: 100%; height: min(62vh, 600px); min-height: 360px; touch-action: none; cursor: grab; }
-.vitrine:has(#status:not([hidden])) #stage { height: min(44vh, 400px); }
+.viewer { position: relative; border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; background: linear-gradient(180deg, var(--sea-top), var(--sea-bot)); }
+#stage { width: 100%; height: min(62vh, 580px); min-height: 360px; touch-action: none; cursor: grab; }
 #stage canvas { display: block; }
 #stage:active { cursor: grabbing; }
-.status { position: absolute; inset: 0; display: grid; place-items: center; align-content: center;
-          gap: 16px; text-align: center; color: var(--dim); font-size: 13.5px; padding: 32px; }
-.status b { font-size: 17px; font-weight: 400; color: var(--text); letter-spacing: .01em; }
-.status img { max-width: min(72%, 500px); max-height: 44vh; border: 1px solid var(--hair); }
-.status .bar { width: min(200px, 54%); height: 1px; background: var(--hair); overflow: hidden; }
-.status .bar i { display: block; height: 100%; width: 32%; background: var(--gold); animation: slide 1.9s ease-in-out infinite; }
-@keyframes slide { 0% { margin-left: -32%; } 100% { margin-left: 100%; } }
-.hint, .compass { position: absolute; bottom: 14px; font-family: var(--font-mono); font-size: 10px;
-                  font-weight: 300; letter-spacing: .1em; color: var(--faint); pointer-events: none; }
-.hint { left: 18px; } .compass { right: 18px; text-align: right; color: var(--gold); opacity: .8; }
+.status { position: absolute; inset: 0; display: grid; place-items: center; align-content: center; gap: 10px; text-align: center; color: var(--muted); font-size: 14px; padding: 24px; }
+.status b { font-family: var(--font-display); font-size: 19px; color: var(--ink); font-weight: 700; }
+.status img { max-width: min(76%, 520px); max-height: 46vh; border-radius: 6px; border: 1px solid var(--rule); }
+.status .bar { width: min(280px, 60%); height: 3px; background: var(--rule); border-radius: 2px; overflow: hidden; }
+.status .bar i { display: block; height: 100%; width: 35%; background: var(--accent); animation: slide 1.6s ease-in-out infinite; }
+@keyframes slide { 0% { margin-left: -35%; } 100% { margin-left: 100%; } }
+.hint { position: absolute; top: 12px; left: 14px; font-size: 12px; color: var(--muted); pointer-events: none; }
+.compass { position: absolute; top: 10px; right: 14px; font-family: var(--font-latin); font-style: italic; font-size: 13px; color: var(--muted); pointer-events: none; }
 
-/* ---- 数据牌 ---- */
-.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0;
-         border: 1px solid var(--hair); border-top: 0; background: var(--panel); }
-.stats div { padding: 18px 20px; display: grid; gap: 7px; border-left: 1px solid var(--hair); }
-.stats div:first-child { border-left: 0; }
-.stats dt { font-size: 10px; font-weight: 500; letter-spacing: .24em; text-transform: uppercase; color: var(--faint); }
-.stats dd { margin: 0; font-family: var(--font-mono); font-size: clamp(20px, 2.4vw, 26px); font-weight: 200;
-            line-height: 1; font-variant-numeric: tabular-nums; }
-.stats dd span { display: block; margin-top: 7px; font-family: var(--font-body); font-size: 11px;
-                 font-weight: 300; letter-spacing: .04em; color: var(--dim); }
-@media (max-width: 640px) {
-  .stats { grid-template-columns: 1fr 1fr; }
-  .stats div:nth-child(3) { border-left: 0; }
-  .stats div:nth-child(n+3) { border-top: 1px solid var(--hair); }
-}
+.rail { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px 16px; padding: 12px 16px; border-top: 1px solid var(--rule); background: var(--panel); }
+.rail .step { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rail .step b { font-size: 22px; color: var(--accent); }
+.rail .btns { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+input[type=range] { width: 100%; accent-color: var(--accent); }
+button { font: inherit; font-size: 13px; color: var(--ink); background: transparent; border: 1px solid var(--rule); border-radius: 4px; padding: 5px 11px; cursor: pointer; }
+button:hover:not(:disabled) { border-color: var(--accent); }
+button:disabled { opacity: .45; cursor: default; }
+button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--ink); }
+button.primary { background: #ffc61a; border-color: #ffc61a; color: #111; font-size: 14px; font-weight: 800; padding: 8px 18px; }
+button.primary:hover:not(:disabled) { background: #ffd93b; border-color: #ffc61a; }
+button.primary:focus-visible { outline-color: #ffc61a; }
+button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 640px) { .rail { grid-template-columns: 1fr; } .rail .btns { justify-content: flex-start; } }
 
-/* ---- 等待的十分钟 ---- */
-.progress { border: 1px solid var(--hair); border-top: 0; background: var(--panel);
-            display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px 24px;
-            padding: 16px 20px; }
-.phases { list-style: none; display: flex; flex-wrap: wrap; align-items: center; gap: 0; margin: 0; padding: 0; }
-.phases li { font-size: 10.5px; font-weight: 400; letter-spacing: .18em; text-transform: uppercase;
-             color: #44444a; padding: 0 16px 0 0; margin-right: 16px; position: relative;
-             transition: color .4s ease; white-space: nowrap; }
-.phases li::after { content: ""; position: absolute; right: 0; top: 50%; width: 8px; height: 1px;
-                    background: #2c2c32; }
+/* Chat */
+.chat { border: 1px solid var(--rule); border-radius: 6px; background: var(--panel); display: grid; }
+.chat-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--rule); }
+.chat-head h2 { margin: 0; }
+.chat-head .state { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.chat-head .state.live b { color: var(--accent); }
+#log { max-height: 46vh; min-height: 120px; overflow-y: auto; padding: 16px; display: grid; gap: 12px; align-content: start; scroll-behavior: smooth; }
+.msg { display: grid; gap: 6px; max-width: 760px; }
+.msg .who { font-size: 11px; letter-spacing: .1em; color: var(--muted); text-transform: uppercase; }
+.msg .body { white-space: pre-wrap; overflow-wrap: anywhere; }
+.msg.me { justify-self: end; text-align: right; }
+.msg.me .body { background: var(--accent); color: var(--ink); border-radius: 10px 10px 2px 10px; padding: 8px 12px; text-align: left; }
+.msg.bot .body { background: var(--bg); border: 1px solid var(--rule); border-radius: 10px 10px 10px 2px; padding: 8px 12px; }
+.msg img.shot { max-width: min(320px, 70%); border-radius: 6px; border: 1px solid var(--rule); display: block; }
+.msg.me img.shot { margin-left: auto; }
+.trace { font-family: var(--font-mono); font-size: 12px; color: var(--muted); display: grid; gap: 2px; }
+.trace div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.trace .err { color: var(--accent); }
+.stage-line { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+.stage-line::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex: none; }
+.renders { display: flex; gap: 8px; flex-wrap: wrap; }
+.renders img { width: 160px; border-radius: 4px; border: 1px solid var(--rule); background: #000; cursor: zoom-in; }
+
+.composer { border-top: 1px solid var(--rule); padding: 12px 16px; display: grid; gap: 10px; }
+.composer .row { display: flex; gap: 10px; align-items: flex-end; }
+textarea { flex: 1; font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--rule); border-radius: 6px; padding: 9px 12px; resize: vertical; min-height: 46px; max-height: 180px; }
+.composer .opts { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; font-size: 13px; color: var(--muted); }
+.composer select { font: inherit; font-size: 13px; color: var(--ink); background: var(--bg); border: 1px solid var(--rule); border-radius: 4px; padding: 4px 8px; }
+.thumb { position: relative; }
+.thumb img { height: 58px; width: 58px; object-fit: cover; border-radius: 6px; border: 1px solid var(--rule); display: block; }
+.thumb button { position: absolute; top: -8px; right: -8px; border-radius: 50%; width: 22px; height: 22px; padding: 0; line-height: 1; background: var(--panel); }
+.drop { outline: 2px dashed var(--accent); outline-offset: -6px; }
+
+.cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 28px; align-items: start; }
+@media (max-width: 860px) { .cols { grid-template-columns: minmax(0, 1fr); } }
+h2 { font-family: var(--font-display); font-weight: 900; font-size: 21px; margin: 0 0 4px; letter-spacing: 0.04em; }
+.sub { color: var(--muted); font-size: 13px; margin: 0 0 12px; }
+.tbl { overflow-x: auto; max-height: 520px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { position: sticky; top: 0; background: var(--bg); text-align: left; font-weight: 500; font-size: 12px; color: var(--muted); letter-spacing: 0.06em; border-bottom: 1px solid var(--rule); padding: 6px 8px; }
+td { border-bottom: 1px solid var(--rule); padding: 6px 8px; vertical-align: middle; }
+td.num, th.num { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+td.id { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+.sw { display: inline-block; width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(0,0,0,.25); vertical-align: -2px; margin-right: 8px; }
+.ref-shot { max-width: 100%; border-radius: 6px; border: 1px solid var(--rule); margin-top: 10px; }
+.badge { display: inline-block; font-size: 12px; font-family: var(--font-mono); border: 1px solid var(--rule); border-radius: 999px; padding: 2px 10px; color: var(--muted); }
+.badge.ok { color: var(--accent); border-color: var(--accent); }
+dialog { border: 1px solid var(--rule); background: var(--panel); color: var(--ink); border-radius: 8px; padding: 0; max-width: 92vw; }
+dialog img { display: block; max-width: 92vw; max-height: 86vh; }
+dialog::backdrop { background: #000a; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; scroll-behavior: auto !important; } }
+/* Approved Mondrian cover leads into the existing creation and result flow. */
+html { scroll-behavior: smooth; }
+#studio, #result, #history { scroll-margin-top: 24px; }
+.section-intro { border-top: 3px solid #eae5d9; padding-top: 18px; margin-top: 26px; }
+.section-intro > span { display:table; padding: 4px 8px; background: #eae5d9; font: 800 11px/1.4 var(--font-mono); letter-spacing: .14em; color: #2825bd; }
+.section-intro > div > span:first-child { display:table; padding: 4px 8px; background: #eae5d9; font: 800 11px/1.4 var(--font-mono); letter-spacing: .14em; color: #2825bd; }
+.section-intro h2 { font: 900 clamp(24px,3vw,38px)/1.2 var(--font-body); margin: 8px 0 5px; letter-spacing: -.03em; }
+.section-intro p { margin:0; color:var(--muted); }
+.history-head { display:flex; align-items:end; justify-content:space-between; gap:16px; }
+.history-count { color:#b8b5ff; font:700 13px/1.4 var(--font-mono); white-space:nowrap; }
+.history-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; }
+.history-item, .history-empty { border:1px solid var(--rule); background:var(--panel); padding:22px; }
+.history-item { border-top:5px solid #2825bd; display:grid; gap:16px; align-content:start; }
+.history-item h3 { margin:0; font:800 23px/1.25 var(--font-body); }
+.history-meta { display:flex; flex-wrap:wrap; gap:8px 18px; color:var(--muted); font-size:13px; }
+.history-item button { justify-self:start; padding:8px 18px; border-color:#413bdc; color:var(--ink); }
+.history-item button:hover:not(:disabled) { background:#2825bd; border-color:#413bdc; }
+.history-error { color:#ff9587; font-size:13px; min-height:1.3em; }
+.history-empty { min-height:190px; border-left:5px solid #2825bd; display:grid; align-content:center; gap:9px; }
+.history-empty strong { font-size:21px; }
+.history-empty p { margin:0; color:var(--muted); }
+.history-empty a { color:#ffd43b; text-underline-offset:4px; }
+.history-page { min-height:calc(100svh - 170px); display:grid; align-content:start; gap:16px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* ---- The ten minutes you wait ---- */
+.progress { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+            gap: 12px 24px; padding: 12px 16px; border-bottom: 1px solid var(--rule); }
+.phases { list-style: none; display: flex; flex-wrap: wrap; align-items: center; margin: 0; padding: 0; }
+.phases li { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase;
+             color: var(--rule); padding-right: 14px; margin-right: 14px; position: relative;
+             white-space: nowrap; transition: color .4s ease; }
+.phases li::after { content: ""; position: absolute; right: 0; top: 50%; width: 7px; height: 1px; background: var(--rule); }
 .phases li:last-child { padding-right: 0; margin-right: 0; }
 .phases li:last-child::after { display: none; }
-.phases li.seen { color: var(--dim); }
-.phases li.now { color: var(--gold); }
-.phases li.now::before { content: ""; position: absolute; left: -11px; top: 50%; width: 4px; height: 4px;
-                         margin-top: -2px; background: var(--gold); animation: pulse 1.4s ease-in-out infinite; }
+.phases li.seen { color: var(--muted); }
+.phases li.now { color: var(--accent); }
+.phases li.now::before { content: ""; position: absolute; left: -10px; top: 50%; width: 4px; height: 4px;
+                         margin-top: -2px; background: var(--accent); animation: pulse 1.4s ease-in-out infinite; }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .25; } }
-.meters { display: flex; align-items: baseline; gap: 18px; font-family: var(--font-mono);
-          font-size: 11px; font-weight: 300; letter-spacing: .1em; color: var(--faint); margin-left: auto; }
-#pg-time { font-size: 17px; font-weight: 200; color: var(--text); letter-spacing: .04em;
-           font-variant-numeric: tabular-nums; }
-@media (max-width: 720px) { .phases li { font-size: 9.5px; padding-right: 10px; margin-right: 10px; } }
+.meters { display: flex; align-items: baseline; gap: 16px; margin-left: auto;
+          font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+#pg-time { font-size: 17px; color: var(--ink); font-variant-numeric: tabular-nums; }
 
-/* 它自己渲出来的那张图：当成证据大图放，不是缩略图 */
-.status .shot-note { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--faint); }
+/* ---- Empty chat ---- */
+.empty { color: var(--muted); font-size: 13.5px; display: grid; gap: 12px; }
+.empty p { margin: 0; }
+.empty .fine { font-size: 12.5px; opacity: .8; }
+.empty .egs { display: flex; flex-wrap: wrap; gap: 8px; }
+.empty .resume { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 
-/* ---- 回放 ---- */
-.rail { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 14px 24px;
-        padding: 16px 20px; border: 1px solid var(--hair); border-top: 0; background: var(--panel); }
-.rail .step { font-family: var(--font-mono); font-size: 11px; font-weight: 300; letter-spacing: .1em;
-              text-transform: uppercase; color: var(--faint); white-space: nowrap; }
-.rail .step b { font-size: 20px; font-weight: 300; color: var(--gold); letter-spacing: 0; }
-.rail .btns { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
-input[type=range] { width: 100%; accent-color: var(--gold); height: 18px; }
-@media (max-width: 680px) { .rail { grid-template-columns: 1fr; } .rail .btns { justify-content: flex-start; } }
+/* ---- The commands it runs: folded away ---- */
+.raw { border-left: 1px solid var(--rule); padding-left: 12px; }
+.raw > summary { list-style: none; cursor: pointer; display: flex; align-items: baseline; gap: 12px;
+                 font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+.raw > summary::-webkit-details-marker { display: none; }
+.raw > summary::before { content: "\25B8"; font-size: 9px; color: var(--rule); transition: transform .2s; }
+.raw[open] > summary::before { transform: rotate(90deg); }
+.raw > summary:hover { color: var(--ink); }
+.raw .now { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.raw .n { white-space: nowrap; letter-spacing: .08em; }
+.raw .trace { margin-top: 8px; max-height: 164px; overflow-y: auto; scrollbar-width: thin; }
 
-/* ---- 控件 ---- */
-button {
-  font: inherit; font-size: 11px; font-weight: 400; letter-spacing: .14em; text-transform: uppercase;
-  color: var(--dim); background: transparent; border: 1px solid var(--hair); border-radius: 0;
-  padding: 8px 15px; cursor: pointer; transition: color .18s, border-color .18s, background .18s;
-}
-button:hover:not(:disabled) { color: var(--text); border-color: #ffffff38; }
-button:disabled { opacity: .3; cursor: default; }
-button[aria-pressed="true"] { color: var(--gold); border-color: #c9a86a66; }
-button.primary { background: var(--text); border-color: var(--text); color: #0a0a0c; font-weight: 500; padding: 12px 28px; }
-button.primary:hover:not(:disabled) { background: #fff; border-color: #fff; color: #0a0a0c; }
-button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
-  outline: 1px solid var(--gold); outline-offset: 3px;
-}
+/* ---- How each turn ends ---- */
+.stage-line.done, .stage-line.failed { font-size: 14px; color: var(--ink); font-weight: 600; margin: 6px 0 2px; }
+.stage-line.done::before { content: "\2713"; width: auto; height: auto; border-radius: 0; background: none;
+                           color: var(--accent); font-size: 14px; }
+.stage-line.failed::before { content: "\00D7"; width: auto; height: auto; border-radius: 0; background: none;
+                             color: var(--accent); font-size: 16px; }
 
-/* ---- 对话 ---- */
-.chat { margin-top: clamp(32px, 6vw, 56px); border: 1px solid var(--hair); background: var(--panel); display: grid; }
-.chat-head { display: flex; justify-content: space-between; align-items: center; gap: 12px;
-             padding: 16px 20px; border-bottom: 1px solid var(--hair); }
-.chat-head h2 { margin: 0; }
-.state { font-family: var(--font-mono); font-size: 10px; font-weight: 300; letter-spacing: .18em;
-         text-transform: uppercase; color: var(--faint); }
-.state.live { color: var(--gold); }
-#log { max-height: 48vh; min-height: 150px; overflow-y: auto; padding: 22px 20px; display: grid; gap: 18px;
-       align-content: start; scroll-behavior: smooth; }
-.msg { display: grid; gap: 7px; max-width: 720px; }
-.msg .who { font-size: 9.5px; font-weight: 500; letter-spacing: .24em; color: var(--faint); text-transform: uppercase; }
-.msg .body { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14px; }
+/* ---- Set the agent's replies properly ---- */
 .msg .body.rich { white-space: normal; }
 .msg .body.rich > :first-child { margin-top: 0; }
 .msg .body.rich > :last-child { margin-bottom: 0; }
-.msg .body.rich p { margin: 0 0 .7em; }
-.msg .body.rich ul { margin: 0 0 .7em; padding-left: 1.1em; }
-.msg .body.rich li { margin: .25em 0; }
-.msg .body.rich strong { font-weight: 500; color: #fff; }
-.msg .body.rich code { font-family: var(--font-mono); font-size: .85em; color: var(--gold);
-                       background: #ffffff0a; border: 1px solid var(--hair); padding: .1em .4em; }
-.msg.me { justify-self: end; }
-.msg.me .who { text-align: right; }
-.msg.me .body { background: var(--raise); border: 1px solid var(--hair); padding: 11px 15px; }
-.msg.bot .body { border-left: 1px solid #ffffff26; padding-left: 15px; }
-.msg img.shot { max-width: min(300px, 70%); border: 1px solid var(--hair); display: block; }
-.msg.me img.shot { margin-left: auto; }
-.raw { border-left: 1px solid var(--hair); padding-left: 15px; }
-.raw > summary { list-style: none; cursor: pointer; display: flex; align-items: baseline; gap: 14px;
-                 font-family: var(--font-mono); font-size: 11px; font-weight: 300; color: var(--faint); }
-.raw > summary::-webkit-details-marker { display: none; }
-.raw > summary::before { content: "▸"; font-size: 9px; color: #3f3f45; transition: transform .2s; }
-.raw[open] > summary::before { transform: rotate(90deg); }
-.raw > summary:hover { color: var(--dim); }
-.raw .now { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.raw .n { white-space: nowrap; letter-spacing: .1em; }
-.raw .trace { margin-top: 9px; }
-.trace { font-family: var(--font-mono); font-size: 11px; font-weight: 300; color: var(--faint);
-         display: grid; gap: 3px; max-height: 164px; overflow-y: auto; scrollbar-width: thin;
-         scrollbar-color: #ffffff1f transparent;
-         -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 22px);
-         mask-image: linear-gradient(180deg, transparent 0, #000 22px); }
-.trace div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.trace .err { color: #b4705a; }
-.stage-line { font-size: 12px; font-weight: 300; letter-spacing: .04em; color: var(--dim);
-              display: flex; align-items: baseline; gap: 11px; }
-.stage-line::before { content: ""; width: 14px; height: 1px; background: var(--faint); flex: none; transform: translateY(-4px); }
-.stage-line.done, .stage-line.failed { font-size: 13px; color: var(--text); margin: 8px 0 2px; letter-spacing: .02em; }
-.stage-line.done::before { width: 20px; background: var(--gold); }
-.stage-line.failed::before { width: 20px; background: #b4705a; }
-.renders { display: flex; gap: 8px; flex-wrap: wrap; }
-.renders img { width: 156px; border: 1px solid var(--hair); background: #000; cursor: zoom-in; display: block; }
-
-/* ---- 空对话框 ---- */
-.empty { color: var(--dim); font-size: 13px; display: grid; gap: 14px; }
-.empty p { margin: 0; }
-.empty .fine { font-size: 12px; color: var(--faint); }
-.empty .egs { display: flex; flex-wrap: wrap; gap: 8px; }
-.empty .eg { text-transform: none; letter-spacing: .02em; font-size: 12.5px; padding: 7px 14px; }
-.empty .resume { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 2px; }
-.empty .resume .eg { padding: 5px 12px; font-size: 12px; }
-
-/* ---- 输入 ---- */
-.composer { border-top: 1px solid var(--hair); padding: 18px 20px; display: grid; gap: 14px; }
-.composer .row { display: flex; gap: 10px; align-items: flex-end; }
-textarea { flex: 1; font: inherit; font-size: 14px; color: var(--text); background: var(--void);
-           border: 1px solid var(--hair); border-radius: 0; padding: 12px 14px; resize: vertical;
-           min-height: 50px; max-height: 180px; }
-textarea::placeholder { color: var(--faint); }
-.composer .opts { display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center;
-                  font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
-.composer select { font: inherit; font-size: 11px; letter-spacing: .06em; color: var(--dim);
-                   background: var(--void); border: 1px solid var(--hair); border-radius: 0; padding: 6px 10px;
-                   text-transform: none; }
-#jobline { font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em; }
-.thumb { position: relative; }
-.thumb img { height: 50px; width: 50px; object-fit: cover; border: 1px solid var(--hair); display: block; }
-.thumb button { position: absolute; top: -9px; right: -9px; width: 22px; height: 22px; padding: 0;
-                line-height: 1; background: var(--raise); color: var(--dim); letter-spacing: 0; }
-.drop { outline: 1px solid var(--gold); outline-offset: -8px; }
-
-/* ---- 底部 ---- */
-.cols { margin-top: clamp(32px, 6vw, 56px); display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: clamp(28px, 5vw, 56px); align-items: start; }
-@media (max-width: 860px) { .cols { grid-template-columns: minmax(0, 1fr); } }
-h2 { font-size: 11px; font-weight: 500; letter-spacing: .24em; text-transform: uppercase;
-     color: var(--faint); margin: 0 0 14px; }
-.sub { color: var(--dim); font-size: 13.5px; margin: 0 0 16px; }
-.badge { display: inline-block; font-family: var(--font-mono); font-size: 10px; font-weight: 300;
-         letter-spacing: .16em; text-transform: uppercase; border: 1px solid var(--hair);
-         padding: 5px 12px; color: var(--faint); }
-.badge.ok { color: var(--gold); border-color: #c9a86a4d; }
-.ref-shot { max-width: 100%; border: 1px solid var(--hair); margin-top: 18px; display: block; }
-.tbl { overflow-x: auto; max-height: 520px; }
-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-th { position: sticky; top: 0; background: var(--void); text-align: left; font-weight: 500; font-size: 9.5px;
-     color: var(--faint); letter-spacing: .22em; text-transform: uppercase; border-bottom: 1px solid var(--hair); padding: 9px 8px; }
-td { border-bottom: 1px solid var(--hair2); padding: 9px 8px; vertical-align: middle; color: var(--dim); }
-td:first-child { color: var(--text); }
-td.num, th.num { text-align: right; font-family: var(--font-mono); font-weight: 300; font-variant-numeric: tabular-nums; white-space: nowrap; }
-th { white-space: nowrap; }
-td:nth-child(3) { white-space: nowrap; }
-td.id { font-family: var(--font-mono); font-size: 12px; font-weight: 300; color: var(--faint); }
-.sw { display: inline-block; width: 11px; height: 11px; border: 1px solid #ffffff2b; vertical-align: -1px; margin-right: 9px; }
-
-dialog { border: 1px solid var(--hair); background: var(--panel); color: var(--text); border-radius: 0; padding: 0; max-width: 92vw; }
-dialog img { display: block; max-width: 92vw; max-height: 86vh; }
-dialog::backdrop { background: #000d; }
-@media (prefers-reduced-motion: reduce) { * { animation: none !important; scroll-behavior: auto !important; transition: none !important; } }
+.msg .body.rich p { margin: 0 0 .6em; }
+.msg .body.rich ul { margin: 0 0 .6em; padding-left: 1.1em; }
+.msg .body.rich li { margin: .2em 0; }
+.msg .body.rich code { font-family: var(--font-mono); font-size: .86em; background: #0003;
+                       border: 1px solid var(--rule); padding: .05em .35em; }
 </style>
 </head>
 <body>
+<div id="cover">
+<div class="shell">
+    <div class="topbar">
+      <a class="brand" href="#top" aria-label="BRICKFORM home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>BRICKFORM</span><small>PHOTO TO BRICKS</small></a>
+      <nav class="nav" aria-label="Page navigation"><a href="#top">Home</a><a href="#studio">Studio</a><a href="#result">Result</a><a href="#history">History</a></nav>
+    </div>
+    <div id="top">
+      <section class="hero" aria-label="Cover">
+        <div class="cover-frame"><div class="cover-board">
+          <span class="cover-outside outside-top-left" aria-hidden="true"></span>
+          <span class="cover-outside outside-left-upper" aria-hidden="true"></span>
+          <span class="cover-outside outside-left-lower" aria-hidden="true"></span>
+          <span class="cover-outside outside-left-yellow" aria-hidden="true"></span>
+          <span class="cover-outside outside-right-white" aria-hidden="true"></span>
+          <span class="cover-outside outside-right-red" aria-hidden="true"></span>
+          <span class="cover-outside outside-top-divider" aria-hidden="true"></span>
+          <span class="cover-outside outside-left-divider" aria-hidden="true"></span>
+          <span class="cover-outside outside-right-divider" aria-hidden="true"></span>
+          <div class="cover-core">
+          <span class="cover-cell cell-top" aria-hidden="true"></span>
+          <span class="cover-cell cell-right-a" aria-hidden="true"></span>
+          <span class="cover-cell cell-right-b" aria-hidden="true"></span>
+          <span class="cover-cell cell-mid-a" aria-hidden="true"></span>
+          <span class="cover-cell cell-mid-b" aria-hidden="true"></span>
+          <span class="cover-cell cell-bottom-a" aria-hidden="true"></span>
+          <span class="cover-cell cell-bottom-b" aria-hidden="true"></span>
+          <span class="cover-cell cell-bottom-c" aria-hidden="true"></span>
+          <button class="lego-piece red" id="start-project-brick" type="button" aria-label="Starting a project - go to the studio"><span class="stud-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="piece-label">Starting a project</span></button>
+          <button class="lego-piece black-showcase" id="showcase-brick" type="button" aria-label="Showcase - see BrickAgent models"><span class="stud-grid" aria-hidden="true"><i></i><i></i></span><span class="piece-label">Showcase</span></button>
+          <div class="lego-piece yellow-strip" aria-hidden="true"><span class="stud-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></div>
+          <button class="lego-piece yellow-main" id="your-model-brick" type="button" aria-label="Your model - go to the result"><span class="stud-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="piece-label">Your model</span></button>
+          <button class="lego-piece blue" id="history-brick" type="button" aria-label="Model history - see what you have built"><span class="stud-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="piece-label">Model history</span></button>
+          </div>
+        </div></div>
+      </section>
+    </div>
+  </div>
+
+</div>
+<section class="showcase-page" id="showcase" aria-labelledby="showcase-title">
+  <div class="showcase-inner">
+    <div class="showcase-heading">
+      <span class="showcase-index">NINE BRICK STUDIES</span>
+      <h2 id="showcase-title">Small forms.<br>Big ideas.</h2>
+      <p>Nine selected builds, from simple characters to complex architecture. Bricks fall into place and a small world appears.</p>
+    </div>
+    <div class="showcase-grid" aria-label="Nine brick studies">
+      <article class="showcase-card showcase-feature" style="--delay:0ms">
+        <div class="showcase-art architecture-art" role="img" aria-label="A domed building in cream and pale grey bricks, with four slender minarets"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
+        <div class="showcase-card-copy"><span>Architecture · complex build</span><h3>Hagia Sophia</h3></div>
+      </article>
+      <article class="showcase-card" style="--tile-x:20%;--tile-y:100%;--delay:70ms">
+        <div class="showcase-art mosaic-art" role="img" aria-label="A rounded rabbit in white and grey bricks"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
+        <div class="showcase-card-copy"><span>Character · simple form</span><h3>Soft rabbit</h3></div>
+      </article>
+      <article class="showcase-card" style="--tile-x:100%;--tile-y:100%;--delay:120ms">
+        <div class="showcase-art mosaic-art" role="img" aria-label="A small armoured figure in grey bricks"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
+        <div class="showcase-card-copy"><span>Character · simple form</span><h3>Little guardian</h3></div>
+      </article>
+      <article class="showcase-card" style="--tile-x:60%;--tile-y:0%;--delay:170ms">
+        <div class="showcase-art mosaic-art" role="img" aria-label="A white bird riding a bicycle with dark wheels"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
+        <div class="showcase-card-copy"><span>Object · fine detail</span><h3>Bird on wheels</h3></div>
+      </article>
+      <article class="showcase-card" style="--tile-x:60%;--tile-y:50%;--delay:220ms">
+        <div class="showcase-art mosaic-art" role="img" aria-label="An explorer scene on a dark rocky base"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
+        <div class="showcase-card-copy"><span>Scene · detailed build</span><h3>Rocky outpost</h3></div>
+      </article>
+      <article class="showcase-card" style="--tile-x:0%;--tile-y:100%;--delay:270ms">
+        <div class="showcase-art mosaic-art" role="img" aria-label="A brick figure with a grey body and brown hair"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
+        <div class="showcase-card-copy"><span>Character · geometric</span><h3>Block figure</h3></div>
+      </article>
+      <article class="showcase-card" style="--tile-x:80%;--tile-y:0%;--delay:320ms">
+        <div class="showcase-art mosaic-art" role="img" aria-label="A mint-green brick portrait on a brown base"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
+        <div class="showcase-card-copy"><span>Sculpture · quiet colour</span><h3>Mint portrait</h3></div>
+      </article>
+      <article class="showcase-card" style="--tile-x:20%;--tile-y:50%;--delay:370ms">
+        <div class="showcase-art mosaic-art" role="img" aria-label="A small animal scene inside a translucent blue case"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
+        <div class="showcase-card-copy"><span>Scene · layered build</span><h3>Glass habitat</h3></div>
+      </article>
+      <article class="showcase-card" style="--tile-x:100%;--tile-y:0%;--delay:420ms">
+        <div class="showcase-art mosaic-art" role="img" aria-label="A small brown dinosaur among brick foliage"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
+        <div class="showcase-card-copy"><span>Nature · scene build</span><h3>Small wilderness</h3></div>
+      </article>
+    </div>
+    <div class="showcase-credit"><p>Reference builds shown as-is, not models this site generated from a photo. Eight come from <a href="https://gallery.brickben.ch/" target="_blank" rel="noopener noreferrer">BrickAgent / BrickBench</a>; the architectural model &ldquo;Ayasofya custom model&rdquo; is by <a href="https://github.com/saidsurucu/lego-hagia-sophia" target="_blank" rel="noopener noreferrer">Said Sürücü</a>, converted to WebP and shown under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>.</p></div>
+    <a class="showcase-next" href="#studio">Start your own project <span aria-hidden="true">↗</span></a>
+  </div>
+</section>
 <div class="wrap">
   <header>
-    <span class="eyebrow" id="eyebrow">拍一张照片，说一句话，变成真能搭出来的乐高</span>
-    <h1 id="h1">砖语<small>BrickStudio</small></h1>
+    <div class="title">
+      <span class="eyebrow" id="eyebrow">Take a photo, say one line, get a model you can really build</span>
+      <h1 id="h1">BRICKFORM<small>Photo to bricks</small></h1>
+    </div>
+    <dl class="stats">
+      <div><dt>Parts</dt><dd id="st-parts">–</dd></div>
+      <div><dt>Kinds</dt><dd id="st-kinds">–</dd></div>
+      <div><dt>Size</dt><dd id="st-size">–</dd></div>
+      <div><dt>Layers</dt><dd id="st-steps">–</dd></div>
+    </dl>
   </header>
 
-  <section class="vitrine" aria-label="3D 模型">
-    <div id="stage"></div>
-    <div class="status" id="status">
-      <b>上传一张照片，告诉我你想要什么</b>
-      <span id="status-note">下面写一句话就行。生成一个模型大约十来分钟，过程会实时显示。</span>
-      <img id="status-shot" alt="最新的渲染" hidden>
-      <span class="bar" id="status-bar" hidden><i></i></span>
-    </div>
-    <div class="hint" id="hint" hidden>拖动旋转 · 滚轮缩放 · 右键平移</div>
-    <div class="compass" id="compass" hidden>真实零件 · 已通过 BrickAgent 检查</div>
-  </section>
-
-  <div class="progress" id="progress" hidden>
-    <ol class="phases">
-      <li data-cell="search">挑零件</li>
-      <li data-cell="write">写搭建代码</li>
-      <li data-cell="build">试搭</li>
-      <li data-cell="render">渲图自检</li>
-      <li data-cell="verify">检查打包</li>
-    </ol>
-    <div class="meters"><span id="pg-time">00:00</span><span id="pg-counts"></span></div>
-  </div>
-
-  <dl class="stats">
-    <div><dt>零件</dt><dd id="st-parts">–</dd></div>
-    <div><dt>种类</dt><dd id="st-kinds">–</dd></div>
-    <div><dt>尺寸</dt><dd id="st-size">–</dd></div>
-    <div><dt>回放步骤</dt><dd id="st-steps">–</dd></div>
-  </dl>
-
-  <div class="rail" id="rail" hidden>
-    <div class="step">第 <b id="stepNo">–</b> / <span id="stepMax">–</span> 层</div>
-    <input id="slider" type="range" min="0" max="1" value="1" aria-label="搭建步骤">
-    <div class="btns">
-      <button id="prev" type="button">上一步</button>
-      <button id="next" type="button">下一步</button>
-      <button id="play" type="button" aria-pressed="false">播放</button>
-      <button id="hl" type="button" aria-pressed="true">高亮本层</button>
-      <button id="dl" type="button">下载 .mpd</button>
-    </div>
-  </div>
-
-  <section class="chat">
+  <div class="section-intro" id="studio"><span>01 / START WITH A PHOTO</span><h2>Turn what is in front of you into something you can build.</h2><p>Pick a photo and tell us which shapes and details to keep.</p></div>
+  <section class="chat" aria-label="Studio">
     <div class="chat-head">
-      <h2>对话</h2>
-      <span style="display:flex;align-items:center;gap:14px">
-        <span class="state" id="state">闲置</span>
-        <button type="button" id="fresh" hidden>搭个新的</button>
+      <h2>Chat</h2>
+      <span style="display:flex;align-items:center;gap:12px">
+        <span class="state" id="state">Idle</span>
+        <button type="button" id="fresh" hidden>Start a new one</button>
       </span>
     </div>
+    <div class="progress" id="progress" hidden>
+      <ol class="phases">
+        <li data-cell="search">Finding parts</li>
+        <li data-cell="write">Writing the build</li>
+        <li data-cell="build">Assembling</li>
+        <li data-cell="render">Looking at it</li>
+        <li data-cell="verify">Checking</li>
+      </ol>
+      <div class="meters"><span id="pg-time">00:00</span><span id="pg-counts"></span></div>
+    </div>
     <div id="log" aria-live="polite"><div class="empty">
-      <p>写一句话就行。想不出来的话，点一个试试：</p>
+      <p>One line is enough. Short of ideas? Try one of these:</p>
       <div class="egs">
-        <button type="button" class="eg">生成一个橘猫积木</button>
-        <button type="button" class="eg">搭一个水瓶，红色的</button>
-        <button type="button" class="eg">一座小木桥，桥下有溪水</button>
+        <button type="button" class="eg">An orange tabby cat</button>
+        <button type="button" class="eg">A water bottle, in red</button>
+        <button type="button" class="eg">A small wooden bridge over a stream</button>
       </div>
-      <p class="fine">也可以把照片拖进来，或者按「照片」上传——它会照着照片搭。</p>
+      <p class="fine">You can also drop a photo in, or press Photo to upload one &mdash; it will build from that.</p>
     </div></div>
     <form class="composer" id="composer">
       <div class="row">
-        <div class="thumb" id="thumb" hidden><img id="thumb-img" alt="参考照片"><button type="button" id="thumb-x" title="移除照片">×</button></div>
-        <textarea id="text" rows="1" placeholder="想搭什么？例如：按这张照片搭我家的猫，姿势是趴着的，颜色偏橘。"></textarea>
-        <button type="button" id="pick" title="上传或拍摄照片">照片</button>
-        <button type="submit" class="primary" id="send">生成</button>
+        <div class="thumb" id="thumb" hidden><img id="thumb-img" alt="Reference photo"><button type="button" id="thumb-x" title="Remove photo">×</button></div>
+        <textarea id="text" rows="1" placeholder="What should it build? For example: my cat from this photo, lying down, mostly orange."></textarea>
+        <button type="button" id="pick" title="Upload or take a photo">Photo</button>
+        <button type="submit" class="primary" id="send">Build</button>
       </div>
       <div class="opts">
-        <label>规模 <select id="size">
-          <option value="quick">速写 · 约 80 件 · 较快</option>
-          <option value="model" selected>标准 · 不超过 400 件</option>
-          <option value="set">大型套装 · 400–4000 件 · 很慢</option>
+        <label>Scale <select id="size">
+          <option value="quick">Sketch &middot; about 80 parts &middot; faster</option>
+          <option value="model" selected>Standard &middot; up to 400 parts</option>
+          <option value="set">Large set &middot; 400&ndash;4000 parts &middot; slow</option>
         </select></label>
         <span id="jobline"></span>
       </div>
@@ -326,21 +362,80 @@ dialog::backdrop { background: #000d; }
     </form>
   </section>
 
+
+  <div class="section-intro" id="result"><span>02 / YOUR BRICK MODEL</span><h2>From photo to model</h2><p>Once it appears you can turn it, browse the parts, and see how it passed the checks.</p></div>
+  <section class="viewer" aria-label="3D model">
+    <div id="stage"></div>
+    <div class="status" id="status">
+      <b>Upload a photo and tell me what you want</b>
+      <img id="status-shot" alt="Latest render" hidden>
+      <span id="status-note">Write one line in the studio above. A model takes about ten minutes, and you can watch it happen.</span>
+      <span class="bar" id="status-bar" hidden><i></i></span>
+    </div>
+    <div class="hint" id="hint" hidden>Drag to turn &middot; scroll to zoom &middot; right-drag to pan</div>
+    <div class="compass" id="compass" hidden>Real parts &middot; checked by BrickAgent</div>
+    <div class="rail" id="rail" hidden>
+      <div class="step">Layer <b id="stepNo">&ndash;</b> / <span id="stepMax">&ndash;</span></div>
+      <input id="slider" type="range" min="0" max="1" value="1" aria-label="Build layer">
+      <div class="btns">
+        <button id="prev" type="button">Back</button>
+        <button id="next" type="button">Forward</button>
+        <button id="play" type="button" aria-pressed="false">Play</button>
+        <button id="hl" type="button" aria-pressed="true">Highlight layer</button>
+        <button id="dl" type="button">Download .mpd</button>
+      </div>
+    </div>
+  </section>
+
   <div class="cols">
     <section>
-      <h2>这一件</h2>
-      <p class="sub" id="card-sub">还没有模型。</p>
+      <h2>This one</h2>
+      <p class="sub" id="card-sub">No model yet.</p>
       <div id="card-body"></div>
-      <img class="ref-shot" id="ref-shot" alt="参考照片" hidden>
+      <img class="ref-shot" id="ref-shot" alt="Reference photo" hidden>
     </section>
     <section>
-      <h2>零件清单</h2>
-      <p class="sub">LDraw 编号 · 全部为真实存在的零件</p>
-      <div class="tbl"><table><thead><tr><th>零件</th><th>编号</th><th>颜色</th><th class="num">数量</th></tr></thead><tbody id="allBody"></tbody></table></div>
+      <h2>Part list</h2>
+      <p class="sub">LDraw numbers &middot; every part really exists</p>
+      <div class="tbl"><table><thead><tr><th>Part</th><th>ID</th><th>Colour</th><th class="num">Qty</th></tr></thead><tbody id="allBody"></tbody></table></div>
     </section>
   </div>
+
+  <div class="section-intro history-head" id="history"><div><span>03 / MODEL HISTORY</span><h2>What you have built</h2><p>Reopen anything you finished from here.</p></div><span class="history-count" id="history-count">0 models</span></div>
+  <section class="history-page" aria-label="Model history">
+    <div class="history-empty" id="history-empty"><strong>Nothing finished yet</strong><p>Your first model will show up here.</p><a href="#studio">Build the first one</a></div>
+    <div class="history-list" id="history-list" hidden></div>
+    <p class="sub">This list lives in your browser. Reopening a model needs its original job to still be on the server.</p>
+  </section>
 </div>
 <dialog id="lightbox"><img id="lightbox-img" alt=""></dialog>
+<script>
+const coverBricks = [
+  ['start-project-brick', 'studio'],
+  ['showcase-brick', 'showcase'],
+  ['your-model-brick', 'result'],
+  ['history-brick', 'history'],
+];
+for (const [brickId, targetId] of coverBricks) {
+  const brick = document.getElementById(brickId);
+  brick.addEventListener('click', () => {
+    for (const [otherId] of coverBricks) document.getElementById(otherId).classList.remove('is-pushed');
+    brick.classList.add('is-pushed');
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.setTimeout(() => {
+      location.hash = targetId;
+      document.getElementById(targetId).scrollIntoView({behavior: reducedMotion ? 'instant' : 'smooth'});
+    }, reducedMotion ? 0 : 700);
+  });
+}
+const showcase = document.getElementById('showcase');
+if ('IntersectionObserver' in window) {
+  const showcaseObserver = new IntersectionObserver(([entry]) => {
+    showcase.classList.toggle('is-building', entry.isIntersecting);
+  }, {threshold: 0.16});
+  showcaseObserver.observe(showcase);
+}
+</script>
 <script type="module" src="./app.js"></script>
 </body>
 </html>

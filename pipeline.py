@@ -51,9 +51,10 @@ They are watching this page while you work, so:
 - Render as you go with `view(model, "/work/preview.png")`. Every PNG you write under `/work` appears
   on their screen within seconds, so render whenever the shape changes meaningfully.
 - Write `/work/card.json` before you finish:
-  `{{"title": "四字以内的中文名字", "subtitle": "English name", "eyebrow": "一句话副标题",
-    "summary": "2-4 句中文介绍：这是什么、有哪些细节、为了结实做了哪些取舍"}}`
-- Write your closing message to them **in Chinese**, the way you would tell a friend what you built.
+  `{{"title": "a short name, three words at most", "subtitle": "a second line, or \"\"",
+    "eyebrow": "one line that gives it character",
+    "summary": "2-4 sentences: what it is, the details worth noticing, what you traded away to keep it solid"}}`
+- Write your closing message to them **in English**, the way you would tell a friend what you built.
   No code, no API names, no part numbers — what it looks like and what you had to compromise on.
 {scale}"""
 
@@ -63,7 +64,7 @@ LATER_TURN = """The person is looking at the model you just built and asks for t
 {photo}
 Change `/work/build.py`, keep it passing `check()`, write `/work/model.mpd` again, refresh
 `/work/card.json`, and render a new `/work/preview.png`. Keep everything they did not ask you to change.
-Reply to them in Chinese, briefly, saying what you changed.
+Reply to them in English, briefly, saying what you changed.
 """
 
 SCALE = {
@@ -93,8 +94,8 @@ class Job:
         self.waiters = threading.Condition()
         self.lock = threading.Lock()
         self.seen_png: dict[str, float] = {}
-        self.stats: dict | None = None                       # 这一轮 agent 用了多少轮、多久、多少钱
-        self.outcome: dict | None = None                     # 这一轮换没换模型，换成了什么
+        self.stats: dict | None = None                       # how many turns, how long, how much this one cost
+        self.outcome: dict | None = None                     # whether this turn replaced the model, and with what
 
     # ---------- state ----------
 
@@ -127,7 +128,7 @@ class Job:
 
     def emit(self, **event: object) -> None:
         """Record one event and wake everyone watching this job."""
-        event.setdefault("at", round(time.time(), 3))         # 刷新回来也能算出跑了多久
+        event.setdefault("at", round(time.time(), 3))         # so a page coming back can work out how long it has been running
         with self.waiters:
             self.events.append(event)
             with (self.dir / "events.jsonl").open("a", encoding="utf-8") as log:
@@ -161,7 +162,7 @@ class Job:
             self.emit(type="user", text=text, image=self._url(photo) if photo else None)
             try:
                 prompt = self._prompt(text, photo)
-                self.emit(type="stage", text="正在读你的照片，挑零件…" if photo else "正在想怎么搭…",
+                self.emit(type="stage", text="Reading your photo and finding parts…" if photo else "Working out how to build it…",
                           phase="look" if photo else "search")
                 self._run_agent(prompt)
                 self._finish()
@@ -185,7 +186,7 @@ class Job:
     def _prompt(self, text: str, photo: Path | None) -> str:
         if self.turn > 1:
             mention = f"\nThey attached another photo: /work/{photo.name} — look at it with Read.\n" if photo else ""
-            return LATER_TURN.format(text=text or "(照片见附件)", photo=mention)
+            return LATER_TURN.format(text=text or "(see the attached photo)", photo=mention)
         description = text or "the object in the attached reference photo"
         rendered = subprocess.run(
             [str(PROMPT_PYTHON), str(REPO / "scripts" / "prompt.py"), description, "--split", SPLITS[self.size]],
@@ -219,7 +220,7 @@ class Job:
                 spoke = spoke or '"type":"assistant"' in line.replace(" ", "")
                 if time.time() - started > TURN_TIMEOUT:
                     process.kill()
-                    raise TimeoutError("这次搭得太久，已经停下了")
+                    raise TimeoutError("This one ran too long and was stopped")
                 try:
                     self._translate(json.loads(line))
                 except json.JSONDecodeError:
@@ -246,7 +247,7 @@ class Job:
                     self.emit(type="tool", text="  ↳ " + _clip(_text_of(block), 160), error=True, phase="fix")
         elif kind == "result":
             self._new_renders()
-            self.stats = {                                    # 它搭完了，但还要检查和打包，收尾那行最后一起发
+            self.stats = {                                    # it is done building, but checks and packing follow: the closing line goes out last
                 "turns": event.get("num_turns", 0),
                 "seconds": round(event.get("duration_ms", 0) / 1000),
                 "cost": round(event.get("total_cost_usd") or 0, 2),
@@ -270,7 +271,7 @@ class Job:
     def _finish(self) -> None:
         mpd = self.work / "model.mpd"
         if not mpd.exists():
-            self.emit(type="error", text="这一轮没有写出模型文件，可以再说一次要求试试。")
+            self.emit(type="error", text="No model file came out of this one. Try saying what you want again.")
             return
         digest = hashlib.sha256(mpd.read_bytes()).hexdigest()
         if digest == self.model_hash:
@@ -278,9 +279,9 @@ class Job:
             return
         self.model_hash = digest
 
-        self.emit(type="stage", text="在检查碰撞和稳定性…", phase="verify")
+        self.emit(type="stage", text="Checking collisions and stability…", phase="verify")
         valid = self._verify()
-        self.emit(type="stage", text="在整理零件清单…", phase="pack")
+        self.emit(type="stage", text="Putting the part list together…", phase="pack")
         self._export()
         self.emit(
             type="model",
@@ -303,7 +304,7 @@ class Job:
             "-v", f"{self.dir}:/job", "-v", f"{HERE / 'container'}:/ctr:ro",
         ], ["python", "/ctr/export_model.py", "/job/work/model.mpd", "/job/packed.mpd", "/job/manifest.json"])
         if done.returncode != 0:
-            raise RuntimeError("打包模型失败：" + done.stderr.strip()[-300:])
+            raise RuntimeError("Packing the model failed: " + done.stderr.strip()[-300:])
 
     def _card(self) -> dict:
         try:
@@ -357,7 +358,7 @@ def _text_of(block: dict) -> str:
 
 
 def _phase(block: dict) -> str | None:
-    """这一步在干什么。页面靠它把一屏命令变成一条看得懂的进度。"""
+    """What this step is doing. The page turns a screen of commands into one legible line with it."""
     name = (block.get("name") or "").lower()
     args = block.get("input") or {}
     text = " ".join(str(v) for v in args.values()).lower()
@@ -372,11 +373,11 @@ def _phase(block: dict) -> str | None:
         if ".png" in text or "view(" in text:
             return "render"
         if "build.py" in text and "python" in text:
-            return "build"                                    # 真的跑了一遍
+            return "build"                                    # it actually ran
         if any(k in text for k in ("find(", "describe(", "connectors(", "parts(", "measure(", "catalog")):
             return "search"
         if "build.py" in text:
-            return "write"                                    # 写进去但还没跑
+            return "write"                                    # written, but not run yet
     return None
 
 

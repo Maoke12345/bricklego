@@ -32,6 +32,8 @@ python3 server.py            # http://127.0.0.1:8787
 
 `web/cover-concept.html` 保留最初获认可的蒙德里安封面独立视觉稿。正式页面封面在 `web/index.html`，样式在 `web/cover.css`。红色 “Starting a project”、黄色 “Your model”、蓝色 “Model history” 积木点击后分别进入照片创作、模型结果和历史区域；三块积木都有向前推出的效果。后面仍是已有的生成状态、3D 查看器、模型信息和零件清单。
 
+封面新增黑色 “Showcase” 积木，点击进入封面与 BrickStudio 之间的展示区。展示图 `web/brickagent-showcase.avif` 来自 [BrickAgent 官方仓库的 BrickBench teaser](https://github.com/kulits/BrickAgent/blob/master/docs/images/teaser_mosaic.avif)，作为第三方公开示例，并非本站生成结果；来源项目采用 MIT 许可，许可文本见 `references/BrickAgent/LICENSE`。本地展示页是静态图片，页面内另有原始 Gallery 链接。
+
 模型成功载入后，历史区会在**当前浏览器**保存任务 ID、名称、零件数和检查状态，不复制私人照片或 MPD。点击历史作品时会先确认原始任务仍在当前服务，再用现有 `?job=<id>` 恢复它。历史目录最多保留 30 件；浏览器数据被清除或服务端任务文件被删除后，作品不能从此目录恢复。静态页面预览不会生成模型，因此历史区显示真实的空状态。
 
 只看页面布局时，可在仓库根目录运行 `python3 -m http.server 8788 --bind 127.0.0.1 --directory web`，打开 `http://127.0.0.1:8788/`。这个静态预览没有生成 API；真实生成需按上方环境要求运行 `server.py`。

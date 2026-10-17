@@ -107,3 +107,28 @@
     .lego-piece.yellow-strip,.lego-piece.yellow-main{--light:#fbd039;--face:#f2c01b;--stud:#f7ca2d}
     .lego-piece.blue{--light:#4140d5;--face:#2929b8;--stud:#3735cc}
     .lego-piece.red:hover,.lego-piece.yellow-main:hover,.lego-piece.blue:hover{background-color:var(--face)}
+
+    .lego-piece.black-showcase{left:3.5%;top:67%;width:16.5%;height:9.5%;--light:#36393a;--face:#1b1d1f;--dark:#08090a;--side:#101113;--stud:#393c3e;--cols:2;--rows:1;border-color:#606366;cursor:pointer;appearance:none;text-align:center}
+    .lego-piece.black-showcase .stud-grid{inset:9% 10% auto;height:42%}
+    .lego-piece.black-showcase .stud-grid i{width:min(40%,22px)}
+    .lego-piece.black-showcase .piece-label{position:absolute;left:3%;right:3%;bottom:9%;z-index:3;color:#dad9d4;font:800 clamp(9px,1vw,13px)/1 var(--font-body);letter-spacing:.02em;text-shadow:0 -1px 1px #000,0 1px 0 #777}
+    .lego-piece.black-showcase:after{opacity:.23}
+    .lego-piece.black-showcase:hover{background-color:#333638}
+    .lego-piece.black-showcase:focus-visible{outline:4px solid #fff;outline-offset:6px}
+    .lego-piece.black-showcase.is-pushed{z-index:20;transform:translateY(-9px);box-shadow:inset 1px 1px 0 #fff2,inset -7px -8px 0 var(--side),inset -12px -13px 0 var(--dark),0 15px 0 #0a0b0c,0 23px 17px #000c}
+
+    .showcase-page{min-height:100svh;scroll-margin-top:0;display:grid;align-items:center;padding:clamp(40px,6vw,88px) clamp(20px,4vw,64px);background:#f7f7f4;color:#101112}
+    .showcase-inner{width:100%;max-width:1320px;margin:auto}
+    .showcase-heading{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(220px,.5fr);gap:15px 48px;align-items:end;margin-bottom:25px}
+    .showcase-index{grid-column:1/-1;padding-top:12px;border-top:2px solid #101112;font:700 11px/1.4 var(--font-mono);letter-spacing:.12em}
+    .showcase-heading h2{margin:0;font:900 clamp(36px,5.2vw,74px)/1.02 var(--font-body);letter-spacing:-.055em;max-width:12ch}
+    .showcase-heading p{margin:0 0 5px;font-size:15px;line-height:1.6;max-width:25ch}
+    .showcase-gallery{margin:0;border-bottom:1px solid #c3c5c2}
+    .showcase-gallery img{display:block;width:100%;height:auto;background:#fff}
+    .showcase-gallery figcaption{display:flex;align-items:start;justify-content:space-between;gap:12px 28px;padding:12px 0;color:#51575a;font-size:12px;line-height:1.5}
+    .showcase-gallery figcaption span{max-width:70ch}
+    .showcase-gallery a{color:#101112;font-weight:800;white-space:nowrap;text-underline-offset:3px}
+    .showcase-next{display:inline-flex;align-items:center;justify-content:space-between;gap:26px;margin-top:27px;min-width:250px;padding:12px 16px;background:#101112;color:#fff;font:800 14px/1.4 var(--font-body);text-decoration:none}
+    .showcase-next:hover{background:#2825bd}
+    .showcase-next:focus-visible,.showcase-gallery a:focus-visible{outline:3px solid #2825bd;outline-offset:4px}
+    @media(max-width:680px){.lego-piece.black-showcase .piece-label{font-size:clamp(7px,2vw,10px)}.lego-piece.black-showcase .stud-grid i{width:min(48%,15px)}.lego-piece.black-showcase.is-pushed{transform:translateY(-6px);box-shadow:inset 1px 1px 0 #fff2,inset -5px -6px 0 var(--side),inset -8px -9px 0 var(--dark),0 11px 0 #0a0b0c,0 17px 13px #000a}.showcase-heading{grid-template-columns:1fr}.showcase-heading p{max-width:48ch}.showcase-gallery figcaption{flex-direction:column}.showcase-page{min-height:auto}.showcase-next{width:100%}}

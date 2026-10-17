@@ -74,7 +74,9 @@ button { font: inherit; font-size: 13px; color: var(--ink); background: transpar
 button:hover:not(:disabled) { border-color: var(--accent); }
 button:disabled { opacity: .45; cursor: default; }
 button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
-button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-size: 14px; padding: 8px 18px; }
+button.primary { background: #ffc61a; border-color: #ffc61a; color: #111; font-size: 14px; font-weight: 800; padding: 8px 18px; }
+button.primary:hover:not(:disabled) { background: #ffd93b; border-color: #ffc61a; }
+button.primary:focus-visible { outline-color: #ffc61a; }
 button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 @media (max-width: 640px) { .rail { grid-template-columns: 1fr; } .rail .btns { justify-content: flex-start; } }
 
@@ -133,7 +135,7 @@ dialog::backdrop { background: #000a; }
 html { scroll-behavior: smooth; }
 #studio, #result { scroll-margin-top: 24px; }
 .section-intro { border-top: 5px solid #f7f7f3; padding-top: 18px; margin-top: 26px; }
-.section-intro > span { display:block; font: 700 11px/1.4 var(--font-mono); letter-spacing: .14em; color: #ff705c; }
+.section-intro > span { display:table; padding: 4px 8px; background: #f7f7f3; font: 800 11px/1.4 var(--font-mono); letter-spacing: .14em; color: #2825bd; }
 .section-intro h2 { font: 900 clamp(24px,3vw,38px)/1.2 var(--font-body); margin: 8px 0 5px; letter-spacing: -.03em; }
 .section-intro p { margin:0; color:var(--muted); }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }

@@ -6,7 +6,11 @@ const $ = id => document.getElementById(id);
 const esc = text => text.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const log = $('log');
 
-function append(node) { log.append(node); return node; }
+function append(node) {
+  log.querySelector('.empty')?.remove();        // 快照里不需要开场白，整段对话顶上去
+  log.append(node);
+  return node;
+}
 
 function zoom(src) { $('lightbox-img').src = src; $('lightbox').showModal(); }
 $('lightbox').addEventListener('click', () => $('lightbox').close());

@@ -45,6 +45,7 @@ function atBottom() {
 }
 
 function append(node) {
+  log.querySelector('.empty')?.remove();        // 第一条消息一来，开场白就该让位
   const stick = atBottom();
   log.append(node);
   if (stick) log.scrollTop = log.scrollHeight;
@@ -305,6 +306,10 @@ async function take(file) {
   photo = await shrink(file);
   $('thumb-img').src = photo;
   $('thumb').hidden = false;
+}
+
+for (const eg of document.querySelectorAll('.eg')) {
+  eg.onclick = () => { $('text').value = eg.textContent; $('text').focus(); };
 }
 
 $('pick').onclick = () => $('file').click();

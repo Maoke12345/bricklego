@@ -8,14 +8,25 @@
     .hero:after{display:none}
     .cover-frame{width:min(90vw,980px);aspect-ratio:1.02;height:auto;padding:clamp(10px,1.2vw,18px);background:#fafaf7;border:1px solid #deded9;box-shadow:0 0 0 6px #ffffff85,0 15px 32px #0003,0 38px 70px #0002}
     .cover-board{position:relative;width:100%;height:100%;overflow:hidden;background:#050505;isolation:isolate}
+    .cover-core{position:absolute;inset:0 3% 0 10%}
+    .cover-outside{position:absolute;display:block;pointer-events:none}
+    .outside-top-left{left:0;top:0;width:61%;height:7%;background:#fcfcfa}
+    .outside-left-upper{left:0;top:11%;width:10%;height:32%;background:#fcfcfa}
+    .outside-left-lower{left:0;top:46%;width:10%;height:32%;background:#fcfcfa}
+    .outside-left-yellow{left:0;top:81%;width:10%;height:19%;background:#f2c01b}
+    .outside-right-white{right:0;top:0;width:3%;height:78%;background:#fcfcfa}
+    .outside-right-red{right:0;top:81%;width:3%;height:19%;background:#d71510}
+    .outside-top-divider{left:22%;top:0;width:2.5%;height:7%;background:#050505}
+    .outside-left-divider{left:10%;top:11%;width:2.5%;height:89%;background:#050505;z-index:3}
+    .outside-right-divider{right:3%;top:0;width:2.5%;height:100%;background:#050505;z-index:3}
     .cover-cell{position:absolute;background:#fcfcfa}
-    .cell-top{left:0;top:0;width:53%;height:7%}
-    .cell-right-a{left:56%;top:46%;width:20%;height:17%}
-    .cell-right-b{left:79%;top:46%;width:21%;height:17%}
-    .cell-mid-a{left:22%;top:66%;width:31%;height:12%}
-    .cell-mid-b{left:56%;top:66%;width:44%;height:12%}
+    .cell-top{left:0;top:0;width:59%;height:7%}
+    .cell-right-a{left:62%;top:46%;width:16%;height:17%}
+    .cell-right-b{left:81%;top:46%;width:19%;height:17%}
+    .cell-mid-a{left:22%;top:66%;width:37%;height:12%}
+    .cell-mid-b{left:62%;top:66%;width:38%;height:12%}
     .cell-bottom-a{left:0;top:81%;width:18%;height:8%}
-    .cell-bottom-b{left:22%;top:81%;width:31%;height:8%}
+    .cell-bottom-b{left:22%;top:81%;width:37%;height:8%}
     .cell-bottom-c{left:0;top:92.5%;width:18%;height:7.5%}
     .lego-piece{position:absolute;display:block;margin:0;padding:0;border:1px solid var(--dark);border-radius:1px;background-color:var(--face);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='66' height='66'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.98' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grain)' opacity='.21'/%3E%3C/svg%3E"),linear-gradient(140deg,var(--light),var(--face) 28%,var(--face) 70%,var(--dark));background-blend-mode:multiply,normal;box-shadow:inset 2px 2px 0 #fff2,inset -9px -10px 0 var(--side),inset -13px -14px 0 var(--dark);transition:transform .55s cubic-bezier(.18,.86,.24,1.13),box-shadow .55s ease;z-index:2;overflow:hidden}
     .lego-piece:before{content:"";position:absolute;inset:0;border:2px solid #ffffff12;box-shadow:inset 0 0 12px #0002;pointer-events:none;z-index:1}
@@ -23,12 +34,12 @@
     .lego-piece .stud-grid{position:absolute;inset:4% 4.5%;display:grid;grid-template-columns:repeat(var(--cols),1fr);grid-template-rows:repeat(var(--rows),1fr);align-items:center;justify-items:center;z-index:2;pointer-events:none}
     .lego-piece .stud-grid i{position:relative;display:block;width:min(52%,48px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 38% 32%,var(--stud),var(--face) 67%,var(--side));border:1px solid #ffffff25;box-shadow:inset 1px 1px 2px #ffffff28,inset -4px -5px 3px #0005,0 6px 0 var(--side),1px 10px 6px #0008}
     .lego-piece .stud-grid i:before{content:"";position:absolute;inset:14%;border-radius:50%;border:1px solid #ffffff22;box-shadow:inset 1px 2px 2px #0003;pointer-events:none}
-    .lego-piece.red{left:0;top:11%;width:53%;height:52%;--light:#e9201b;--face:#d91310;--dark:#9c0a09;--side:#af0e0b;--stud:#df2019;--cols:4;--rows:4;cursor:pointer;appearance:none;text-align:left}
+    .lego-piece.red{left:0;top:11%;width:59%;height:52%;--light:#e9201b;--face:#d91310;--dark:#9c0a09;--side:#af0e0b;--stud:#df2019;--cols:4;--rows:4;cursor:pointer;appearance:none;text-align:left}
     .lego-piece.red .stud-grid i:nth-child(n+5){grid-row:4}
-    .lego-piece.yellow-strip{left:56%;top:0;width:44%;height:7%;--light:#ffd43b;--face:#ffc416;--dark:#bc8206;--side:#d99c0b;--stud:#ffd02c;--cols:5;--rows:1}
-    .lego-piece.yellow-main{left:56%;top:11%;width:44%;height:32%;--light:#ffd93b;--face:#ffc61a;--dark:#b77b05;--side:#d7980a;--stud:#ffd22d;--cols:3;--rows:3;cursor:pointer;appearance:none;text-align:left}
+    .lego-piece.yellow-strip{left:62%;top:0;width:38%;height:7%;--light:#ffd43b;--face:#ffc416;--dark:#bc8206;--side:#d99c0b;--stud:#ffd02c;--cols:5;--rows:1}
+    .lego-piece.yellow-main{left:62%;top:11%;width:38%;height:32%;--light:#ffd93b;--face:#ffc61a;--dark:#b77b05;--side:#d7980a;--stud:#ffd22d;--cols:3;--rows:3;cursor:pointer;appearance:none;text-align:left}
     .lego-piece.yellow-main .stud-grid i:nth-child(n+4){grid-row:3}
-    .lego-piece.blue{left:56%;top:81%;width:44%;height:19%;--light:#413bdc;--face:#2825bd;--dark:#11116c;--side:#191488;--stud:#3430cf;--cols:3;--rows:3;cursor:pointer;appearance:none;text-align:left}
+    .lego-piece.blue{left:62%;top:81%;width:38%;height:19%;--light:#413bdc;--face:#2825bd;--dark:#11116c;--side:#191488;--stud:#3430cf;--cols:3;--rows:3;cursor:pointer;appearance:none;text-align:left}
     .lego-piece.blue .stud-grid i:nth-child(n+4){grid-row:3}
     .lego-piece.red .piece-label{position:absolute;left:9%;right:7%;top:50%;transform:translateY(-50%);z-index:3;color:#6b0806;font-size:clamp(22px,2.4vw,36px);font-weight:950;line-height:1.2;letter-spacing:.045em;word-spacing:.25em;text-shadow:1px 1px 0 #fa6258,-1px -1px 1px #430403}
     .lego-piece.yellow-main .piece-label{position:absolute;right:9%;bottom:29%;z-index:3;color:#90600b;font-size:clamp(14px,1.25vw,19px);font-weight:950;line-height:1.2;letter-spacing:.025em;word-spacing:.12em;text-align:right;white-space:nowrap;text-shadow:1px 1px 0 #ffe576,-1px -1px 1px #775006}

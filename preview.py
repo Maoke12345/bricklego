@@ -5,6 +5,8 @@ just the layout itself and the three example buttons. For showing the design to 
 
     python3 preview.py out/interface.html
 """
+import base64
+import mimetypes
 import re
 import sys
 from pathlib import Path
@@ -23,10 +25,26 @@ for (const eg of document.querySelectorAll('.eg')) {
 document.getElementById('composer').addEventListener('submit', e => e.preventDefault());
 </script>"""
 
+def inline_assets(css: str, base: Path) -> str:
+    """url('./x.svg') -> url("data:...") so the stylesheet carries its own images."""
+    def swap(match: re.Match) -> str:
+        name = match.group(1)
+        asset = base / name
+        if not asset.is_file():
+            return match.group(0)
+        kind = mimetypes.guess_type(asset.name)[0] or "application/octet-stream"
+        return f'url("data:{kind};base64,{base64.b64encode(asset.read_bytes()).decode()}")'
+    return re.sub(r"""url\(['"]\./([^'")]+)['"]\)""", swap, css)
+
+
 def build(out: Path) -> Path:
-    html = (ROOT / "web" / "index.html").read_text()
+    web = ROOT / "web"
+    html = (web / "index.html").read_text()
     html = re.sub(r'<script type="importmap">.*?</script>\n?', "", html, flags=re.S)
     html = html.replace('<script type="module" src="./app.js"></script>', STUB)
+    for link in re.findall(r'<link rel="stylesheet" href="\./([^"]+)">', html):
+        css = inline_assets((web / link).read_text(), web)
+        html = html.replace(f'<link rel="stylesheet" href="./{link}">', f"<style>\n{css}\n</style>")
     html = re.sub(r"<title>.*?</title>", "<title>BRICKFORM · Interface</title>", html, count=1)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(html)

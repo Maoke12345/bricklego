@@ -161,7 +161,7 @@ html { scroll-behavior: smooth; }
           <span class="cover-cell cell-bottom-c" aria-hidden="true"></span>
           <button class="lego-piece red" id="start-project-brick" type="button" aria-label="Starting a project，点击进入照片创作工作台"><span class="stud-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="piece-label">Starting a project</span></button>
           <div class="lego-piece yellow-strip" aria-hidden="true"><span class="stud-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></div>
-          <div class="lego-piece yellow-main" aria-hidden="true"><span class="stud-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span></div>
+          <button class="lego-piece yellow-main" id="your-model-brick" type="button" aria-label="Your model，点击进入模型结果区域"><span class="stud-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="piece-label">Your model</span></button>
           <div class="lego-piece blue" aria-hidden="true"><span class="stud-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span></div>
         </div></div>
       </section>
@@ -253,11 +253,19 @@ html { scroll-behavior: smooth; }
 </div>
 <dialog id="lightbox"><img id="lightbox-img" alt=""></dialog>
 <script>
-const projectBrick = document.getElementById('start-project-brick');
-projectBrick.addEventListener('click', () => {
-  projectBrick.classList.add('is-pushed');
-  window.setTimeout(() => document.getElementById('studio').scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'}), 560);
-});
+const coverBricks = [
+  ['start-project-brick', 'studio'],
+  ['your-model-brick', 'result'],
+];
+for (const [brickId, targetId] of coverBricks) {
+  const brick = document.getElementById(brickId);
+  brick.addEventListener('click', () => {
+    for (const [otherId] of coverBricks) document.getElementById(otherId).classList.remove('is-pushed');
+    brick.classList.add('is-pushed');
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.setTimeout(() => document.getElementById(targetId).scrollIntoView({behavior: reducedMotion ? 'instant' : 'smooth'}), reducedMotion ? 0 : 560);
+  });
+}
 </script>
 <script type="module" src="./app.js"></script>
 </body>

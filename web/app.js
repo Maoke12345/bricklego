@@ -93,6 +93,7 @@ function traceLine(text, isError) {
   const stick = atBottom();
   trace.append(line);
   while (trace.children.length > 40) trace.firstChild.remove();
+  trace.scrollTop = trace.scrollHeight;             // 小窗里始终看最新的一行
   if (stick) log.scrollTop = log.scrollHeight;
 }
 

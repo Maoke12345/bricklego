@@ -26,12 +26,17 @@
     .lego-piece.red{left:0;top:11%;width:53%;height:52%;--light:#e9201b;--face:#d91310;--dark:#9c0a09;--side:#af0e0b;--stud:#df2019;--cols:4;--rows:4;cursor:pointer;appearance:none;text-align:left}
     .lego-piece.red .stud-grid i:nth-child(n+5){grid-row:4}
     .lego-piece.yellow-strip{left:56%;top:0;width:44%;height:7%;--light:#ffd43b;--face:#ffc416;--dark:#bc8206;--side:#d99c0b;--stud:#ffd02c;--cols:5;--rows:1}
-    .lego-piece.yellow-main{left:56%;top:11%;width:44%;height:32%;--light:#ffd93b;--face:#ffc61a;--dark:#b77b05;--side:#d7980a;--stud:#ffd22d;--cols:3;--rows:2}
+    .lego-piece.yellow-main{left:56%;top:11%;width:44%;height:32%;--light:#ffd93b;--face:#ffc61a;--dark:#b77b05;--side:#d7980a;--stud:#ffd22d;--cols:3;--rows:3;cursor:pointer;appearance:none;text-align:left}
+    .lego-piece.yellow-main .stud-grid i:nth-child(n+4){grid-row:3}
     .lego-piece.blue{left:56%;top:81%;width:44%;height:19%;--light:#413bdc;--face:#2825bd;--dark:#11116c;--side:#191488;--stud:#3430cf;--cols:3;--rows:2}
     .lego-piece.red .piece-label{position:absolute;left:9%;right:7%;top:50%;transform:translateY(-50%);z-index:3;color:#6b0806;font-size:clamp(22px,2.4vw,36px);font-weight:950;line-height:1.2;letter-spacing:.045em;word-spacing:.25em;text-shadow:1px 1px 0 #fa6258,-1px -1px 1px #430403}
+    .lego-piece.yellow-main .piece-label{position:absolute;left:9%;right:7%;top:50%;transform:translateY(-50%);z-index:3;color:#654000;font-size:clamp(20px,2.2vw,32px);font-weight:950;line-height:1.2;letter-spacing:.045em;word-spacing:.25em;text-shadow:1px 1px 0 #ffe576,-1px -1px 1px #6f4600}
     .lego-piece.red:hover{background-color:var(--light)}
     .lego-piece.red:focus-visible{outline:4px solid #fff;outline-offset:8px}
     .lego-piece.red.is-pushed{z-index:20;transform:translateY(-5px);box-shadow:inset 3px 3px 0 #fff4,inset -9px -10px 0 var(--side),inset -13px -14px 0 var(--dark),0 10px 0 var(--side),0 15px 15px #0009}
+    .lego-piece.yellow-main:hover{background-color:var(--light)}
+    .lego-piece.yellow-main:focus-visible{outline:4px solid #fff;outline-offset:8px}
+    .lego-piece.yellow-main.is-pushed{z-index:20;transform:translateY(-5px);box-shadow:inset 3px 3px 0 #fff4,inset -9px -10px 0 var(--side),inset -13px -14px 0 var(--dark),0 10px 0 var(--side),0 15px 15px #0009}
     @media(max-width:680px){.topbar{padding:0 18px}.hero{height:calc(100svh - 67px);min-height:560px;padding:12px 0}.cover-frame{width:calc(100vw - 28px);height:calc(100% - 8px);padding:9px}.lego-piece{box-shadow:inset 2px 2px 0 #fff4,inset -5px -6px 0 var(--side),inset -8px -9px 0 var(--dark)}.lego-piece .stud-grid i{box-shadow:inset 1px 1px 1px #ffffff45,inset -3px -4px 2px #0005,0 4px 0 var(--side),1px 7px 4px #0008}.lego-piece.red .piece-label{font-size:clamp(17px,5vw,26px)}.lego-piece.red.is-pushed{transform:translateY(-3px);box-shadow:inset 2px 2px 0 #fff4,inset -5px -6px 0 var(--side),inset -8px -9px 0 var(--dark),0 7px 0 var(--side),0 11px 10px #0008}}
     @media(prefers-reduced-motion:reduce){.lego-piece{transition:none}html{scroll-behavior:auto}}
   
@@ -44,3 +49,6 @@
     #cover .nav a:hover{text-decoration:underline}
     #cover .lego-piece.red{padding:0;border-radius:1px}
     #cover .lego-piece.red:hover{border-color:var(--dark)}
+    #cover .lego-piece.yellow-main{padding:0;border-radius:1px}
+    #cover .lego-piece.yellow-main:hover{border-color:var(--dark)}
+    @media(max-width:680px){.lego-piece.yellow-main .piece-label{font-size:clamp(17px,5vw,26px)}.lego-piece.yellow-main.is-pushed{transform:translateY(-3px);box-shadow:inset 2px 2px 0 #fff4,inset -5px -6px 0 var(--side),inset -8px -9px 0 var(--dark),0 7px 0 var(--side),0 11px 10px #0008}}

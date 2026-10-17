@@ -3,8 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>砖语 · 照片变乐高</title>
+<title>BRICKFORM · 照片变积木</title>
 <link rel="icon" href="data:,">
+<link rel="stylesheet" href="./cover.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500&family=Noto+Serif+SC:wght@700;900&display=swap" rel="stylesheet">
@@ -12,14 +13,14 @@
 <style>
 /* 图册式版面：标题牌记 — 可转的模型 + 搭建回放 — 对话框 — 零件清单 */
 :root {
-  --bg: #efe8d8;        /* 海图纸 */
-  --panel: #f8f3e8;
-  --ink: #241c14;
-  --muted: #6d5f4d;
-  --rule: #d2c5ab;
-  --accent: #8c2f1b;    /* 火漆红 */
-  --sea-top: #cfd9d6;
-  --sea-bot: #9fb4b3;
+  --bg: #090b0d;
+  --panel: #15191d;
+  --ink: #f7f7f3;
+  --muted: #b7c0c7;
+  --rule: #465057;
+  --accent: #e74731;
+  --sea-top: #1c252c;
+  --sea-bot: #080c10;
   --font-display: "Noto Serif SC", "Songti SC", serif;
   --font-latin: "IM Fell English", Georgia, "Noto Serif SC", "Songti SC", serif;
   --font-body: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
@@ -27,13 +28,13 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0f1619; --panel: #162126; --ink: #ece3cf; --muted: #a39881; --rule: #2a3a40;
-    --accent: #e0835f; --sea-top: #1c2c33; --sea-bot: #0b1316; color-scheme: dark;
+    --bg: #090b0d; --panel: #15191d; --ink: #f7f7f3; --muted: #b7c0c7; --rule: #465057;
+    --accent: #e74731; --sea-top: #1c252c; --sea-bot: #080c10; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #0f1619; --panel: #162126; --ink: #ece3cf; --muted: #a39881; --rule: #2a3a40;
-  --accent: #e0835f; --sea-top: #1c2c33; --sea-bot: #0b1316; color-scheme: dark;
+  --bg: #090b0d; --panel: #15191d; --ink: #f7f7f3; --muted: #b7c0c7; --rule: #465057;
+  --accent: #e74731; --sea-top: #1c252c; --sea-bot: #080c10; color-scheme: dark;
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.6; }
@@ -72,7 +73,7 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 button { font: inherit; font-size: 13px; color: var(--ink); background: transparent; border: 1px solid var(--rule); border-radius: 4px; padding: 5px 11px; cursor: pointer; }
 button:hover:not(:disabled) { border-color: var(--accent); }
 button:disabled { opacity: .45; cursor: default; }
-button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--panel); }
+button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
 button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-size: 14px; padding: 8px 18px; }
 button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 @media (max-width: 640px) { .rail { grid-template-columns: 1fr; } .rail .btns { justify-content: flex-start; } }
@@ -128,9 +129,44 @@ dialog { border: 1px solid var(--rule); background: var(--panel); color: var(--i
 dialog img { display: block; max-width: 92vw; max-height: 86vh; }
 dialog::backdrop { background: #000a; }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; scroll-behavior: auto !important; } }
+/* Approved Mondrian cover leads into the existing creation and result flow. */
+html { scroll-behavior: smooth; }
+#studio, #result { scroll-margin-top: 24px; }
+.section-intro { border-top: 5px solid #f7f7f3; padding-top: 18px; margin-top: 26px; }
+.section-intro > span { display:block; font: 700 11px/1.4 var(--font-mono); letter-spacing: .14em; color: #ff705c; }
+.section-intro h2 { font: 900 clamp(24px,3vw,38px)/1.2 var(--font-body); margin: 8px 0 5px; letter-spacing: -.03em; }
+.section-intro p { margin:0; color:var(--muted); }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 </style>
 </head>
 <body>
+<div id="cover">
+<div class="shell">
+    <div class="topbar">
+      <a class="brand" href="#top" aria-label="BRICKFORM 首页"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>BRICKFORM</span><small>PHOTO TO BRICKS</small></a>
+      <nav class="nav" aria-label="页面导航"><a href="#top">首页</a><a href="#studio">创作工作台</a><a href="#result">结果展示</a></nav>
+    </div>
+    <div id="top">
+      <section class="hero" aria-label="产品首页">
+        <div class="cover-frame"><div class="cover-board">
+          <span class="cover-cell cell-top" aria-hidden="true"></span>
+          <span class="cover-cell cell-right-a" aria-hidden="true"></span>
+          <span class="cover-cell cell-right-b" aria-hidden="true"></span>
+          <span class="cover-cell cell-mid-a" aria-hidden="true"></span>
+          <span class="cover-cell cell-mid-b" aria-hidden="true"></span>
+          <span class="cover-cell cell-bottom-a" aria-hidden="true"></span>
+          <span class="cover-cell cell-bottom-b" aria-hidden="true"></span>
+          <span class="cover-cell cell-bottom-c" aria-hidden="true"></span>
+          <button class="lego-piece red" id="start-project-brick" type="button" aria-label="Starting a project，点击进入照片创作工作台"><span class="stud-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="piece-label">Starting a project</span></button>
+          <div class="lego-piece yellow-strip" aria-hidden="true"><span class="stud-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></div>
+          <div class="lego-piece yellow-main" aria-hidden="true"><span class="stud-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span></div>
+          <div class="lego-piece blue" aria-hidden="true"><span class="stud-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span></div>
+        </div></div>
+      </section>
+    </div>
+  </div>
+
+</div>
 <div class="wrap">
   <header>
     <div class="title">
@@ -141,34 +177,12 @@ dialog::backdrop { background: #000a; }
       <div><dt>零件</dt><dd id="st-parts">–</dd></div>
       <div><dt>种类</dt><dd id="st-kinds">–</dd></div>
       <div><dt>尺寸</dt><dd id="st-size">–</dd></div>
-      <div><dt>回放步骤</dt><dd id="st-steps">–</dd></div>
+      <div><dt>查看层数</dt><dd id="st-steps">–</dd></div>
     </dl>
   </header>
 
-  <section class="viewer" aria-label="3D 模型">
-    <div id="stage"></div>
-    <div class="status" id="status">
-      <b>上传一张照片，告诉我你想要什么</b>
-      <img id="status-shot" alt="最新的渲染" hidden>
-      <span id="status-note">下面的对话框里写一句话就行。生成一个模型大约十来分钟，过程会实时显示。</span>
-      <span class="bar" id="status-bar" hidden><i></i></span>
-    </div>
-    <div class="hint" id="hint" hidden>拖动旋转 · 滚轮缩放 · 右键平移</div>
-    <div class="compass" id="compass" hidden>真实零件 · 已通过 BrickAgent 检查</div>
-    <div class="rail" id="rail" hidden>
-      <div class="step">第 <b id="stepNo">–</b> / <span id="stepMax">–</span> 层</div>
-      <input id="slider" type="range" min="0" max="1" value="1" aria-label="搭建步骤">
-      <div class="btns">
-        <button id="prev" type="button">上一步</button>
-        <button id="next" type="button">下一步</button>
-        <button id="play" type="button" aria-pressed="false">播放</button>
-        <button id="hl" type="button" aria-pressed="true">高亮本层</button>
-        <button id="dl" type="button">下载 .mpd</button>
-      </div>
-    </div>
-  </section>
-
-  <section class="chat">
+  <div class="section-intro" id="studio"><span>01 / START WITH A PHOTO</span><h2>把眼前的东西，变成可以搭的模型。</h2><p>选一张照片，告诉我们你想保留的形状和细节。</p></div>
+  <section class="chat" aria-label="照片创作工作台">
     <div class="chat-head">
       <h2>对话</h2>
       <span style="display:flex;align-items:center;gap:12px">
@@ -196,6 +210,31 @@ dialog::backdrop { background: #000a; }
     </form>
   </section>
 
+
+  <div class="section-intro" id="result"><span>02 / YOUR BRICK MODEL</span><h2>从照片到模型</h2><p>模型出现后，可以旋转查看、浏览零件，并查看本次检查结果。</p></div>
+  <section class="viewer" aria-label="3D 模型">
+    <div id="stage"></div>
+    <div class="status" id="status">
+      <b>上传一张照片，告诉我你想要什么</b>
+      <img id="status-shot" alt="最新的渲染" hidden>
+      <span id="status-note">上方的创作工作台里写一句话即可。生成一个模型大约十来分钟，过程会实时显示。</span>
+      <span class="bar" id="status-bar" hidden><i></i></span>
+    </div>
+    <div class="hint" id="hint" hidden>拖动旋转 · 滚轮缩放 · 右键平移</div>
+    <div class="compass" id="compass" hidden>真实零件 · 已通过 BrickAgent 检查</div>
+    <div class="rail" id="rail" hidden>
+      <div class="step">第 <b id="stepNo">–</b> / <span id="stepMax">–</span> 层</div>
+      <input id="slider" type="range" min="0" max="1" value="1" aria-label="模型分层查看">
+      <div class="btns">
+        <button id="prev" type="button">上一层</button>
+        <button id="next" type="button">下一层</button>
+        <button id="play" type="button" aria-pressed="false">播放</button>
+        <button id="hl" type="button" aria-pressed="true">高亮本层</button>
+        <button id="dl" type="button">下载 .mpd</button>
+      </div>
+    </div>
+  </section>
+
   <div class="cols">
     <section>
       <h2>这一件</h2>
@@ -211,6 +250,13 @@ dialog::backdrop { background: #000a; }
   </div>
 </div>
 <dialog id="lightbox"><img id="lightbox-img" alt=""></dialog>
+<script>
+const projectBrick = document.getElementById('start-project-brick');
+projectBrick.addEventListener('click', () => {
+  projectBrick.classList.add('is-pushed');
+  window.setTimeout(() => document.getElementById('studio').scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'}), 560);
+});
+</script>
 <script type="module" src="./app.js"></script>
 </body>
 </html>

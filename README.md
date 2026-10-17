@@ -30,7 +30,9 @@ python3 server.py            # http://127.0.0.1:8787
 
 ### P3 首页封面概念
 
-`web/cover-concept.html` 是独立的可点击视觉稿，直接用浏览器打开即可查看。它采用黑色网格、白色留空与红黄蓝立体积木；点击刻有 “starting a project” 的红色积木，会看到积木向前推出。当前仅是首页设计概念，尚未接入下面的生成流程，也不会改变现有 `web/index.html`。
+`web/cover-concept.html` 保留获认可的蒙德里安封面独立视觉稿。相同封面现已放入 `web/index.html`，样式在 `web/cover.css`。红色 “Starting a project” 积木向前推出后，页面滚动到照片创作工作台；后面仍是已有的生成状态、3D 查看器、模型信息和零件清单。后续页面的视觉细节可继续迭代。
+
+只看页面布局时，可在仓库根目录运行 `python3 -m http.server 8788 --bind 127.0.0.1 --directory web`，打开 `http://127.0.0.1:8788/`。这个静态预览没有生成 API；真实生成需按上方环境要求运行 `server.py`。
 
 | 路径 | 作用 |
 | --- | --- |

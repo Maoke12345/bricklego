@@ -371,18 +371,44 @@ $('composer').addEventListener('submit', async event => {
   }
 });
 
-/* ---------- 刷新后接回上一次 ---------- */
+/* ---------- 刷新后接回上一次 ----------
+ * 还在跑的才自动接回去——那是你关了页面还惦记着的东西。已经做完的不该每次
+ * 打开都重放一遍，页面干净地开着，只在对话框里留一个入口能回去看。 */
 
-const previous = new URLSearchParams(location.search).get('job') || localStorage.getItem('brickstudio.job');
+function resume(id) {
+  job = id;
+  localStorage.setItem('brickstudio.job', id);
+  $('jobline').textContent = `任务 ${id}`;
+  $('fresh').hidden = false;
+  listen(id);
+}
+
+/** 上次那件已经做完了：不打扰，只留一行能点回去。 */
+function offerResume(id) {
+  const empty = log.querySelector('.empty');
+  if (!empty) return;
+  const line = document.createElement('p');
+  line.className = 'fine resume';
+  line.innerHTML = '上一件已经做完了 · ';
+  const open = document.createElement('button');
+  open.type = 'button';
+  open.className = 'eg';
+  open.textContent = '回去看看';
+  open.onclick = () => { log.innerHTML = ''; working(false); resume(id); };
+  line.append(open);
+  empty.append(line);
+}
+
+const asked = new URLSearchParams(location.search).get('job');
+const previous = asked || localStorage.getItem('brickstudio.job');
 if (previous) {
   const state = await fetch(`/api/jobs/${previous}`).then(r => (r.ok ? r.json() : null)).catch(() => null);
-  if (state) {
-    job = previous;
-    $('jobline').textContent = `任务 ${job}`;
-    $('fresh').hidden = false;
-    working(state.busy);
-    listen(job);
-  } else {
+  if (!state) {
     localStorage.removeItem('brickstudio.job');
+  } else if (asked || state.busy) {
+    working(state.busy);
+    resume(previous);
+  } else {
+    offerResume(previous);
   }
 }

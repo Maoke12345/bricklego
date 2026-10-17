@@ -97,6 +97,9 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 .trace .err { color: var(--accent); }
 .stage-line { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
 .stage-line::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex: none; }
+.stage-line.done, .stage-line.failed { font-size: 14px; color: var(--ink); font-weight: 600; margin: 4px 0 2px; }
+.stage-line.done::before { content: "✓"; width: auto; height: auto; border-radius: 0; background: none; color: #2f7d32; font-size: 15px; font-weight: 700; }
+.stage-line.failed::before { content: "×"; width: auto; height: auto; border-radius: 0; background: none; color: var(--accent); font-size: 16px; font-weight: 700; }
 .renders { display: flex; gap: 8px; flex-wrap: wrap; }
 .renders img { width: 160px; border-radius: 4px; border: 1px solid var(--rule); background: #000; cursor: zoom-in; }
 

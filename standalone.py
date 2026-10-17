@@ -117,9 +117,12 @@ def transcript(job, events):
             if shots:
                 out.append({"type": "renders", "urls": shots})
             continue
-        if kind == "result":
-            out.append({"type": "stage", "text": "完成 · %d 轮 · %d 分钟 · $%.2f"
+        if kind == "result":                              # 老任务：agent 跑完，但还没检查打包
+            out.append({"type": "stage", "text": "模型搭完 · %d 轮 · %d 分钟 · $%.2f"
                         % (event["turns"], round(event["seconds"] / 60), event["cost"])})
+            continue
+        if kind == "done":                                # 收尾那行，字段原样带过去
+            out.append(dict(event))
             continue
         row = {"type": kind, "text": event.get("text", "")}
         if kind == "tool" and event.get("error"):
@@ -129,6 +132,17 @@ def transcript(job, events):
             if shot:
                 row["image"] = data_uri(shot)
         out.append(row)
+
+    # 老任务跑在加收尾行之前，这里按已有数据补一行，免得快照停在半路
+    if not any(r["type"] == "done" for r in out):
+        model = next((e for e in reversed(events) if e["type"] == "model"), None)
+        last = next((e for e in reversed(events) if e["type"] == "result"), None)
+        if model:
+            done = {"type": "done", "changed": True, "valid": bool(model.get("valid")),
+                    "total": model["manifest"]["total"], "kinds": model["manifest"]["kinds"]}
+            if last:
+                done |= {k: last[k] for k in ("turns", "seconds", "cost") if k in last}
+            out.append(done)
     return out
 
 

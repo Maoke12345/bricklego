@@ -57,6 +57,18 @@ function shots(urls) {
   }
 }
 
+/** 一轮结束时的收尾：说清楚到底出了什么，页面才不像还在跑。 */
+function doneLine(event) {
+  const cost = [];
+  if (event.turns) cost.push(`${event.turns} 轮`);
+  if (event.seconds) cost.push(`${Math.max(1, Math.round(event.seconds / 60))} 分钟`);
+  if (event.cost) cost.push(`$${event.cost.toFixed(2)}`);
+  if (event.changed === false) return ['这一轮没有改动模型 · ' + cost.join(' · '), false];
+  if (!event.total) return ['这一轮没能做出模型 · ' + cost.join(' · '), false];
+  const what = `${event.total} 个零件 · ${event.kinds} 种` + (event.valid ? ' · 无碰撞、物理稳定' : ' · 未通过完整检查');
+  return [`搭好了 ${what}　${cost.join(' · ')}`, true];
+}
+
 for (const event of __CHAT) {
   switch (event.type) {
     case 'user': say('me', '你', event.text, event.image); break;
@@ -65,6 +77,7 @@ for (const event of __CHAT) {
     case 'thinking': traceLine('· ' + event.text); break;
     case 'tool': traceLine(event.text, event.error); break;
     case 'renders': shots(event.urls); break;
+    case 'done': { const [text, ok] = doneLine(event); stage(text); log.lastElementChild.classList.add(ok ? 'done' : 'failed'); break; }
     case 'error': say('bot', '出错了', event.text); break;
   }
 }

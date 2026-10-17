@@ -93,6 +93,8 @@ class Job:
         self.waiters = threading.Condition()
         self.lock = threading.Lock()
         self.seen_png: dict[str, float] = {}
+        self.stats: dict | None = None                       # 这一轮 agent 用了多少轮、多久、多少钱
+        self.outcome: dict | None = None                     # 这一轮换没换模型，换成了什么
 
     # ---------- state ----------
 
@@ -166,6 +168,8 @@ class Job:
             finally:
                 self.busy = False
                 self.save()
+                self.emit(type="done", **(self.stats or {}), **(self.outcome or {}))
+                self.stats = self.outcome = None
                 self.emit(type="idle")
 
     def _save_photo(self, data_url: str) -> Path:
@@ -240,12 +244,11 @@ class Job:
                     self.emit(type="tool", text="  ↳ " + _clip(_text_of(block), 160), error=True)
         elif kind == "result":
             self._new_renders()
-            self.emit(
-                type="result",
-                turns=event.get("num_turns", 0),
-                seconds=round(event.get("duration_ms", 0) / 1000),
-                cost=round(event.get("total_cost_usd") or 0, 2),
-            )
+            self.stats = {                                    # 它搭完了，但还要检查和打包，收尾那行最后一起发
+                "turns": event.get("num_turns", 0),
+                "seconds": round(event.get("duration_ms", 0) / 1000),
+                "cost": round(event.get("total_cost_usd") or 0, 2),
+            }
 
     def _new_renders(self) -> None:
         """Show any PNG the agent has written or redrawn since the last check."""
@@ -269,7 +272,8 @@ class Job:
             return
         digest = hashlib.sha256(mpd.read_bytes()).hexdigest()
         if digest == self.model_hash:
-            return                                            # nothing changed: leave the viewer alone
+            self.outcome = {"changed": False}                 # nothing changed: leave the viewer alone
+            return
         self.model_hash = digest
 
         self.emit(type="stage", text="在检查碰撞和稳定性…")
@@ -279,11 +283,12 @@ class Job:
         self.emit(
             type="model",
             mpd=self._url(self.dir / "packed.mpd") + f"?v={digest[:8]}",
-            manifest=json.loads((self.dir / "manifest.json").read_text(encoding="utf-8")),
+            manifest=(manifest := json.loads((self.dir / "manifest.json").read_text(encoding="utf-8"))),
             card=self._card(),
             valid=valid,
             reference=self._reference(),
         )
+        self.outcome = {"changed": True, "total": manifest["total"], "kinds": manifest["kinds"], "valid": valid}
 
     def _verify(self) -> bool:
         done = _docker(BASE_IMAGE, [

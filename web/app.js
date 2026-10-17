@@ -14,6 +14,29 @@ let source = null;     // SSE 连接
 let model = null;      // 当前模型的 { mpd, manifest }
 
 /* ---------- 对话记录 ---------- */
+/** agent 的回复里有 **粗体**、`行内代码` 和 - 列表，照着排一下版。先转义，再加标记。 */
+function esc(text) {
+  return text.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+}
+
+function rich(text) {
+  const html = esc(text)
+    .replace(/`([^`\n]+)`/g, '<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  const out = [];
+  for (const block of html.split(/\n{2,}/)) {
+    let para = [], list = [];
+    const flushPara = () => { if (para.length) out.push(`<p>${para.join('<br>')}</p>`), para = []; };
+    const flushList = () => { if (list.length) out.push(`<ul>${list.map(i => `<li>${i}</li>`).join('')}</ul>`), list = []; };
+    for (const line of block.split('\n')) {
+      const item = line.match(/^\s*[-*]\s+(.*)$/);     // 段落和列表可以在同一块里交替
+      if (item) { flushPara(); list.push(item[1]); } else { flushList(); para.push(line); }
+    }
+    flushPara(); flushList();
+  }
+  return out.join('');
+}
+
 
 const log = $('log');
 
@@ -38,7 +61,8 @@ function bubble(kind, who) {
 
 function say(kind, who, text, image) {
   const el = bubble(kind, who);
-  el.querySelector('.body').textContent = text;
+  const body = el.querySelector('.body');
+  if (kind === 'bot') { body.classList.add('rich'); body.innerHTML = rich(text); } else body.textContent = text;
   if (image) {
     const img = document.createElement('img');
     img.className = 'shot';
@@ -182,7 +206,7 @@ async function showModel(event) {
     if (event.card?.title) {
       $('h1').innerHTML = '';
       $('h1').textContent = event.card.title;
-      if (event.card.subtitle) $('h1').insertAdjacentHTML('beforeend', `<small>${escape(event.card.subtitle)}</small>`);
+      if (event.card.subtitle) $('h1').insertAdjacentHTML('beforeend', `<small>${esc(event.card.subtitle)}</small>`);
     }
     if (event.card?.eyebrow) $('eyebrow').textContent = event.card.eyebrow;
     $('card-sub').textContent = event.card?.summary || '';
@@ -208,10 +232,6 @@ async function showModel(event) {
     $('status-note').textContent = error.message;
     console.error(error);
   }
-}
-
-function escape(text) {
-  return text.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 }
 
 /* ---------- 回放控制 ---------- */

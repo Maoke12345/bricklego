@@ -13,14 +13,21 @@ $('lightbox').addEventListener('click', () => $('lightbox').close());
 
 /** agent 的回复里有 **粗体** 和 - 列表，快照里顺手排一下版。 */
 function rich(text) {
-  const html = esc(text).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-  return html.split(/\n{2,}/).map(block => {
-    const lines = block.split('\n');
-    if (lines.every(line => /^\s*[-*]\s+/.test(line))) {
-      return '<ul>' + lines.map(line => `<li>${line.replace(/^\s*[-*]\s+/, '')}</li>`).join('') + '</ul>';
+  const html = esc(text)
+    .replace(/`([^`\n]+)`/g, '<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  const out = [];
+  for (const block of html.split(/\n{2,}/)) {
+    let para = [], list = [];
+    const flushPara = () => { if (para.length) out.push(`<p>${para.join('<br>')}</p>`), para = []; };
+    const flushList = () => { if (list.length) out.push(`<ul>${list.map(i => `<li>${i}</li>`).join('')}</ul>`), list = []; };
+    for (const line of block.split('\n')) {
+      const item = line.match(/^\s*[-*]\s+(.*)$/);     // 段落和列表可以在同一块里交替
+      if (item) { flushPara(); list.push(item[1]); } else { flushList(); para.push(line); }
     }
-    return `<p>${lines.join('<br>')}</p>`;
-  }).join('');
+    flushPara(); flushList();
+  }
+  return out.join('');
 }
 
 function say(kind, who, text, image) {

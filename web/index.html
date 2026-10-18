@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="./cover.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;0,800;1,800&family=IM+Fell+English:ital@0;1&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;0,800;1,800&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <script type="importmap">{"imports":{"three":"./vendor/three/build/three.module.js","three/addons/":"./vendor/three/examples/jsm/"}}</script>
 <style>
 /* 图册式版面：标题牌记 — 可转的模型 + 搭建回放 — 对话框 — 零件清单 */
@@ -134,9 +134,8 @@ dialog::backdrop { background: #000a; }
 /* Approved Mondrian cover leads into the existing creation and result flow. */
 html { scroll-behavior: smooth; }
 #studio, #result, #history { scroll-margin-top: 24px; }
-.section-intro { border-top: 3px solid #eae5d9; padding-top: 18px; margin-top: 26px; }
-.section-intro > span { display:table; padding: 4px 8px; background: #eae5d9; font: 800 11px/1.4 var(--font-mono); letter-spacing: .14em; color: #2825bd; }
-.section-intro > div > span:first-child { display:table; padding: 4px 8px; background: #eae5d9; font: 800 11px/1.4 var(--font-mono); letter-spacing: .14em; color: #2825bd; }
+.section-intro { border-top: 0; padding-top: 0; margin-top: 26px; }
+.section-intro > span, .section-intro > div > span:first-child { display: table; padding: 0; background: transparent; color: var(--ink); font: 800 12px/1.4 var(--font-mono); letter-spacing: .11em; }
 .section-intro h2 { font: 900 clamp(24px,3vw,38px)/1.2 var(--font-body); margin: 8px 0 5px; letter-spacing: -.03em; }
 .section-intro p { margin:0; color:var(--muted); }
 .studio-intro { position: relative; min-height: 225px; overflow: visible; border-top: 0; padding-top: 0; }
@@ -145,11 +144,10 @@ html { scroll-behavior: smooth; }
 .studio-intro .studio-gesture img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; z-index: 2; }
 .studio-intro .studio-gesture .hand-left { clip-path: inset(0 50% 0 0); transform: translateX(-30px); }
 .studio-intro .studio-gesture .hand-right { clip-path: inset(0 0 0 50%); transform: translateX(30px); }
-.studio-intro .studio-gesture > span:first-child { position: absolute; inset: 0; display: grid; place-items: center; width: 100%; height: 100%; padding: 0; background: transparent; color: var(--ink); font: italic 800 clamp(88px, 12vw, 116px)/1 var(--font-display); letter-spacing: -.045em; text-indent: -.045em; transform: translateY(14px); z-index: 1; }
-@supports (-webkit-background-clip: text) { .studio-intro .studio-gesture > span:first-child { background: radial-gradient(circle, #5b6062 .55px, #eae5d9 1.1px) 0 0 / 4px 4px; -webkit-background-clip: text; background-clip: text; color: transparent; } }
+.studio-intro .studio-gesture > span:first-child { position: absolute; inset: 0; display: grid; place-items: center; width: 100%; height: 100%; padding: 0; background: transparent; color: var(--ink); font: 400 clamp(112px, 14vw, 138px)/.92 "IM Fell English SC", "IM Fell English", Georgia, serif; letter-spacing: -.035em; text-indent: -.035em; transform: translateY(12px) skewX(-5deg); z-index: 1; }
 .studio-intro::after { display: none; }
 #result { margin-top: 78px; border-top: 0; padding-top: 0; }
-@media (max-width: 640px) { .studio-intro { min-height: 170px; } .studio-intro .studio-gesture { height: 108px; bottom: -27px; } .studio-intro .studio-gesture > span:first-child { font-size: clamp(58px, 13vw, 78px); } .studio-intro .studio-gesture .hand-left { transform: translateX(-16px); } .studio-intro .studio-gesture .hand-right { transform: translateX(16px); } #result { margin-top: 58px; } .composer .row { flex-wrap: wrap; } .composer textarea { flex-basis: 100%; } }
+@media (max-width: 640px) { .studio-intro { min-height: 170px; } .studio-intro .studio-gesture { height: 108px; bottom: -27px; } .studio-intro .studio-gesture > span:first-child { font-size: clamp(68px, 16vw, 100px); } .studio-intro .studio-gesture .hand-left { transform: translateX(-16px); } .studio-intro .studio-gesture .hand-right { transform: translateX(16px); } #result { margin-top: 58px; } .composer .row { flex-wrap: wrap; } .composer textarea { flex-basis: 100%; } }
 .history-head { display:flex; align-items:end; justify-content:space-between; gap:16px; }
 .history-count { color:#b8b5ff; font:700 13px/1.4 var(--font-mono); white-space:nowrap; }
 .history-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; }

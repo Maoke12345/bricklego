@@ -58,7 +58,8 @@ function showHistoryPage() {
   $('book-prev').disabled = historyIndex === 0;
   $('book-next').disabled = historyIndex === historyEntries.length - 1;
   const image = $('book-image');
-  const preview = typeof entry.preview === 'string' && entry.preview.startsWith(`/jobs/${entry.id}/`) ? entry.preview : '';
+  const saved = typeof entry.preview === 'string' && entry.preview.startsWith(`/jobs/${entry.id}/`) ? entry.preview : '';
+  const preview = saved || `/jobs/${entry.id}/work/preview.png`;   // entries saved before we recorded one
   image.hidden = !preview;
   $('book-image-empty').hidden = !!preview;
   image.alt = preview ? `${entry.title || 'Completed model'} render` : '';
@@ -455,6 +456,7 @@ addEventListener('keydown', event => {
 /** Take whatever is on screen down, without deciding what goes up next. Switching models and
  *  starting over both pass through here, which is why neither reloads the page. */
 function clearView() {
+  latestRender = null;
   source?.close();
   source = null;
   model = null;

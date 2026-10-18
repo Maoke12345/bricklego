@@ -1,0 +1,147 @@
+/* Ivory gallery presentation and shared display lettering. */
+:root {
+  --gallery-wall: #eeeae1;
+  --gallery-ivory: #252521;
+  --gallery-caption: #66655f;
+}
+
+.brand > span:nth-child(2) {
+  font: 400 27px/.95 "IM Fell English SC", "IM Fell English", Georgia, serif;
+  letter-spacing: -.055em;
+  transform: skewX(-4deg);
+}
+
+.title h1 {
+  font: 400 clamp(56px, 7vw, 88px)/.95 "IM Fell English SC", "IM Fell English", Georgia, serif;
+  letter-spacing: -.055em;
+  transform: skewX(-4deg);
+}
+
+.title h1 small {
+  font-size: .37em;
+  font-family: "IM Fell English", Georgia, serif;
+  letter-spacing: -.015em;
+}
+
+.section-intro h2 {
+  font: 400 clamp(38px, 4.2vw, 58px)/1.03 "IM Fell English SC", "IM Fell English", Georgia, serif;
+  letter-spacing: -.035em;
+  transform: skewX(-3deg);
+}
+
+.showcase-page {
+  padding: clamp(48px, 6vw, 92px) clamp(24px, 6vw, 90px) clamp(60px, 8vw, 112px);
+  background: var(--gallery-wall);
+  color: var(--gallery-ivory);
+}
+
+.showcase-inner { max-width: 1120px; }
+
+.showcase-heading {
+  grid-template-columns: minmax(0, 1.25fr) minmax(210px, .75fr);
+  align-items: end;
+  gap: 18px 48px;
+  margin-bottom: 46px;
+}
+
+.showcase-index {
+  padding: 0;
+  border: 0;
+  color: #5d5b55;
+  font-size: 11px;
+  letter-spacing: .09em;
+}
+
+.showcase-heading h2 {
+  margin: 0;
+  font: 400 clamp(67px, 8.4vw, 112px)/.84 "IM Fell English SC", "IM Fell English", Georgia, serif;
+  letter-spacing: -.048em;
+  transform: skewX(-4deg);
+}
+
+.showcase-heading p {
+  max-width: 34ch;
+  color: var(--gallery-caption);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.showcase-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(34px, 4vw, 58px) clamp(24px, 3.5vw, 48px);
+  align-items: start;
+}
+
+.showcase-card,
+.showcase-feature {
+  display: flex;
+  flex-direction: column;
+  grid-column: auto;
+  grid-row: auto;
+  min-width: 0;
+  overflow: visible;
+  background: transparent;
+  box-shadow: none;
+}
+
+.showcase-feature { grid-column: 1 / -1; }
+
+.showcase-art,
+.showcase-feature .showcase-art {
+  flex: none;
+  min-height: 0;
+  aspect-ratio: 1.28;
+  background: #f8f7f3;
+  border: 1px solid #d9d6cf;
+  box-shadow: 0 2px 2px #49453b18, 0 14px 28px #49453b1b;
+}
+
+.showcase-feature .showcase-art { aspect-ratio: 2.24; }
+.showcase-feature .model-slice { background-position: center 46%; }
+.showcase-art .model-slice { filter: drop-shadow(0 8px 8px #1e22211d); }
+.mosaic-art .model-slice { filter: saturate(.72) drop-shadow(0 8px 8px #1e22211d); }
+
+.showcase-card-copy,
+.showcase-feature .showcase-card-copy {
+  padding: 14px 0 0;
+  border: 0;
+  background: transparent;
+  color: var(--gallery-ivory);
+  align-items: baseline;
+}
+
+.showcase-card-copy span { color: var(--gallery-caption); }
+.showcase-card-copy h3,
+.showcase-feature .showcase-card-copy h3 { color: var(--gallery-ivory); font-size: 18px; }
+.showcase-feature .showcase-card-copy h3 { font-size: 23px; }
+
+.showcase-credit {
+  max-width: 86ch;
+  margin-top: 52px;
+  padding-top: 18px;
+  border-top: 1px solid #b7b3aa;
+  color: var(--gallery-caption);
+  font-size: 12px;
+}
+.showcase-credit a { color: var(--gallery-ivory); }
+
+.showcase-next {
+  margin-top: 26px;
+  background: var(--gallery-ivory);
+  color: #eeeae1;
+}
+.showcase-next:hover { background: #44433c; }
+.showcase-next:focus-visible,
+.showcase-credit a:focus-visible { outline-color: #222; }
+
+@media (max-width: 680px) {
+  .brand > span:nth-child(2) { font-size: 21px; }
+  .showcase-heading { grid-template-columns: 1fr; gap: 14px; margin-bottom: 34px; }
+  .showcase-heading h2 { font-size: clamp(60px, 14vw, 88px); }
+  .showcase-heading p { max-width: 52ch; }
+  .showcase-grid { grid-template-columns: 1fr; gap: 38px; }
+  .showcase-feature { grid-column: auto; }
+  .showcase-feature .showcase-art { aspect-ratio: 1.28; }
+  .showcase-next { width: 100%; }
+}

@@ -59,7 +59,8 @@ function showHistoryPage() {
   $('book-next').disabled = historyIndex === historyEntries.length - 1;
   const image = $('book-image');
   const saved = typeof entry.preview === 'string' && entry.preview.startsWith(`/jobs/${entry.id}/`) ? entry.preview : '';
-  const preview = saved || `/jobs/${entry.id}/work/preview.png`;   // entries saved before we recorded one
+  const preview = saved ||                                         // entries saved before we recorded one
+    `/jobs/${entry.id}/work/preview.png?v=${entry.updatedAt || entry.savedAt}`;
   image.hidden = !preview;
   $('book-image-empty').hidden = !!preview;
   image.alt = preview ? `${entry.title || 'Completed model'} render` : '';
@@ -115,6 +116,8 @@ function rememberModel(event, info) {
     parts: info.parts,
     valid: !!event.valid,
     savedAt: old?.savedAt || Date.now(),
+    updatedAt: Date.now(),
+    preview: latestRender || old?.preview || null,   // carries ?v=<mtime>, so a later turn busts the cache
   };
   try {
     localStorage.setItem(historyKey, JSON.stringify([entry, ...entries.filter(item => item.id !== job)].slice(0, 30)));

@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BRICKFORM · Model archive layout preview</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700;800&family=IM+Fell+English+SC&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root { --font-mono: "JetBrains Mono", Consolas, monospace; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #eeeae1; color: #252521; font: 15px/1.6 "DM Sans", sans-serif; }
+[hidden] { display: none !important; }
+main { width: min(1180px, calc(100% - 40px)); margin: 42px auto 80px; }
+.preview-note { margin: 0 0 34px; color: #66655f; font-size: 13px; }
+.preview-note a { color: #252521; }
+.kicker { display: block; font: 800 11px/1.5 var(--font-mono); letter-spacing: .1em; }
+h1 { margin: 8px 0 4px; font: 400 clamp(46px, 6vw, 74px)/.95 "IM Fell English SC", Georgia, serif; letter-spacing: -.04em; }
+.intro { margin: 0 0 30px; color: #66655f; }
+button { cursor: pointer; font: inherit; }
+button:disabled { cursor: default; opacity: .5; }
+</style>
+<link rel="stylesheet" href="./history-book.css">
+</head>
+<body>
+<main>
+  <p class="preview-note"><strong>Layout preview with reference artwork.</strong> These are sample pages to review the design, not your saved models or generated build instructions. <a href="./index.html#history">Open the real history page ↗</a></p>
+  <span class="kicker">03 / MODEL HISTORY</span>
+  <h1>Earlier models</h1>
+  <p class="intro">An open book for each finished model. The newest appears first.</p>
+  <div class="history-book" id="history-book" aria-label="Model archive layout sample">
+    <div class="book-spread">
+      <div class="book-page book-page-left">
+        <div class="book-topline"><span>BRICKFORM</span><span>MODEL ARCHIVE · LAYOUT SAMPLE</span></div>
+        <div class="book-details">
+          <span class="book-edition" id="book-edition">01 / 02</span>
+          <h3 id="book-title">Hagia Sophia</h3>
+          <p class="book-caption">A model page with the image, date, parts and check shown together.</p>
+          <dl class="book-facts"><div><dt>Created</dt><dd id="book-date">Oct 17, 2026</dd></div><div><dt>Parts</dt><dd id="book-parts">Sample</dd></div><div><dt>Check</dt><dd id="book-check">Not run in preview</dd></div></dl>
+        </div>
+        <button class="book-open" type="button" disabled>Open 3D model <span aria-hidden="true">↗</span></button>
+      </div>
+      <div class="book-page book-page-right">
+        <div class="book-topline"><span>MODEL VIEW · REFERENCE ARTWORK</span><span id="book-number">01</span></div>
+        <div class="book-image-wrap"><img id="book-image" src="./showcase-architecture.webp" alt="Reference rendering of an architectural brick model"><div class="book-image-empty" id="book-image-empty" hidden><span class="book-brick" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>Model preview unavailable<br>Open the 3D model to view it</span></div></div>
+        <div class="book-footer"><span>Layout sample · no build steps</span><span id="book-folio">01</span></div>
+      </div>
+    </div>
+    <div class="book-controls"><button id="book-prev" type="button" disabled>← Previous</button><span id="book-progress" aria-live="polite">1 of 2</span><button id="book-next" type="button">Next →</button></div>
+  </div>
+  <p class="preview-note">Architecture reference by <a href="https://github.com/saidsurucu/lego-hagia-sophia">Said Sürücü</a>, CC BY 4.0. The second page demonstrates the fallback when no render image is available.</p>
+</main>
+<script>
+const pages = [
+  { title: 'Hagia Sophia', image: './showcase-architecture.webp', alt: 'Reference rendering of an architectural brick model', date: 'Oct 17, 2026' },
+  { title: 'Untitled model', image: '', alt: '', date: 'Oct 16, 2026' },
+];
+let index = 0;
+const $ = id => document.getElementById(id);
+function showPage() {
+  const page = pages[index];
+  const folio = String(index + 1).padStart(2, '0');
+  $('book-edition').textContent = `${folio} / 02`;
+  $('book-title').textContent = page.title;
+  $('book-date').textContent = page.date;
+  $('book-number').textContent = folio;
+  $('book-folio').textContent = folio;
+  $('book-progress').textContent = `${index + 1} of 2`;
+  $('book-image').hidden = !page.image;
+  $('book-image-empty').hidden = !!page.image;
+  $('book-image').alt = page.alt;
+  if (page.image) $('book-image').src = page.image;
+  else $('book-image').removeAttribute('src');
+  $('book-prev').disabled = index === 0;
+  $('book-next').disabled = index === pages.length - 1;
+}
+function turn(direction) {
+  const target = index + direction;
+  if (target < 0 || target >= pages.length) return;
+  index = target;
+  showPage();
+}
+$('book-prev').addEventListener('click', () => turn(-1));
+$('book-next').addEventListener('click', () => turn(1));
+</script>
+</body>
+</html>

@@ -34,9 +34,11 @@ python3 server.py            # http://127.0.0.1:8787
 
 封面新增黑色 “Showcase” 积木，点击进入封面与 BrickStudio 之间的展示区。这里有九件静态参考作品：八件从 [BrickAgent 官方仓库的 BrickBench teaser](https://github.com/kulits/BrickAgent/blob/master/docs/images/teaser_mosaic.avif) 中挑选，以 CSS 定位展示原图中的单个模型；来源项目采用 MIT 许可，许可文本见 `references/BrickAgent/LICENSE`。建筑模型来自 Said Sürücü 的 [Ayasofya custom model](https://github.com/saidsurucu/lego-hagia-sophia)，原渲染图转为本地 WebP 以加快加载，并按原项目说明以 CC BY 4.0 署名。九件都不是本站根据用户照片新生成的结果。进入展示区时，图片分层快速落下并拼合；减少动态效果的系统设置会关闭动画。
 
-模型成功载入后，历史区会在**当前浏览器**保存任务 ID、名称、零件数和检查状态，不复制私人照片或 MPD。点击历史作品时会先确认原始任务仍在当前服务，再用现有 `?job=<id>` 恢复它。历史目录最多保留 30 件；浏览器数据被清除或服务端任务文件被删除后，作品不能从此目录恢复。静态页面预览不会生成模型，因此历史区显示真实的空状态。
+模型成功载入后，历史区会在**当前浏览器**保存任务 ID、名称、零件数、检查状态及该任务的渲染图路径，不复制私人照片或 MPD。历史区采用可翻页的说明书式模型册，每页展示一件模型，最近完成的排在第一页；这只是档案展示，不提供逐块搭建步骤。点击“Open 3D model”会先确认原始任务仍在当前服务，再用现有 `?job=<id>` 恢复它。历史目录最多保留 30 件；浏览器数据被清除或服务端任务文件被删除后，作品不能从此目录恢复。静态页面预览不会生成模型，因此真实历史区显示空状态。
 
-只看页面布局时，可在仓库根目录运行 `python3 -m http.server 8788 --bind 127.0.0.1 --directory web`，打开 `http://127.0.0.1:8788/`。这个静态预览没有生成 API；真实生成需按上方环境要求运行 `server.py`。
+工作台、结果区、展示区和历史区统一为乳白色调，首页蒙德里安封面保留原设计。可打开 `web/history-book-preview.html` 查看模型册的**静态版式样例**和翻页、无图片状态；样例建筑图有单独署名，不属于用户历史。真实页面仍只读取当前浏览器里确实完成的模型。
+
+只看页面布局时，可在仓库根目录运行 `python3 -m http.server 8788 --bind 127.0.0.1 --directory web`，打开 `http://127.0.0.1:8788/` 或 `http://127.0.0.1:8788/history-book-preview.html`。这个静态预览没有生成 API；真实生成需按上方环境要求运行 `server.py`。
 
 | 路径 | 作用 |
 | --- | --- |

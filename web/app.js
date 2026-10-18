@@ -12,68 +12,99 @@ let photo = null;      // 待发送的照片（data URL）
 let busy = false;      // 后端正在跑
 let source = null;     // SSE 连接
 let model = null;      // 当前模型的 { mpd, manifest }
+let latestRender = null;
 
 /* ---------- 本机模型历史 ---------- */
 
 const historyKey = 'brickstudio.models.v1';
+let historyEntries = [];
+let historyIndex = 0;
+let historyTurning = false;
 
 function savedModels() {
   try {
     const entries = JSON.parse(localStorage.getItem(historyKey) || '[]');
-    return Array.isArray(entries) ? entries.filter(entry => /^[\w-]+$/.test(entry?.id || '') && Number.isFinite(Number(entry.savedAt))) : [];
+    return Array.isArray(entries) ? entries.filter(entry => /^[\w-]+$/.test(entry?.id || '') && Number.isFinite(Number(entry.savedAt))).sort((a, b) => Number(b.savedAt) - Number(a.savedAt)) : [];
   } catch {
     return [];
   }
 }
 
 function renderHistory() {
-  const entries = savedModels();
-  $('history-count').textContent = `${entries.length} models`;
-  $('history-empty').hidden = entries.length > 0;
-  $('history-list').hidden = entries.length === 0;
-  const list = $('history-list');
-  list.replaceChildren();
-  for (const entry of entries) {
-    const card = document.createElement('article');
-    card.className = 'history-item';
-    const title = document.createElement('h3');
-    title.textContent = entry.title || 'Untitled model';
-    const meta = document.createElement('div');
-    meta.className = 'history-meta';
-    const savedAt = document.createElement('span');
-    savedAt.textContent = new Intl.DateTimeFormat('en-US', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}).format(new Date(entry.savedAt));
-    const parts = document.createElement('span');
-    parts.textContent = `${Number(entry.parts || 0).toLocaleString()} parts`;
-    const check = document.createElement('span');
-    check.textContent = entry.valid ? 'Check passed' : 'Full check not passed';
-    meta.append(savedAt, parts, check);
-    const open = document.createElement('button');
-    open.type = 'button';
-    open.textContent = 'Open model';
-    const error = document.createElement('div');
-    error.className = 'history-error';
-    error.setAttribute('aria-live', 'polite');
-    open.addEventListener('click', async () => {
-      open.disabled = true;
-      open.textContent = 'Opening…';
-      error.textContent = '';
-      try {
-        const response = await fetch(`/api/jobs/${entry.id}`);
-        if (!response.ok) throw new Error(response.status === 404 ? 'The original job is no longer available on this server.' : 'This job cannot be loaded right now.');
-        const url = new URL(location.href);
-        url.searchParams.set('job', entry.id);
-        url.hash = 'result';
-        location.assign(url);
-      } catch (reason) {
-        error.textContent = reason instanceof TypeError ? 'Cannot connect to this server right now.' : reason.message;
-        open.disabled = false;
-        open.textContent = 'Open model';
-      }
-    });
-    card.append(title, meta, open, error);
-    list.append(card);
-  }
+  historyEntries = savedModels();
+  historyIndex = 0;
+  $('history-count').textContent = `${historyEntries.length} ${historyEntries.length === 1 ? 'model' : 'models'}`;
+  $('history-empty').hidden = historyEntries.length > 0;
+  $('history-book').hidden = historyEntries.length === 0;
+  if (historyEntries.length) showHistoryPage();
 }
+
+function showHistoryPage() {
+  const entry = historyEntries[historyIndex];
+  if (!entry) return;
+  const folio = String(historyIndex + 1).padStart(2, '0');
+  $('book-edition').textContent = `${folio} / ${String(historyEntries.length).padStart(2, '0')}`;
+  $('book-number').textContent = folio;
+  $('book-folio').textContent = folio;
+  $('book-progress').textContent = `${historyIndex + 1} of ${historyEntries.length}`;
+  $('book-title').textContent = entry.title || 'Untitled model';
+  $('book-date').textContent = new Intl.DateTimeFormat('en-US', {month:'short', day:'numeric', year:'numeric'}).format(new Date(entry.savedAt));
+  $('book-parts').textContent = `${Number(entry.parts || 0).toLocaleString()} parts`;
+  $('book-check').textContent = entry.valid ? 'Passed' : 'Full check not passed';
+  $('book-error').textContent = '';
+  $('book-prev').disabled = historyIndex === 0;
+  $('book-next').disabled = historyIndex === historyEntries.length - 1;
+  const image = $('book-image');
+  const preview = typeof entry.preview === 'string' && entry.preview.startsWith(`/jobs/${entry.id}/`) ? entry.preview : '';
+  image.hidden = !preview;
+  $('book-image-empty').hidden = !!preview;
+  image.alt = preview ? `${entry.title || 'Completed model'} render` : '';
+  image.onerror = () => { image.hidden = true; $('book-image-empty').hidden = false; };
+  if (preview) image.src = preview;
+  else image.removeAttribute('src');
+}
+
+function turnHistoryPage(direction) {
+  const target = historyIndex + direction;
+  if (historyTurning || target < 0 || target >= historyEntries.length) return;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    historyIndex = target;
+    showHistoryPage();
+    return;
+  }
+  historyTurning = true;
+  const book = $('history-book');
+  book.classList.add('turn-out');
+  setTimeout(() => {
+    historyIndex = target;
+    showHistoryPage();
+    book.classList.remove('turn-out');
+    book.classList.add('turn-in');
+    requestAnimationFrame(() => requestAnimationFrame(() => book.classList.remove('turn-in')));
+    setTimeout(() => { historyTurning = false; }, 220);
+  }, 200);
+}
+
+$('book-prev').addEventListener('click', () => turnHistoryPage(-1));
+$('book-next').addEventListener('click', () => turnHistoryPage(1));
+$('book-open').addEventListener('click', async () => {
+  const entry = historyEntries[historyIndex];
+  if (!entry) return;
+  const open = $('book-open');
+  open.disabled = true;
+  $('book-error').textContent = '';
+  try {
+    const response = await fetch(`/api/jobs/${entry.id}`);
+    if (!response.ok) throw new Error(response.status === 404 ? 'The original job is no longer available on this server.' : 'This job cannot be loaded right now.');
+    const url = new URL(location.href);
+    url.searchParams.set('job', entry.id);
+    url.hash = 'result';
+    location.assign(url);
+  } catch (reason) {
+    $('book-error').textContent = reason instanceof TypeError ? 'Cannot connect to this server right now.' : reason.message;
+    open.disabled = false;
+  }
+});
 
 function rememberModel(event, info) {
   if (!job) return;
@@ -85,6 +116,7 @@ function rememberModel(event, info) {
     parts: info.parts,
     valid: !!event.valid,
     savedAt: old?.savedAt || Date.now(),
+    preview: latestRender || old?.preview || null,
   };
   try {
     localStorage.setItem(historyKey, JSON.stringify([entry, ...entries.filter(item => item.id !== job)].slice(0, 30)));
@@ -211,7 +243,7 @@ function handle(event) {
     case 'assistant': say('bot', 'BRICKFORM', event.text); break;
     case 'thinking': traceLine('· ' + event.text); break;
     case 'tool': traceLine(event.text, event.error); break;
-    case 'renders': shots(event.urls); if (!model) peek(event.urls.at(-1)); break;
+    case 'renders': latestRender = event.urls.at(-1) || latestRender; shots(event.urls); if (!model) peek(event.urls.at(-1)); break;
     case 'model': showModel(event); break;
     case 'result': stage(`Completed · ${event.turns} turns · ${Math.round(event.seconds / 60)} min · $${event.cost.toFixed(2)}`); break;
     case 'error': say('bot', 'Error', event.text); break;
@@ -317,6 +349,7 @@ function reset() {
   source = null;
   job = null;
   model = null;
+  latestRender = null;
   localStorage.removeItem('brickstudio.job');
   log.innerHTML = '';
   viewer.clear();
@@ -389,7 +422,7 @@ $('composer').addEventListener('submit', async event => {
   const url = job ? `/api/jobs/${job}/messages` : '/api/jobs';
   working(true);
   $('text').value = '';
-  if (!job) say('me', 'You', text, photo);     // 新任务的回显由服务端事件补上，但先让界面立刻有反应
+  if (!job) { latestRender = null; say('me', 'You', text, photo); }     // 新任务的回显由服务端事件补上，但先让界面立刻有反应
   photo = null;
   $('thumb').hidden = true;
   $('file').value = '';

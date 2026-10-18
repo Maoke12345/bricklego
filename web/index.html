@@ -13,28 +13,18 @@
 <style>
 /* 图册式版面：标题牌记 — 可转的模型 + 搭建回放 — 对话框 — 零件清单 */
 :root {
-  --bg: #252a2e;
-  --panel: #343a3f;
-  --ink: #eae5d9;
-  --muted: #b7c0c7;
-  --rule: #59636a;
+  --bg: #eeeae1;
+  --panel: #faf9f5;
+  --ink: #252521;
+  --muted: #66655f;
+  --rule: #b9b8b0;
   --accent: #e74731;
-  --sea-top: #343f46;
-  --sea-bot: #263037;
+  --sea-top: #e6e7e1;
+  --sea-bot: #d9dcd7;
   --font-display: "DM Sans", sans-serif;
   --font-latin: "IM Fell English", Georgia, serif;
   --font-body: "DM Sans", sans-serif;
   --font-mono: "JetBrains Mono", Consolas, monospace;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #252a2e; --panel: #343a3f; --ink: #eae5d9; --muted: #b7c0c7; --rule: #59636a;
-    --accent: #e74731; --sea-top: #343f46; --sea-bot: #263037; color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #252a2e; --panel: #343a3f; --ink: #eae5d9; --muted: #b7c0c7; --rule: #59636a;
-  --accent: #e74731; --sea-top: #343f46; --sea-bot: #263037; color-scheme: dark;
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.6; }
@@ -73,9 +63,9 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 button { font: inherit; font-size: 13px; color: var(--ink); background: transparent; border: 1px solid var(--rule); border-radius: 4px; padding: 5px 11px; cursor: pointer; }
 button:hover:not(:disabled) { border-color: var(--accent); }
 button:disabled { opacity: .45; cursor: default; }
-button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--ink); }
-button.primary { background: transparent; border: 2px solid #ffc61a; color: #ffc61a; font-size: 14px; font-weight: 800; padding: 7px 17px; }
-button.primary:hover:not(:disabled) { background: #ffc61a1c; border-color: #ffd93b; color: #ffd93b; }
+button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.primary { background: transparent; border: 2px solid #d9a900; color: #866600; font-size: 14px; font-weight: 800; padding: 7px 17px; }
+button.primary:hover:not(:disabled) { background: #ffdc5533; border-color: #bd9100; color: #715500; }
 button.primary:focus-visible { outline-color: #ffc61a; }
 button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 @media (max-width: 640px) { .rail { grid-template-columns: 1fr; } .rail .btns { justify-content: flex-start; } }
@@ -91,7 +81,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .msg .who { font-size: 11px; letter-spacing: .1em; color: var(--muted); text-transform: uppercase; }
 .msg .body { white-space: pre-wrap; overflow-wrap: anywhere; }
 .msg.me { justify-self: end; text-align: right; }
-.msg.me .body { background: var(--accent); color: var(--ink); border-radius: 10px 10px 2px 10px; padding: 8px 12px; text-align: left; }
+.msg.me .body { background: var(--accent); color: #fff; border-radius: 10px 10px 2px 10px; padding: 8px 12px; text-align: left; }
 .msg.bot .body { background: var(--bg); border: 1px solid var(--rule); border-radius: 10px 10px 10px 2px; padding: 8px 12px; }
 .msg img.shot { max-width: min(320px, 70%); border-radius: 6px; border: 1px solid var(--rule); display: block; }
 .msg.me img.shot { margin-left: auto; }
@@ -149,23 +139,17 @@ html { scroll-behavior: smooth; }
 #result { margin-top: 78px; border-top: 0; padding-top: 0; }
 @media (max-width: 640px) { .studio-intro { min-height: 170px; } .studio-intro .studio-gesture { height: 108px; bottom: -27px; } .studio-intro .studio-gesture > span:first-child { font-size: clamp(68px, 16vw, 100px); } .studio-intro .studio-gesture .hand-left { transform: translateX(-16px); } .studio-intro .studio-gesture .hand-right { transform: translateX(16px); } #result { margin-top: 58px; } .composer .row { flex-wrap: wrap; } .composer textarea { flex-basis: 100%; } }
 .history-head { display:flex; align-items:end; justify-content:space-between; gap:16px; }
-.history-count { color:#b8b5ff; font:700 13px/1.4 var(--font-mono); white-space:nowrap; }
-.history-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; }
-.history-item, .history-empty { border:1px solid var(--rule); background:var(--panel); padding:22px; }
-.history-item { border-top:5px solid #2825bd; display:grid; gap:16px; align-content:start; }
-.history-item h3 { margin:0; font:800 23px/1.25 var(--font-body); }
-.history-meta { display:flex; flex-wrap:wrap; gap:8px 18px; color:var(--muted); font-size:13px; }
-.history-item button { justify-self:start; padding:8px 18px; border-color:#413bdc; color:var(--ink); }
-.history-item button:hover:not(:disabled) { background:#2825bd; border-color:#413bdc; }
-.history-error { color:#ff9587; font-size:13px; min-height:1.3em; }
-.history-empty { min-height:190px; border-left:5px solid #2825bd; display:grid; align-content:center; gap:9px; }
+.history-count { color:#565d61; font:700 13px/1.4 var(--font-mono); white-space:nowrap; }
+.history-error { color:#aa3024; font-size:13px; min-height:1.3em; }
+.history-empty { min-height:190px; border:1px solid var(--rule); background:var(--panel); padding:22px; display:grid; align-content:center; gap:9px; }
 .history-empty strong { font-size:21px; }
 .history-empty p { margin:0; color:var(--muted); }
-.history-empty a { color:#ffd43b; text-underline-offset:4px; }
+.history-empty a { color:#373838; text-underline-offset:4px; }
 .history-page { min-height:calc(100svh - 170px); display:grid; align-content:start; gap:16px; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 </style>
 <link rel="stylesheet" href="./gallery.css">
+<link rel="stylesheet" href="./history-book.css">
 </head>
 <body>
 <div id="cover">
@@ -340,7 +324,27 @@ html { scroll-behavior: smooth; }
   <div class="section-intro history-head" id="history"><div><span>03 / MODEL HISTORY</span><h2>Earlier models</h2><p>Reopen a model you made earlier.</p></div><span class="history-count" id="history-count">0 models</span></div>
   <section class="history-page" aria-label="Model history">
     <div class="history-empty" id="history-empty"><strong>No completed models yet</strong><p>Your first finished model will appear here.</p><a href="#studio">Start your first project</a></div>
-    <div class="history-list" id="history-list" hidden></div>
+    <div class="history-book" id="history-book" hidden aria-label="Completed model booklet">
+      <div class="book-spread" id="history-spread">
+        <div class="book-page book-page-left">
+          <div class="book-topline"><span>BRICKFORM</span><span>MODEL ARCHIVE</span></div>
+          <div class="book-details">
+            <span class="book-edition" id="book-edition">01 / 01</span>
+            <h3 id="book-title">Model title</h3>
+            <p class="book-caption">A model you completed, kept in your collection.</p>
+            <dl class="book-facts"><div><dt>Created</dt><dd id="book-date">–</dd></div><div><dt>Parts</dt><dd id="book-parts">–</dd></div><div><dt>Check</dt><dd id="book-check">–</dd></div></dl>
+          </div>
+          <button class="book-open" id="book-open" type="button">Open 3D model <span aria-hidden="true">↗</span></button>
+          <p class="history-error" id="book-error" aria-live="polite"></p>
+        </div>
+        <div class="book-page book-page-right">
+          <div class="book-topline"><span>MODEL VIEW</span><span id="book-number">01</span></div>
+          <div class="book-image-wrap"><img id="book-image" alt="" hidden><div class="book-image-empty" id="book-image-empty"><span class="book-brick" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>Model preview unavailable<br>Open the 3D model to view it</span></div></div>
+          <div class="book-footer"><span>One completed model per page</span><span id="book-folio">01</span></div>
+        </div>
+      </div>
+      <div class="book-controls"><button id="book-prev" type="button" aria-label="Previous model">← Previous</button><span id="book-progress" aria-live="polite">1 of 1</span><button id="book-next" type="button" aria-label="Next model">Next →</button></div>
+    </div>
     <p class="sub">History is saved in this browser. Reopening a model requires its original job on this server.</p>
   </section>
 </div>

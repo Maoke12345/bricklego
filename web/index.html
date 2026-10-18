@@ -408,43 +408,6 @@ html { scroll-behavior: smooth; }
 </div>
 <dialog id="lightbox"><img id="lightbox-img" alt=""></dialog>
 <script>
-/* Studs sit on one lattice across the whole cover, the way bricks do on a baseplate:
-   a fixed pitch, each stud 0.6 of it. Counts follow from each piece's size, so nothing
-   is hand-placed and no two bricks end up with different-sized studs. */
-(() => {
-  const board = document.querySelector('.cover-board');
-  if (!board) return;
-  const ACROSS = 7;                                   // how many studs span the board
-  const studded = () => board.querySelectorAll('.lego-piece, .outside-left-yellow, .outside-right-red');
-
-  function lay() {
-    const pitch = board.clientWidth / ACROSS;
-    if (!pitch) return;
-    board.style.setProperty('--pitch', pitch + 'px');
-    for (const piece of studded()) {
-      const box = piece.getBoundingClientRect();
-      // floor, so a stud never hangs over the edge; one row anyway on pieces too thin to hold a whole one
-      const fit = side => Math.floor(side / pitch) || (side >= pitch * 0.3 ? 1 : 0);
-      const cols = fit(box.width), rows = fit(box.height);
-      const room = Math.min(pitch, cols ? box.width / cols : pitch, rows ? box.height / rows : pitch);
-      let grid = piece.querySelector('.stud-grid');
-      if (!grid) {
-        grid = document.createElement('span');
-        grid.className = 'stud-grid';
-        grid.setAttribute('aria-hidden', 'true');
-        piece.prepend(grid);
-      }
-      piece.style.setProperty('--cols', cols);
-      piece.style.setProperty('--rows', rows);
-      piece.style.setProperty('--stud-d', (room * 0.6).toFixed(1) + 'px');
-      const want = Math.max(0, cols * rows);
-      while (grid.children.length > want) grid.lastChild.remove();
-      while (grid.children.length < want) grid.append(document.createElement('i'));
-    }
-  }
-  lay();
-  new ResizeObserver(lay).observe(board);
-})();
 const coverBricks = [
   ['start-project-brick', 'studio'],
   ['showcase-brick', 'showcase'],

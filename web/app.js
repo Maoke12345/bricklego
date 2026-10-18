@@ -13,7 +13,8 @@ let photo = null;      // photo waiting to be sent (data URL)
 let busy = false;      // the backend is working
 let source = null;     // SSE connection
 let model = null;      // the current model's { mpd, manifest }
-let latestRender = null;  // last picture the agent drew, kept for the booklet
+let latestRender = null;
+let lastPrompt = '';     // what you asked for this turn, shown on the model's page in the book  // last picture the agent drew, kept for the booklet
 
 /* ---------- Model history, kept in this browser ---------- */
 
@@ -22,45 +23,31 @@ let historyEntries = [];
 let historyIndex = 0;
 let historyTurning = false;
 
+/** Three builds that stay in the archive whatever this browser has done, so the book is
+ *  never empty and each page shows a different thing the product can do: a photo turned
+ *  into a model, a model argued into shape over three turns, and one sentence that came
+ *  back as 284 parts. They are merged in at render time, never written to storage, so
+ *  they cannot be deleted by accident or duplicated by a rebuild. */
+const PINNED = [
+  { id: '1018-0739-2092', built: 1792309140000, title: 'Lone Tree', parts: 61,
+    prompt: 'Build this tree  ·  with a photo' },
+  { id: '1018-0739-12fe', built: 1792309140000, title: 'Little Red Car', parts: 44,
+    prompt: 'A car  →  Make it red  →  Add a spoiler on the back' },
+  { id: '1017-1744-8e34', built: 1792259040000, title: 'Sitting Orange Tabby Cat', parts: 284,
+    prompt: '生成一个橘猫积木' },
+].map(pin => ({ ...pin, valid: true, pinned: true,
+                savedAt: pin.built, updatedAt: pin.built,
+                preview: `/jobs/${pin.id}/work/preview.png` }));
+
 function savedModels() {
   try {
     const entries = JSON.parse(localStorage.getItem(historyKey) || '[]');
-    return Array.isArray(entries) ? entries.filter(entry => /^[\w-]+$/.test(entry?.id || '') && Number.isFinite(Number(entry.savedAt)))
+    const mine = Array.isArray(entries) ? entries.filter(entry => /^[\w-]+$/.test(entry?.id || '') && Number.isFinite(Number(entry.savedAt)))
       .sort((a, b) => Number(b.savedAt) - Number(a.savedAt)) : [];
+    return [...mine.filter(e => !PINNED.some(p => p.id === e.id)), ...PINNED];   // yours first, the shelf after
   } catch {
-    return [];
+    return [...PINNED];
   }
-}
-
-/** A browser that has never opened this before starts with a shelf rather than an empty
- *  archive. Only on a first visit: clearing the history is a decision, not a glitch to
- *  undo, and a seed whose job has been deleted from the server is dropped rather than
- *  shown as a page that cannot open. */
-const SEEDS = [
-  { id: '1017-1744-8e34', title: 'Sitting Orange Tabby Cat', parts: 284 },
-  { id: 'demo-knight',    title: 'Black Knight',             parts: 126 },
-  { id: '1018-0739-2092', title: 'Lone Tree',                parts: 61 },
-  { id: '1018-0739-12fe', title: 'Little Red Car',           parts: 44 },
-  { id: '1018-0625-df12', title: 'Azure Water Mug',          parts: 31 },
-];
-
-async function seedHistory() {
-  if (localStorage.getItem(historyKey) !== null) return;
-  const here = [];
-  for (const seed of SEEDS) {
-    if (await fetch(`/api/jobs/${seed.id}`).then(r => r.ok).catch(() => false)) here.push(seed);
-  }
-  if (!here.length) return;
-  const now = Date.now();
-  try {
-    localStorage.setItem(historyKey, JSON.stringify(here.map((seed, i) => ({
-      ...seed,
-      valid: true,
-      savedAt: now - i * 600000,
-      updatedAt: now - i * 600000,
-      preview: `/jobs/${seed.id}/work/preview.png?v=${now}`,
-    }))));
-  } catch { /* private window, quota: just show an empty archive */ }
 }
 
 function renderHistory() {
@@ -85,6 +72,7 @@ function showHistoryPage() {
   $('book-date').textContent = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(entry.savedAt));
   $('book-parts').textContent = `${Number(entry.parts || 0).toLocaleString()} parts`;
   $('book-check').textContent = entry.valid ? 'Passed' : 'Full check not passed';
+  $('book-prompt').textContent = entry.prompt ? `\u201c${entry.prompt}\u201d` : '';
   $('book-error').textContent = '';
   $('book-prev').disabled = historyIndex === 0;
   $('book-next').disabled = historyIndex === historyEntries.length - 1;
@@ -148,17 +136,18 @@ function rememberModel(event, info) {
     valid: !!event.valid,
     savedAt: old?.savedAt || Date.now(),
     updatedAt: Date.now(),
-    preview: latestRender || old?.preview || null,   // carries ?v=<mtime>, so a later turn busts the cache
+    preview: latestRender || old?.preview || null,
+    prompt: lastPrompt || old?.prompt || '',   // carries ?v=<mtime>, so a later turn busts the cache
   };
   try {
-    localStorage.setItem(historyKey, JSON.stringify([entry, ...entries.filter(item => item.id !== job)].slice(0, 30)));
+    const mine = entries.filter(item => item.id !== job && !item.pinned);
+    localStorage.setItem(historyKey, JSON.stringify([entry, ...mine].slice(0, 30)));
   } catch {
     return;
   }
   renderHistory();
 }
 
-await seedHistory();
 renderHistory();
 
 /* ---------- Transcript ---------- */
@@ -371,7 +360,10 @@ function listen(id) {
 
 function handle(event) {
   switch (event.type) {
-    case 'user': say('me', 'You', event.text, event.image); break;
+    case 'user':
+      lastPrompt = [lastPrompt, event.text].filter(Boolean).join('  \u2192  ');
+      say('me', 'You', event.text, event.image);
+      break;
     case 'stage': stage(event.text); phase(event.phase); break;
     case 'assistant': say('bot', 'BRICKFORM', event.text); break;
     case 'thinking': traceLine('· ' + event.text); break;
@@ -492,6 +484,7 @@ addEventListener('keydown', event => {
  *  starting over both pass through here, which is why neither reloads the page. */
 function clearView() {
   latestRender = null;
+  lastPrompt = '';
   source?.close();
   source = null;
   model = null;

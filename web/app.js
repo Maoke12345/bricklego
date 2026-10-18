@@ -447,7 +447,6 @@ function reset() {
   clearView();
   job = null;
   localStorage.removeItem('brickstudio.job');
-  $('resume').hidden = true;
   $('jobline').textContent = '';
 }
 
@@ -535,8 +534,7 @@ $('composer').addEventListener('submit', async event => {
     if (!response.ok) throw new Error(data.error || response.statusText);
     if (!job) {
       job = data.id;
-      $('resume').hidden = true;
-      localStorage.setItem('brickstudio.job', job);
+          localStorage.setItem('brickstudio.job', job);
       log.innerHTML = '';
       $('jobline').textContent = `Job ${job}`;
       listen(job);
@@ -554,20 +552,9 @@ $('composer').addEventListener('submit', async event => {
 
 function resume(id) {
   job = id;
-  $('resume').hidden = true;
   localStorage.setItem('brickstudio.job', id);
   $('jobline').textContent = `Job ${id}`;
   listen(id);
-}
-
-/** The last one is finished: do not interrupt, just leave a way back to it. */
-function offerResume(id) {
-  const open = document.createElement('button');
-  open.type = 'button';
-  open.textContent = 'Open last model';
-  open.onclick = () => showJob(id);
-  $('resume').replaceChildren(open);
-  $('resume').hidden = false;
 }
 
 const asked = new URLSearchParams(location.search).get('job');
@@ -579,7 +566,5 @@ if (previous) {
   } else if (asked || state.busy) {
     working(state.busy);
     resume(previous);
-  } else {
-    offerResume(previous);
-  }
+  }                                       // finished already: the history section is where you reopen it
 }

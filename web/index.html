@@ -107,7 +107,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
         display: grid; place-items: center; flex: none; }
 textarea { flex: 1; font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--rule); border-radius: 6px; padding: 9px 12px; resize: vertical; min-height: 46px; max-height: 180px; }
 .composer .opts { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; font-size: 13px; color: var(--muted); }
-.composer select { font: inherit; font-size: 13px; color: var(--ink); background: var(--bg); border: 1px solid var(--rule); border-radius: 4px; padding: 4px 8px; }
+.composer select { font: inherit; font-size: 15px; color: var(--ink); background: var(--bg); border: 1px solid var(--rule); border-radius: 4px; padding: 6px 10px; }
+.composer select option { font-size: 15px; padding: 6px 10px; }
 .thumb { position: relative; }
 .thumb img { height: 58px; width: 58px; object-fit: cover; border-radius: 6px; border: 1px solid var(--rule); display: block; }
 .thumb button { position: absolute; top: -8px; right: -8px; border-radius: 50%; width: 22px; height: 22px; padding: 0; line-height: 1; background: var(--panel); }
@@ -174,7 +175,6 @@ html { scroll-behavior: smooth; }
 #pg-time { font-size: 17px; color: var(--ink); font-variant-numeric: tabular-nums; }
 
 /* ---- Empty chat ---- */
-.resume { display: inline-flex; align-items: center; gap: 9px; text-transform: none; letter-spacing: 0; }
 
 /* ---- The commands it runs: folded away ---- */
 .raw { border-left: 1px solid var(--rule); padding-left: 12px; }
@@ -393,7 +393,6 @@ html { scroll-behavior: smooth; }
           <option value="xhigh">Extra high</option>
           <option value="max">Max &middot; slowest</option>
         </select></label>
-        <span class="resume" id="resume" hidden></span>
         <span id="jobline"></span>
       </div>
       <input type="file" id="file" accept="image/*" capture="environment" hidden>

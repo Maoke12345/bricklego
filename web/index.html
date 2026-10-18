@@ -118,8 +118,7 @@ textarea { flex: 1; font: inherit; color: var(--ink); background: var(--bg); bor
 .thumb button { position: absolute; top: -8px; right: -8px; border-radius: 50%; width: 22px; height: 22px; padding: 0; line-height: 1; background: var(--panel); }
 .drop { outline: 2px dashed var(--accent); outline-offset: -6px; }
 
-.cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 28px; align-items: start; }
-@media (max-width: 860px) { .cols { grid-template-columns: minmax(0, 1fr); } }
+.cols { display: grid; gap: 28px; align-items: start; }
 h2 { font: 400 clamp(23px, 2vw, 30px)/1.05 var(--font-serif); margin: 0 0 4px; letter-spacing: -.01em; }
 .sub { color: var(--muted); font-size: 13px; margin: 0 0 12px; }
 .tbl { overflow-x: auto; max-height: 520px; }
@@ -401,11 +400,6 @@ html { scroll-behavior: smooth; }
 
 
   <div class="cols">
-    <section>
-      <h2>This one</h2>
-      <p class="sub" id="card-sub">No model yet.</p>
-      <div id="card-body"></div>
-    </section>
     <section>
       <h2>Part list</h2>
       <p class="sub">Real LDraw parts</p>

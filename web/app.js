@@ -393,8 +393,6 @@ async function showModel(event) {
       if (event.card.subtitle) $('h1').insertAdjacentHTML('beforeend', `<small>${esc(event.card.subtitle)}</small>`);
     }
     if (event.card?.eyebrow) $('eyebrow').textContent = event.card.eyebrow;
-    $('card-sub').textContent = event.card?.summary || '';
-    $('card-body').innerHTML = `<span class="badge ${event.valid ? 'ok' : ''}">${event.valid ? 'No collisions · physically stable' : 'Rendered only, checks not passed'}</span>`;
 
     const body = $('allBody');
     body.innerHTML = '';
@@ -459,8 +457,6 @@ function clearView() {
   for (const id of ['st-parts', 'st-kinds', 'st-size', 'st-steps']) $(id).textContent = '–';
   $('h1').textContent = 'BRICKFORM';
   $('eyebrow').textContent = '';
-  $('card-sub').textContent = 'No model yet.';
-  $('card-body').innerHTML = '';
   $('allBody').innerHTML = '';
   $('text').placeholder = 'What should it build?';
   working(false);

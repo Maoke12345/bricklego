@@ -180,6 +180,7 @@ function say(kind, who, text, image) {
     img.className = 'shot';
     img.src = image;
     img.addEventListener('click', () => zoom(image));
+    restickOnLoad(img);
     el.append(img);
   }
   return el;
@@ -213,6 +214,13 @@ function traceLine(text, isError) {
   if (stick) log.scrollTop = log.scrollHeight;
 }
 
+/** An image arrives without a height, so the log is scrolled to a bottom that moves
+ *  once it loads. Re-stick afterwards, or the last render ends up clipped on the edge. */
+function restickOnLoad(img) {
+  const stick = atBottom();
+  img.addEventListener('load', () => { if (stick) log.scrollTop = log.scrollHeight; });
+}
+
 function shots(urls) {
   const box = append(Object.assign(document.createElement('div'), { className: 'renders' }));
   for (const url of urls) {
@@ -221,6 +229,7 @@ function shots(urls) {
     img.alt = 'Model render';
     img.addEventListener('click', () => zoom(url));
     img.onerror = () => { img.remove(); if (!box.children.length) box.remove(); };  // the agent deletes its scratch renders
+    restickOnLoad(img);
     box.append(img);
   }
 }

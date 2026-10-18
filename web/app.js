@@ -129,7 +129,6 @@ function atBottom() {
 }
 
 function append(node) {
-  log.querySelector('.empty')?.remove();        // the opening note steps aside once the first message lands
   const stick = atBottom();
   log.append(node);
   if (stick) log.scrollTop = log.scrollHeight;
@@ -416,6 +415,8 @@ addEventListener('keydown', event => {
 
 function reset() {
   unattach();
+  $('suggest').hidden = false;
+  $('suggest').querySelector('.resume')?.remove();
   source?.close();
   source = null;
   job = null;
@@ -526,6 +527,7 @@ $('composer').addEventListener('submit', async event => {
     if (!response.ok) throw new Error(data.error || response.statusText);
     if (!job) {
       job = data.id;
+      $('suggest').hidden = true;
       localStorage.setItem('brickstudio.job', job);
       $('fresh').hidden = false;
       log.innerHTML = '';
@@ -545,26 +547,25 @@ $('composer').addEventListener('submit', async event => {
 
 function resume(id) {
   job = id;
+  $('suggest').hidden = true;
   localStorage.setItem('brickstudio.job', id);
   $('jobline').textContent = `Job ${id}`;
   $('fresh').hidden = false;
   listen(id);
 }
 
-/** The last one is finished: do not interrupt, just leave a line that goes back to it. */
+/** The last one is finished: do not interrupt, just leave a way back to it beside the examples. */
 function offerResume(id) {
-  const empty = log.querySelector('.empty');
-  if (!empty) return;
-  const line = document.createElement('p');
-  line.className = 'fine resume';
-  line.innerHTML = 'Your last model is finished · ';
+  const line = document.createElement('span');
+  line.className = 'resume';
+  line.append('Last model');
   const open = document.createElement('button');
   open.type = 'button';
   open.className = 'eg';
   open.textContent = 'Open it';
-  open.onclick = () => { log.innerHTML = ''; working(false); resume(id); };
+  open.onclick = () => { working(false); resume(id); };
   line.append(open);
-  empty.append(line);
+  $('suggest').append(line);
 }
 
 const asked = new URLSearchParams(location.search).get('job');

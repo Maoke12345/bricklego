@@ -98,6 +98,7 @@ for (const event of __CHAT) {
 
 $('composer').addEventListener('submit', event => event.preventDefault());
 for (const id of ['text', 'send', 'pick', 'size']) $(id).disabled = true;
+$('suggest')?.remove();                       // a snapshot takes no new prompts
 $('text').placeholder = 'This is an offline snapshot; the conversation ends here. To keep changing this model, go back to the live page.';
 $('state').textContent = 'Offline snapshot';
 $('jobline').textContent = `Job ${__JOB} · one file, pass it on as it is`;

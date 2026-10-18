@@ -13,67 +13,96 @@ let photo = null;      // photo waiting to be sent (data URL)
 let busy = false;      // the backend is working
 let source = null;     // SSE connection
 let model = null;      // the current model's { mpd, manifest }
+let latestRender = null;  // last picture the agent drew, kept for the booklet
 
 /* ---------- Model history, kept in this browser ---------- */
 
 const historyKey = 'brickstudio.models.v1';
+let historyEntries = [];
+let historyIndex = 0;
+let historyTurning = false;
 
 function savedModels() {
   try {
     const entries = JSON.parse(localStorage.getItem(historyKey) || '[]');
-    return Array.isArray(entries) ? entries.filter(entry => /^[\w-]+$/.test(entry?.id || '') && Number.isFinite(Number(entry.savedAt))) : [];
+    return Array.isArray(entries) ? entries.filter(entry => /^[\w-]+$/.test(entry?.id || '') && Number.isFinite(Number(entry.savedAt)))
+      .sort((a, b) => Number(b.savedAt) - Number(a.savedAt)) : [];
   } catch {
     return [];
   }
 }
 
 function renderHistory() {
-  const entries = savedModels();
-  $('history-count').textContent = `${entries.length} model${entries.length === 1 ? '' : 's'}`;
-  $('history-empty').hidden = entries.length > 0;
-  $('history-list').hidden = entries.length === 0;
-  const list = $('history-list');
-  list.replaceChildren();
-  for (const entry of entries) {
-    const card = document.createElement('article');
-    card.className = 'history-item';
-    const title = document.createElement('h3');
-    title.textContent = entry.title || 'Untitled model';
-    const meta = document.createElement('div');
-    meta.className = 'history-meta';
-    const savedAt = document.createElement('span');
-    savedAt.textContent = new Intl.DateTimeFormat('zh-CN', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}).format(new Date(entry.savedAt));
-    const parts = document.createElement('span');
-    parts.textContent = `${Number(entry.parts || 0).toLocaleString()} parts`;
-    const check = document.createElement('span');
-    check.textContent = entry.valid ? 'passed the checks' : 'did not pass every check';
-    meta.append(savedAt, parts, check);
-    const open = document.createElement('button');
-    open.type = 'button';
-    open.textContent = 'Open model';
-    const error = document.createElement('div');
-    error.className = 'history-error';
-    error.setAttribute('aria-live', 'polite');
-    open.addEventListener('click', async () => {
-      open.disabled = true;
-      open.textContent = 'Opening…';
-      error.textContent = '';
-      try {
-        const response = await fetch(`/api/jobs/${entry.id}`);
-        if (!response.ok) throw new Error(response.status === 404 ? 'That job is no longer on this server.' : 'Cannot read that job right now.');
-        showJob(entry.id);
-        open.disabled = false;
-        open.textContent = 'Open model';
-      } catch (reason) {
-        error.textContent = reason instanceof TypeError ? 'Cannot reach the server right now.' : reason.message;
-        open.disabled = false;
-        open.textContent = 'Open model';
-      }
-    });
-    card.append(title, meta, open, error);
-    list.append(card);
-  }
+  historyEntries = savedModels();
+  historyIndex = 0;
+  $('history-count').textContent = `${historyEntries.length} ${historyEntries.length === 1 ? 'model' : 'models'}`;
+  $('history-empty').hidden = historyEntries.length > 0;
+  $('history-book').hidden = historyEntries.length === 0;
+  if (historyEntries.length) showHistoryPage();
 }
+
+/** One finished model per spread: the facts on the left page, its picture on the right. */
+function showHistoryPage() {
+  const entry = historyEntries[historyIndex];
+  if (!entry) return;
+  const folio = String(historyIndex + 1).padStart(2, '0');
+  $('book-edition').textContent = `${folio} / ${String(historyEntries.length).padStart(2, '0')}`;
+  $('book-number').textContent = folio;
+  $('book-folio').textContent = folio;
+  $('book-progress').textContent = `${historyIndex + 1} of ${historyEntries.length}`;
+  $('book-title').textContent = entry.title || 'Untitled model';
+  $('book-date').textContent = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(entry.savedAt));
+  $('book-parts').textContent = `${Number(entry.parts || 0).toLocaleString()} parts`;
+  $('book-check').textContent = entry.valid ? 'Passed' : 'Full check not passed';
+  $('book-error').textContent = '';
+  $('book-prev').disabled = historyIndex === 0;
+  $('book-next').disabled = historyIndex === historyEntries.length - 1;
+  const image = $('book-image');
+  const preview = typeof entry.preview === 'string' && entry.preview.startsWith(`/jobs/${entry.id}/`) ? entry.preview : '';
+  image.hidden = !preview;
+  $('book-image-empty').hidden = !!preview;
+  image.alt = preview ? `${entry.title || 'Completed model'} render` : '';
+  image.onerror = () => { image.hidden = true; $('book-image-empty').hidden = false; };
+  if (preview) image.src = preview; else image.removeAttribute('src');
+}
+
+function turnHistoryPage(direction) {
+  const target = historyIndex + direction;
+  if (historyTurning || target < 0 || target >= historyEntries.length) return;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    historyIndex = target;
+    showHistoryPage();
+    return;
+  }
+  historyTurning = true;
+  const book = $('history-book');
+  book.classList.add('turn-out');
+  setTimeout(() => {
+    historyIndex = target;
+    showHistoryPage();
+    book.classList.remove('turn-out');
+    book.classList.add('turn-in');
+    requestAnimationFrame(() => requestAnimationFrame(() => book.classList.remove('turn-in')));
+    setTimeout(() => { historyTurning = false; }, 220);
+  }, 200);
+}
+
+$('book-prev').addEventListener('click', () => turnHistoryPage(-1));
+$('book-next').addEventListener('click', () => turnHistoryPage(1));
+$('book-open').addEventListener('click', async () => {
+  const entry = historyEntries[historyIndex];
+  if (!entry) return;
+  $('book-open').disabled = true;
+  $('book-error').textContent = '';
+  try {
+    const response = await fetch(`/api/jobs/${entry.id}`);
+    if (!response.ok) throw new Error(response.status === 404 ? 'That job is no longer on this server.' : 'Cannot read that job right now.');
+    showJob(entry.id);                       // swap in place; no reload
+  } catch (reason) {
+    $('book-error').textContent = reason instanceof TypeError ? 'Cannot reach the server right now.' : reason.message;
+  }
+  $('book-open').disabled = false;
+});
 
 function rememberModel(event, info) {
   if (!job) return;
@@ -308,7 +337,11 @@ function handle(event) {
       phase(event.phase);
       if (event.phase === 'build' || event.phase === 'fix') counts();
       break;
-    case 'renders': shots(event.urls); if (!model) peek(event.urls.at(-1)); break;
+    case 'renders':
+      latestRender = event.urls.at(-1) || latestRender;
+      shots(event.urls);
+      if (!model) peek(event.urls.at(-1));
+      break;
     case 'model': showModel(event); break;
     case 'result': stage(`Model written · ${event.turns} turns · ${Math.round(event.seconds / 60)} min · $${event.cost.toFixed(2)}`); break;
     case 'done': {

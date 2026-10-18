@@ -6,6 +6,7 @@
 <title>BRICKFORM · Photo to Bricks</title>
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="./cover.css">
+<link rel="stylesheet" href="./history-book.css">
 <link rel="stylesheet" href="./cover-lettering.css">
 <link rel="stylesheet" href="./gesture-flow.css">
 <link rel="stylesheet" href="./mondrian-background.css">
@@ -142,13 +143,8 @@ html { scroll-behavior: smooth; }
 .section-intro p { margin:0; color:var(--muted); }
 .history-head { display:flex; align-items:end; justify-content:space-between; gap:16px; }
 .history-count { color:var(--muted); font:700 13px/1.4 var(--font-mono); white-space:nowrap; }
-.history-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; }
-.history-item, .history-empty { border:1px solid var(--rule); background:var(--panel); padding:22px; }
-.history-item { border-top:5px solid #2825bd; display:grid; gap:16px; align-content:start; }
-.history-item h3 { margin:0; font:800 23px/1.25 var(--font-body); }
+.history-empty { border:1px solid var(--rule); background:var(--panel); padding:22px; }
 .history-meta { display:flex; flex-wrap:wrap; gap:8px 18px; color:var(--muted); font-size:13px; }
-.history-item button { justify-self:start; padding:8px 18px; border-color:#413bdc; color:var(--ink); }
-.history-item button:hover:not(:disabled) { background:#2825bd; border-color:#2825bd; color:#fff; }
 .history-error { color:#ff9587; font-size:13px; min-height:1.3em; }
 .history-empty { min-height:190px; border-left:5px solid #2825bd; display:grid; align-content:center; gap:9px; }
 .history-empty strong { font-size:21px; }
@@ -420,7 +416,27 @@ html { scroll-behavior: smooth; }
   <div class="section-intro history-head" id="history"><div><h2>What you have built</h2></div><span class="history-count" id="history-count">0 models</span></div>
   <section class="history-page" aria-label="Model history">
     <div class="history-empty" id="history-empty"><strong>Nothing finished yet</strong><a href="#studio">Build the first one</a></div>
-    <div class="history-list" id="history-list" hidden></div>
+    <div class="history-book" id="history-book" hidden aria-label="Completed model booklet">
+      <div class="book-spread" id="history-spread">
+        <div class="book-page book-page-left">
+          <div class="book-topline"><span>BRICKFORM</span><span>MODEL ARCHIVE</span></div>
+          <div class="book-details">
+            <span class="book-edition" id="book-edition">01 / 01</span>
+            <h3 id="book-title">Model title</h3>
+            <p class="book-caption">A model you completed, kept in your collection.</p>
+            <dl class="book-facts"><div><dt>Created</dt><dd id="book-date">–</dd></div><div><dt>Parts</dt><dd id="book-parts">–</dd></div><div><dt>Check</dt><dd id="book-check">–</dd></div></dl>
+          </div>
+          <button class="book-open" id="book-open" type="button">Open 3D model <span aria-hidden="true">↗</span></button>
+          <p class="history-error" id="book-error" aria-live="polite"></p>
+        </div>
+        <div class="book-page book-page-right">
+          <div class="book-topline"><span>MODEL VIEW</span><span id="book-number">01</span></div>
+          <div class="book-image-wrap"><img id="book-image" alt="" hidden><div class="book-image-empty" id="book-image-empty"><span class="book-brick" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>Model preview unavailable<br>Open the 3D model to view it</span></div></div>
+          <div class="book-footer"><span>One completed model per page</span><span id="book-folio">01</span></div>
+        </div>
+      </div>
+      <div class="book-controls"><button id="book-prev" type="button" aria-label="Previous model">← Previous</button><span id="book-progress" aria-live="polite">1 of 1</span><button id="book-next" type="button" aria-label="Next model">Next →</button></div>
+    </div>
   </section>
 </div>
 <dialog id="lightbox"><img id="lightbox-img" alt=""></dialog>

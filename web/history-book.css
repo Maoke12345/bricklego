@@ -1,0 +1,119 @@
+/* A quiet instruction-book treatment for completed models. The pages show an archive, not build steps. */
+.history-book { width: min(100%, 1080px); margin: 5px auto 0; }
+.book-spread {
+  display: grid;
+  grid-template-columns: 45% 55%;
+  min-height: 520px;
+  position: relative;
+  perspective: 1400px;
+  background: #fbfaf6;
+  border: 1px solid #c9c6bd;
+  box-shadow: 0 4px 0 #c6c0b2, 0 16px 35px #39372e26;
+  transform-origin: 4% 50%;
+  transition: transform .21s ease, opacity .21s ease;
+}
+.history-book.turn-out .book-spread { transform: rotateY(-13deg) translateX(-6px); opacity: .48; }
+.history-book.turn-in .book-spread { transform: rotateY(13deg) translateX(6px); opacity: .48; transition: none; }
+.book-spread::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 45%;
+  width: 18px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background: linear-gradient(90deg, #aca89d22, #706d622f 45%, #fff9 56%, transparent);
+}
+.book-page {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(22px, 3vw, 42px);
+  color: #242521;
+}
+.book-page-left {
+  padding-right: clamp(26px, 3vw, 44px);
+  border-right: 1px solid #d2cfc6;
+  background: linear-gradient(108deg, #fcfbf7 72%, #e9e6de);
+}
+.book-page-right { padding-left: clamp(26px, 3vw, 44px); background: #fcfbf8; }
+.book-topline,
+.book-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font: 700 10px/1.4 var(--font-mono);
+  letter-spacing: .08em;
+  color: #69685f;
+}
+.book-topline { padding-bottom: 13px; border-bottom: 1px solid #bcb9b0; }
+.book-details { margin: auto 0; padding: 42px 0 24px; }
+.book-edition { font: 700 12px/1.3 var(--font-mono); color: #806e49; }
+.book-details h3 {
+  max-width: 100%;
+  margin: 17px 0 12px;
+  font: 400 clamp(48px, 4.8vw, 68px)/.96 "IM Fell English SC", "IM Fell English", Georgia, serif;
+  letter-spacing: -.04em;
+  overflow-wrap: break-word;
+}
+.book-caption { max-width: 29ch; margin: 0 0 28px; color: #6a6961; font-size: 14px; line-height: 1.55; }
+.book-facts { display: grid; gap: 0; max-width: 310px; margin: 0; }
+.book-facts div { display: flex; justify-content: space-between; gap: 16px; border-top: 1px solid #d8d5cd; padding: 8px 0; }
+.book-facts dt { color: #77756d; font-size: 12px; }
+.book-facts dd { margin: 0; text-align: right; font-size: 12px; font-weight: 700; }
+.book-open {
+  align-self: flex-start;
+  min-width: 195px;
+  display: inline-flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 12px;
+  border: 1px solid #2b2c2a;
+  border-radius: 0;
+  background: #292b2a;
+  color: #f7f5ee;
+  font-weight: 800;
+}
+.book-open:hover:not(:disabled) { border-color: #292b2a; background: #444744; }
+.book-page-left .history-error { margin: 7px 0 0; }
+.book-image-wrap {
+  flex: 1;
+  min-height: 340px;
+  display: grid;
+  place-items: center;
+  padding: 20px 2px;
+}
+.book-image-wrap img { display: block; max-width: 100%; max-height: 385px; object-fit: contain; filter: drop-shadow(0 14px 12px #292c292a); }
+.book-image-empty { display: grid; justify-items: center; gap: 24px; text-align: center; color: #747269; font-size: 13px; line-height: 1.5; }
+.book-brick {
+  width: 154px;
+  height: 92px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  align-items: center;
+  justify-items: center;
+  transform: rotate(-8deg);
+  border: 2px solid #8f928e;
+  box-shadow: 12px 12px 0 #d4d4ce, 13px 13px 0 2px #8f928e;
+}
+.book-brick i { width: 33px; height: 24px; border: 2px solid #8f928e; border-radius: 50%; box-shadow: 3px 4px 0 #dcddd7; }
+.book-footer { padding-top: 13px; border-top: 1px solid #bcb9b0; }
+.book-controls { display: flex; align-items: center; justify-content: center; gap: 30px; margin: 24px 0 10px; }
+.book-controls button { min-width: 110px; padding: 9px 14px; border: 1px solid #aaa89f; background: transparent; color: #292b2a; }
+.book-controls button:hover:not(:disabled) { border-color: #292b2a; background: #fbfaf6; }
+.book-controls button:disabled { opacity: .4; }
+.book-controls span { min-width: 72px; text-align: center; font: 700 12px/1.5 var(--font-mono); }
+.history-book button:focus-visible { outline: 3px solid #8f6821; outline-offset: 3px; }
+@media (max-width: 720px) {
+  .book-spread { grid-template-columns: 1fr; }
+  .book-spread::after { display: none; }
+  .book-page-left { min-height: 395px; border-right: 0; border-bottom: 1px solid #d2cfc6; padding-right: 24px; }
+  .book-page-right { min-height: 360px; padding-left: 24px; }
+  .book-details { padding: 28px 0 18px; }
+  .book-details h3 { font-size: clamp(46px, 12vw, 66px); }
+  .book-image-wrap { min-height: 275px; }
+  .book-controls { gap: 11px; }
+  .book-controls button { min-width: 93px; }
+}
+@media (prefers-reduced-motion: reduce) { .book-spread { transition: none; } }

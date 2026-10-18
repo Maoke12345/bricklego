@@ -32,6 +32,37 @@ function savedModels() {
   }
 }
 
+/** A browser that has never opened this before starts with a shelf rather than an empty
+ *  archive. Only on a first visit: clearing the history is a decision, not a glitch to
+ *  undo, and a seed whose job has been deleted from the server is dropped rather than
+ *  shown as a page that cannot open. */
+const SEEDS = [
+  { id: '1017-1744-8e34', title: 'Sitting Orange Tabby Cat', parts: 284 },
+  { id: 'demo-knight',    title: 'Black Knight',             parts: 126 },
+  { id: '1018-0739-2092', title: 'Lone Tree',                parts: 61 },
+  { id: '1018-0739-12fe', title: 'Little Red Car',           parts: 44 },
+  { id: '1018-0625-df12', title: 'Azure Water Mug',          parts: 31 },
+];
+
+async function seedHistory() {
+  if (localStorage.getItem(historyKey) !== null) return;
+  const here = [];
+  for (const seed of SEEDS) {
+    if (await fetch(`/api/jobs/${seed.id}`).then(r => r.ok).catch(() => false)) here.push(seed);
+  }
+  if (!here.length) return;
+  const now = Date.now();
+  try {
+    localStorage.setItem(historyKey, JSON.stringify(here.map((seed, i) => ({
+      ...seed,
+      valid: true,
+      savedAt: now - i * 600000,
+      updatedAt: now - i * 600000,
+      preview: `/jobs/${seed.id}/work/preview.png?v=${now}`,
+    }))));
+  } catch { /* private window, quota: just show an empty archive */ }
+}
+
 function renderHistory() {
   historyEntries = savedModels();
   historyIndex = 0;
@@ -127,6 +158,7 @@ function rememberModel(event, info) {
   renderHistory();
 }
 
+await seedHistory();
 renderHistory();
 
 /* ---------- Transcript ---------- */

@@ -34,7 +34,7 @@ def inline_assets(css: str, base: Path) -> str:
             return match.group(0)
         kind = mimetypes.guess_type(asset.name)[0] or "application/octet-stream"
         return f'url("data:{kind};base64,{base64.b64encode(asset.read_bytes()).decode()}")'
-    return re.sub(r"""url\(['"]\./([^'")]+)['"]\)""", swap, css)
+    return re.sub(r"""url\(['"]\./([^'")?]+)(?:\?[^'")]*)?['"]\)""", swap, css)
 
 
 def build(out: Path) -> Path:

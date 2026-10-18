@@ -1,18 +1,82 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1180" height="1100" viewBox="0 0 1180 1100" fill="none">
   <defs>
-    <g id="brick" stroke="currentColor" stroke-linecap="square" stroke-linejoin="miter">
-      <path d="M20 46 140 14 220 48 100 80 20 46Zm0 0v52l80 34V80m120-32v52l-120 32" stroke-width="2.4"/>
-      <path d="m20 56 80 34 120-32M27 103l73 31 113-31" stroke-width="1" opacity=".54"/>
-      <path d="M69 38c8-2 17-2 23 1 6 3 5 8-2 10-8 3-18 3-24 0-6-3-4-8 3-11Zm38 15c8-2 17-2 23 1 6 3 5 8-2 10-8 3-18 3-24 0-6-3-4-8 3-11Zm35-24c8-2 17-2 23 1 6 3 5 8-2 10-8 3-18 3-24 0-6-3-4-8 3-11Zm35 15c8-2 17-2 23 1 6 3 5 8-2 10-8 3-18 3-24 0-6-3-4-8 3-11Z" stroke-width="2"/>
-      <path d="m66 42 1 7m36 9 1 7m35-31 1 7m36 8 1 7" stroke-width="1" opacity=".62"/>
+    <!-- Three models sketched the way you would rough them out in pencil: a firm outline,
+         lighter lines for the courses and studs, and a few strokes that overshoot a corner. -->
+
+    <g id="castle" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M30 138V56h12v10h4V56h12v10h4V56h12v82" stroke-width="2.3"/>
+      <path d="M166 138V56h12v10h4V56h12v10h4V56h12v82" stroke-width="2.3"/>
+      <path d="M80 138V80h12v10h5V80h12v10h5V80h12v10h5V80h12v10h5V80h12v58" stroke-width="2.3"/>
+      <path d="M18 138h204v14H18z" stroke-width="2.3"/>
+      <path d="M103 152v-28q0-17 17-17t17 17v28" stroke-width="2.1"/>
+      <g stroke-width="1" opacity=".5">
+        <path d="M30 96h44m92 0h44M30 114h44m92 0h44M80 104h80M80 122h23m34 0h23"/>
+        <path d="M74 138h6m80 0h6"/>
+      </g>
+      <g stroke-width="1.6" opacity=".78">
+        <ellipse cx="36" cy="56" rx="5" ry="2.4"/><ellipse cx="52" cy="56" rx="5" ry="2.4"/><ellipse cx="68" cy="56" rx="5" ry="2.4"/>
+        <ellipse cx="172" cy="56" rx="5" ry="2.4"/><ellipse cx="188" cy="56" rx="5" ry="2.4"/><ellipse cx="204" cy="56" rx="5" ry="2.4"/>
+        <ellipse cx="86" cy="80" rx="5" ry="2.4"/><ellipse cx="103" cy="80" rx="5" ry="2.4"/><ellipse cx="120" cy="80" rx="5" ry="2.4"/>
+        <ellipse cx="137" cy="80" rx="5" ry="2.4"/><ellipse cx="154" cy="80" rx="5" ry="2.4"/>
+      </g>
+      <g stroke-width="1.4" opacity=".6">
+        <path d="M52 56V34m0 0 22 7-22 8M188 56V30m0 0 20 7-20 7"/>
+      </g>
+      <g stroke-width=".9" opacity=".3"><path d="M24 142h-9M216 50h10M120 76v-8M14 132v14"/></g>
+    </g>
+
+    <g id="racer" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M24 92 88 76l14-18h40l14 18 48 2 6 14z" stroke-width="2.3"/>
+      <path d="M184 46h36m-18 0v32" stroke-width="2.1"/>
+      <g stroke-width="2.2"><circle cx="66" cy="94" r="16"/><circle cx="176" cy="94" r="21"/></g>
+      <g stroke-width="1.2" opacity=".62">
+        <circle cx="66" cy="94" r="7"/><circle cx="176" cy="94" r="9"/>
+        <path d="M34 86h168"/>
+      </g>
+      <g stroke-width="1.6" opacity=".78">
+        <ellipse cx="114" cy="58" rx="5" ry="2.4"/><ellipse cx="132" cy="58" rx="5" ry="2.4"/>
+        <ellipse cx="172" cy="78" rx="5" ry="2.4"/><ellipse cx="192" cy="79" rx="5" ry="2.4"/>
+      </g>
+      <g stroke-width="1" opacity=".42"><path d="M12 116h216M88 76l14-18m40 0 14 18"/></g>
+      <g stroke-width=".9" opacity=".3"><path d="M228 42h8M122 54v-8M30 96h-8"/></g>
+    </g>
+
+    <g id="cat" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M50 84V30h64v54" stroke-width="2.3"/>
+      <path d="m56 30 10-19 15 19m2 0 15-19 10 19" stroke-width="2.2"/>
+      <path d="M40 152V84h84v68z" stroke-width="2.3"/>
+      <path d="M52 152v-11q0-7 9-7t9 7v11m24 0v-11q0-7 9-7t9 7v11" stroke-width="2.1"/>
+      <g stroke-width="2.2">
+        <path d="M124 136c26 1 34-22 24-40-5-9-15-7-15 2"/>
+        <path d="M124 148c32 1 46-26 33-48-7-12-21-10-21 2" opacity=".85"/>
+      </g>
+      <g stroke-width="1.7" opacity=".85">
+        <ellipse cx="68" cy="52" rx="5" ry="4"/><ellipse cx="96" cy="52" rx="5" ry="4"/>
+        <path d="m78 64 4 5 4-5z"/>
+      </g>
+      <g stroke-width=".9" opacity=".44">
+        <path d="M50 62H30m20 9H32m64-9h20m-20 9h18M40 106h84M40 126h84"/>
+      </g>
+      <g stroke-width="1.6" opacity=".78">
+        <ellipse cx="60" cy="30" rx="5" ry="2.4"/><ellipse cx="82" cy="30" rx="5" ry="2.4"/><ellipse cx="104" cy="30" rx="5" ry="2.4"/>
+        <ellipse cx="50" cy="84" rx="5" ry="2.4"/><ellipse cx="72" cy="84" rx="5" ry="2.4"/>
+        <ellipse cx="94" cy="84" rx="5" ry="2.4"/><ellipse cx="116" cy="84" rx="5" ry="2.4"/>
+      </g>
+      <g stroke-width=".9" opacity=".3"><path d="M34 156h-9M132 26h9M82 24v-8"/></g>
     </g>
   </defs>
-  <g color="#d71510" opacity=".34" transform="translate(984 248) rotate(-11 120 72) scale(.86)"><use href="#brick"/></g>
-  <g color="#2446b7" opacity=".32" transform="translate(-34 262) rotate(13 120 72) scale(.82)"><use href="#brick"/></g>
-  <g color="#e2ae00" opacity=".46" transform="translate(958 447) rotate(7 120 72) scale(.88)"><use href="#brick"/></g>
-  <g color="#d71510" opacity=".34" transform="translate(72 756) rotate(-8 120 72) scale(.72)"><use href="#brick"/></g>
-  <g color="#2446b7" opacity=".26" transform="translate(854 837) rotate(9 120 72) scale(1.07)"><use href="#brick"/></g>
-  <g stroke-width="1" stroke-linecap="square" opacity=".22">
+
+  <g color="#d71510" opacity=".18" transform="translate(958 470) rotate(-7 120 90) scale(.8)"><use href="#castle"/></g>
+  <g color="#2446b7" opacity=".17" transform="translate(-96 208) rotate(9 120 80) scale(.82)"><use href="#racer"/></g>
+  <g color="#e2ae00" opacity=".22" transform="translate(1012 862) rotate(5 82 90) scale(.78)"><use href="#cat"/></g>
+  <g color="#d71510" opacity=".15" transform="translate(-72 742) rotate(-10 120 90) scale(.62)"><use href="#castle"/></g>
+  <g color="#2446b7" opacity=".16" transform="translate(986 36) rotate(6 120 80) scale(.7)"><use href="#racer"/></g>
+  <g color="#e2ae00" opacity=".16" transform="translate(-58 1006) rotate(-6 82 90) scale(.58)"><use href="#cat"/></g>
+  <g color="#d71510" opacity=".26" transform="translate(16 796) rotate(-10 120 90) scale(.66)"><use href="#castle"/></g>
+  <g color="#2446b7" opacity=".24" transform="translate(880 918) rotate(6 120 80) scale(.74)"><use href="#racer"/></g>
+  <g color="#e2ae00" opacity=".26" transform="translate(-14 86) rotate(-6 82 90) scale(.6)"><use href="#cat"/></g>
+
+  <g stroke-width="1" stroke-linecap="round" opacity=".2">
     <path d="M37 116h196m-196 0v101" stroke="#d71510"/>
     <path d="M1132 333h-146m146 0v70" stroke="#2446b7"/>
     <path d="M42 544h164m0 0v56" stroke="#e2ae00"/>

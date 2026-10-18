@@ -42,6 +42,18 @@ def build(out: Path) -> Path:
     html = (web / "index.html").read_text()
     html = re.sub(r'<script type="importmap">.*?</script>\n?', "", html, flags=re.S)
     html = html.replace('<script type="module" src="./app.js"></script>', STUB)
+    def as_data_uri(name: str) -> str | None:
+        asset = web / name.split("?")[0]
+        if not asset.is_file():
+            return None
+        kind = mimetypes.guess_type(asset.name)[0] or "application/octet-stream"
+        return f"data:{kind};base64,{base64.b64encode(asset.read_bytes()).decode()}"
+
+    for src in set(re.findall(r'<img[^>]+src="\./([^"]+)"', html)):
+        uri = as_data_uri(src)
+        if uri:
+            html = html.replace(f'src="./{src}"', f'src="{uri}"')
+
     for link in re.findall(r'<link rel="stylesheet" href="\./([^"]+)">', html):
         css = inline_assets((web / link).read_text(), web)
         html = html.replace(f'<link rel="stylesheet" href="./{link}">', f"<style>\n{css}\n</style>")

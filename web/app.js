@@ -312,7 +312,14 @@ function handle(event) {
     case 'renders': shots(event.urls); if (!model) peek(event.urls.at(-1)); break;
     case 'model': showModel(event); break;
     case 'result': stage(`Model written · ${event.turns} turns · ${Math.round(event.seconds / 60)} min · $${event.cost.toFixed(2)}`); break;
-    case 'done': { const [text, ok] = doneLine(event); stage(text).classList.add(ok ? 'done' : 'failed'); break; }
+    case 'done': {
+      runClock(false);                              // stop at what it actually took, not at "now"
+      if (event.seconds) $('pg-time').textContent =
+        `${String(Math.floor(event.seconds / 60)).padStart(2, '0')}:${String(event.seconds % 60).padStart(2, '0')}`;
+      const [text, ok] = doneLine(event);
+      stage(text).classList.add(ok ? 'done' : 'failed');
+      break;
+    }
     case 'error': say('bot', 'Something broke', event.text); break;
     case 'idle': working(false); break;
     case 'busy': resetProgress(); runClock(true, event.at); working(true); break;

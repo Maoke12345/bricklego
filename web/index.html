@@ -317,7 +317,30 @@ html { scroll-behavior: smooth; }
     </dl>
   </header>
 
-  <div class="section-intro" id="studio"><span>01 / START WITH A PHOTO</span><h2>Turn what is in front of you into something you can build.</h2></div>
+  <section class="viewer" id="result" aria-label="3D model">
+    <div id="stage"></div>
+    <div class="status" id="status">
+      <b>No model yet</b>
+      <img id="status-shot" alt="Latest render" hidden>
+      <span id="status-note">A build takes about ten minutes.</span>
+      <span class="bar" id="status-bar" hidden><i></i></span>
+    </div>
+    <div class="hint" id="hint" hidden>Drag to turn &middot; scroll to zoom &middot; right-drag to pan</div>
+    <div class="compass" id="compass" hidden>Real parts &middot; checked by BrickAgent</div>
+    <div class="rail" id="rail" hidden>
+      <div class="step">Layer <b id="stepNo">&ndash;</b> / <span id="stepMax">&ndash;</span></div>
+      <input id="slider" type="range" min="0" max="1" value="1" aria-label="Build layer">
+      <div class="btns">
+        <button id="prev" type="button">Back</button>
+        <button id="next" type="button">Forward</button>
+        <button id="play" type="button" aria-pressed="false">Play</button>
+        <button id="hl" type="button" aria-pressed="true">Highlight layer</button>
+        <button id="dl" type="button">Download .mpd</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-intro" id="studio"><h2>Turn what is in front of you into something you can build.</h2></div>
   <section class="chat" aria-label="Studio">
     <div class="chat-head">
       <h2>Chat</h2>
@@ -378,29 +401,6 @@ html { scroll-behavior: smooth; }
   </section>
 
 
-  <div class="section-intro" id="result"><span>02 / YOUR BRICK MODEL</span><h2>From photo to model</h2></div>
-  <section class="viewer" aria-label="3D model">
-    <div id="stage"></div>
-    <div class="status" id="status">
-      <b>No model yet</b>
-      <img id="status-shot" alt="Latest render" hidden>
-      <span id="status-note">A build takes about ten minutes.</span>
-      <span class="bar" id="status-bar" hidden><i></i></span>
-    </div>
-    <div class="hint" id="hint" hidden>Drag to turn &middot; scroll to zoom &middot; right-drag to pan</div>
-    <div class="compass" id="compass" hidden>Real parts &middot; checked by BrickAgent</div>
-    <div class="rail" id="rail" hidden>
-      <div class="step">Layer <b id="stepNo">&ndash;</b> / <span id="stepMax">&ndash;</span></div>
-      <input id="slider" type="range" min="0" max="1" value="1" aria-label="Build layer">
-      <div class="btns">
-        <button id="prev" type="button">Back</button>
-        <button id="next" type="button">Forward</button>
-        <button id="play" type="button" aria-pressed="false">Play</button>
-        <button id="hl" type="button" aria-pressed="true">Highlight layer</button>
-        <button id="dl" type="button">Download .mpd</button>
-      </div>
-    </div>
-  </section>
 
   <div class="cols">
     <section>
@@ -416,7 +416,7 @@ html { scroll-behavior: smooth; }
     </section>
   </div>
 
-  <div class="section-intro history-head" id="history"><div><span>03 / MODEL HISTORY</span><h2>What you have built</h2></div><span class="history-count" id="history-count">0 models</span></div>
+  <div class="section-intro history-head" id="history"><div><h2>What you have built</h2></div><span class="history-count" id="history-count">0 models</span></div>
   <section class="history-page" aria-label="Model history">
     <div class="history-empty" id="history-empty"><strong>Nothing finished yet</strong><a href="#studio">Build the first one</a></div>
     <div class="history-list" id="history-list" hidden></div>

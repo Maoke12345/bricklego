@@ -32,6 +32,8 @@ python3 server.py            # http://127.0.0.1:8787
 
 `web/cover-concept.html` 保留最初获认可的蒙德里安封面独立视觉稿。正式页面封面在 `web/index.html`，样式在 `web/cover.css`。红色 “Starting a project”、黄色 “Your model”、蓝色 “Model history” 积木点击后分别进入照片创作、模型结果和历史区域；三块积木都有向前推出的效果。后面仍是已有的生成状态、3D 查看器、模型信息和零件清单。
 
+封面文字统一使用圆厚字形，红、黄、蓝、黑四块砖上的文字通过与砖面相配的高光和阴影表现浅浮雕，具体样式在 `web/cover-lettering.css`。工作台 BUILD 两只手之间的五块浅色小积木形成轻弧线并缓慢浮动，样式在 `web/gesture-flow.css`；减少动态效果的系统设置会停用动画。
+
 封面新增黑色 “Showcase” 积木，点击进入封面与 BrickStudio 之间的展示区。这里有九件静态参考作品：八件从 [BrickAgent 官方仓库的 BrickBench teaser](https://github.com/kulits/BrickAgent/blob/master/docs/images/teaser_mosaic.avif) 中挑选，以 CSS 定位展示原图中的单个模型；来源项目采用 MIT 许可，许可文本见 `references/BrickAgent/LICENSE`。建筑模型来自 Said Sürücü 的 [Ayasofya custom model](https://github.com/saidsurucu/lego-hagia-sophia)，原渲染图转为本地 WebP 以加快加载，并按原项目说明以 CC BY 4.0 署名。九件都不是本站根据用户照片新生成的结果。进入展示区时，图片分层快速落下并拼合；减少动态效果的系统设置会关闭动画。
 
 模型成功载入后，历史区会在**当前浏览器**保存任务 ID、名称、零件数、检查状态及该任务的渲染图路径，不复制私人照片或 MPD。历史区采用可翻页的说明书式模型册，每页展示一件模型，最近完成的排在第一页；这只是档案展示，不提供逐块搭建步骤。点击“Open 3D model”会先确认原始任务仍在当前服务，再用现有 `?job=<id>` 恢复它。历史目录最多保留 30 件；浏览器数据被清除或服务端任务文件被删除后，作品不能从此目录恢复。静态页面预览不会生成模型，因此真实历史区显示空状态。

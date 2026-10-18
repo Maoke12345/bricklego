@@ -1,0 +1,77 @@
+/* Rounded toy lettering across the cover; brick labels have colour-matched moulded relief. */
+#cover {
+  --cover-letter: "Fredoka", "Arial Rounded MT Bold", "Trebuchet MS", sans-serif;
+}
+#cover .brand > span:nth-child(2) {
+  font: 700 27px/.95 var(--cover-letter);
+  letter-spacing: -.055em;
+  transform: none;
+}
+#cover .brand small,
+#cover .nav {
+  font-family: var(--cover-letter);
+  font-weight: 600;
+  letter-spacing: .005em;
+}
+#cover .lego-piece .piece-label {
+  font-family: var(--cover-letter);
+  font-weight: 700;
+  letter-spacing: .012em;
+  word-spacing: .16em;
+  text-transform: none;
+  -webkit-font-smoothing: antialiased;
+  color: var(--letter-face);
+  text-shadow:
+    -1px -1px .6px var(--letter-light),
+     1px  1px .7px var(--letter-dark),
+     0    2px  1px var(--letter-dark);
+}
+#cover .lego-piece.red {
+  --letter-face: #790d0a;
+  --letter-light: #ff7061;
+  --letter-dark: #580705;
+}
+#cover .lego-piece.red .piece-label {
+  font-size: clamp(25px, 3.8vw, 46px);
+  line-height: 1.03;
+  word-spacing: .24em;
+  top: 51%;
+}
+#cover .lego-piece.yellow-main {
+  --letter-face: #7b5302;
+  --letter-light: #ffed93;
+  --letter-dark: #684300;
+}
+#cover .lego-piece.yellow-main .piece-label {
+  font-size: clamp(18px, 2.2vw, 27px);
+  bottom: 26%;
+  right: 8%;
+}
+#cover .lego-piece.blue {
+  --letter-face: #d2d0f4;
+  --letter-light: #f0efff;
+  --letter-dark: #111063;
+}
+#cover .lego-piece.blue .piece-label {
+  font-size: clamp(20px, 2.2vw, 27px);
+  line-height: 1.1;
+}
+#cover .lego-piece.black-showcase {
+  --letter-face: #dadbd7;
+  --letter-light: #fff;
+  --letter-dark: #050607;
+}
+#cover .lego-piece.black-showcase .piece-label {
+  font-size: clamp(12px, 1.3vw, 16px);
+  line-height: 1;
+  bottom: 8%;
+  letter-spacing: .005em;
+  text-shadow: -1px -1px .5px var(--letter-light), 1px 1px .5px var(--letter-dark);
+}
+@media (max-width: 680px) {
+  #cover .brand > span:nth-child(2) { font-size: 21px; }
+  #cover .lego-piece.red .piece-label { font-size: clamp(19px, 5vw, 30px); }
+  #cover .lego-piece.yellow-main .piece-label { font-size: clamp(13px, 3.4vw, 20px); }
+  #cover .lego-piece.blue .piece-label { font-size: clamp(14px, 3.9vw, 22px); }
+  #cover .lego-piece.black-showcase .piece-label { font-size: clamp(9px, 2.4vw, 12px); }
+}

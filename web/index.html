@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="./cover.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;0,800;1,800&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;0,800;1,800&family=Fredoka:wght@600;700&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <script type="importmap">{"imports":{"three":"./vendor/three/build/three.module.js","three/addons/":"./vendor/three/examples/jsm/"}}</script>
 <style>
 /* 图册式版面：标题牌记 — 可转的模型 + 搭建回放 — 对话框 — 零件清单 */
@@ -150,6 +150,8 @@ html { scroll-behavior: smooth; }
 </style>
 <link rel="stylesheet" href="./gallery.css">
 <link rel="stylesheet" href="./history-book.css">
+<link rel="stylesheet" href="./cover-lettering.css">
+<link rel="stylesheet" href="./gesture-flow.css">
 </head>
 <body>
 <div id="cover">
@@ -179,7 +181,7 @@ html { scroll-behavior: smooth; }
           <span class="cover-cell cell-bottom-a" aria-hidden="true"></span>
           <span class="cover-cell cell-bottom-b" aria-hidden="true"></span>
           <span class="cover-cell cell-bottom-c" aria-hidden="true"></span>
-          <button class="lego-piece red" id="start-project-brick" type="button" aria-label="Starting a project: open the build studio"><span class="stud-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="piece-label">Starting a project</span></button>
+          <button class="lego-piece red" id="start-project-brick" type="button" aria-label="Starting a project: open the build studio"><span class="stud-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="piece-label">Starting a<br>project</span></button>
           <button class="lego-piece black-showcase" id="showcase-brick" type="button" aria-label="Showcase: view featured brick models"><span class="stud-grid" aria-hidden="true"><i></i><i></i></span><span class="piece-label">Showcase</span></button>
           <div class="lego-piece yellow-strip" aria-hidden="true"><span class="stud-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></div>
           <button class="lego-piece yellow-main" id="your-model-brick" type="button" aria-label="Your model: jump to results"><span class="stud-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="piece-label">Your model</span></button>
@@ -254,7 +256,7 @@ html { scroll-behavior: smooth; }
     </dl>
   </header>
 
-  <div class="section-intro studio-intro" id="studio"><span>01 / START WITH A PHOTO</span><div class="studio-gesture" aria-hidden="true"><span>BUILD</span><img class="hand-left" src="./gesture-hands.png" alt=""><img class="hand-right" src="./gesture-hands.png" alt=""></div></div>
+  <div class="section-intro studio-intro" id="studio"><span>01 / START WITH A PHOTO</span><div class="studio-gesture" aria-hidden="true"><span>BUILD</span><span class="brick-flow"><i></i><i></i><i></i><i></i><i></i></span><img class="hand-left" src="./gesture-hands.png" alt=""><img class="hand-right" src="./gesture-hands.png" alt=""></div></div>
   <section class="chat" aria-label="Photo build studio">
     <div class="chat-head">
       <span style="display:flex;align-items:center;gap:12px">

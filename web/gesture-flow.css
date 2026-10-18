@@ -1,0 +1,49 @@
+/* A short arc of tiny ivory bricks travels between the two hands above BUILD. */
+.studio-intro .studio-gesture .brick-flow {
+  position: absolute;
+  inset: 0;
+  display: block;
+  z-index: 0;
+  pointer-events: none;
+}
+.studio-intro .studio-gesture .brick-flow i {
+  --tilt: 0deg;
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: clamp(16px, 2.2vw, 23px);
+  height: clamp(11px, 1.35vw, 15px);
+  border: 1px solid #686862;
+  border-radius: 2px;
+  background: linear-gradient(145deg, #fffef8, #c6c6bd 78%);
+  box-shadow: inset 1px 1px 0 #fff, 1px 3px 0 #77766e, 2px 5px 4px #1618156b;
+  transform: rotate(var(--tilt));
+  animation: brick-current 3.1s ease-in-out infinite;
+  animation-delay: var(--delay);
+}
+.studio-intro .studio-gesture .brick-flow i::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  top: -5px;
+  height: 7px;
+  background:
+    radial-gradient(ellipse at 25% 55%, #fffdf5 0 27%, #8c8c82 33% 42%, transparent 44%),
+    radial-gradient(ellipse at 75% 55%, #fffdf5 0 27%, #8c8c82 33% 42%, transparent 44%);
+}
+.studio-intro .studio-gesture .brick-flow i:nth-child(1) { --x: 39%; --y: 44%; --tilt: -30deg; --delay: 0s; }
+.studio-intro .studio-gesture .brick-flow i:nth-child(2) { --x: 43%; --y: 31%; --tilt: -16deg; --delay: -.24s; }
+.studio-intro .studio-gesture .brick-flow i:nth-child(3) { --x: 47%; --y: 24%; --tilt: -3deg; --delay: -.48s; }
+.studio-intro .studio-gesture .brick-flow i:nth-child(4) { --x: 51%; --y: 28%; --tilt: 13deg; --delay: -.72s; }
+.studio-intro .studio-gesture .brick-flow i:nth-child(5) { --x: 55%; --y: 41%; --tilt: 27deg; --delay: -.96s; }
+@keyframes brick-current {
+  0%, 100% { transform: translateY(1px) rotate(var(--tilt)); }
+  50% { transform: translateY(-7px) rotate(calc(var(--tilt) + 4deg)); }
+}
+@media (max-width: 640px) {
+  .studio-intro .studio-gesture .brick-flow i { width: 15px; height: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .studio-intro .studio-gesture .brick-flow i { animation: none; }
+}

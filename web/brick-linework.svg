@@ -66,15 +66,12 @@
     </g>
   </defs>
 
-  <g color="#d71510" opacity=".18" transform="translate(958 470) rotate(-7 120 90) scale(.8)"><use href="#castle"/></g>
-  <g color="#2446b7" opacity=".17" transform="translate(-96 208) rotate(9 120 80) scale(.82)"><use href="#racer"/></g>
-  <g color="#e2ae00" opacity=".22" transform="translate(1012 862) rotate(5 82 90) scale(.78)"><use href="#cat"/></g>
-  <g color="#d71510" opacity=".15" transform="translate(-72 742) rotate(-10 120 90) scale(.62)"><use href="#castle"/></g>
-  <g color="#2446b7" opacity=".16" transform="translate(986 36) rotate(6 120 80) scale(.7)"><use href="#racer"/></g>
-  <g color="#e2ae00" opacity=".16" transform="translate(-58 1006) rotate(-6 82 90) scale(.58)"><use href="#cat"/></g>
-  <g color="#d71510" opacity=".26" transform="translate(16 796) rotate(-10 120 90) scale(.66)"><use href="#castle"/></g>
-  <g color="#2446b7" opacity=".24" transform="translate(880 918) rotate(6 120 80) scale(.74)"><use href="#racer"/></g>
-  <g color="#e2ae00" opacity=".26" transform="translate(-14 86) rotate(-6 82 90) scale(.6)"><use href="#cat"/></g>
+  <g color="#d71510" opacity=".30" transform="translate(958 470) rotate(-7 120 90) scale(.8)"><use href="#castle"/></g>
+  <g color="#2446b7" opacity=".28" transform="translate(-96 208) rotate(9 120 80) scale(.82)"><use href="#racer"/></g>
+  <g color="#e2ae00" opacity=".34" transform="translate(1012 862) rotate(5 82 90) scale(.78)"><use href="#cat"/></g>
+  <g color="#d71510" opacity=".24" transform="translate(-72 742) rotate(-10 120 90) scale(.62)"><use href="#castle"/></g>
+  <g color="#2446b7" opacity=".26" transform="translate(986 36) rotate(6 120 80) scale(.7)"><use href="#racer"/></g>
+  <g color="#e2ae00" opacity=".26" transform="translate(-58 1006) rotate(-6 82 90) scale(.58)"><use href="#cat"/></g>
 
   <g stroke-width="1" stroke-linecap="round" opacity=".2">
     <path d="M37 116h196m-196 0v101" stroke="#d71510"/>

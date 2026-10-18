@@ -204,6 +204,17 @@ html { scroll-behavior: smooth; }
 .msg .body.rich li { margin: .2em 0; }
 .msg .body.rich code { font-family: var(--font-mono); font-size: .86em; background: #0000000d;
                        border: 1px solid var(--rule); padding: .05em .35em; }
+
+/* Two hands reaching in from either side of the word. One image, clipped down the
+   middle and pulled apart, so the halves stay in register however wide the page is. */
+.gesture { position: relative; width: min(100%, 660px); height: clamp(104px, 15vw, 150px);
+           margin: clamp(18px, 4vw, 40px) auto clamp(4px, 1.5vw, 14px); pointer-events: none; }
+.gesture > span { position: absolute; inset: 0; display: grid; place-items: center; color: var(--ink);
+                  font: 400 clamp(76px, 13vw, 142px)/.92 var(--font-serif); letter-spacing: -.035em;
+                  text-indent: -.035em; transform: translateY(10px) skewX(-5deg); z-index: 1; }
+.gesture img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; z-index: 2; }
+.gesture .hand-left { clip-path: inset(0 50% 0 0); transform: translateX(clamp(-34px, -4vw, -16px)); }
+.gesture .hand-right { clip-path: inset(0 0 0 50%); transform: translateX(clamp(16px, 4vw, 34px)); }
 </style>
 </head>
 <body>
@@ -294,6 +305,11 @@ html { scroll-behavior: smooth; }
   </div>
 </section>
 <div class="wrap">
+  <div class="gesture" aria-hidden="true">
+    <span>BUILD</span>
+    <img class="hand-left" src="./gesture-hands.webp" alt="">
+    <img class="hand-right" src="./gesture-hands.webp" alt="">
+  </div>
   <header>
     <div class="title">
       <span class="eyebrow" id="eyebrow"></span>

@@ -61,10 +61,9 @@ function renderHistory() {
       try {
         const response = await fetch(`/api/jobs/${entry.id}`);
         if (!response.ok) throw new Error(response.status === 404 ? 'That job is no longer on this server.' : 'Cannot read that job right now.');
-        const url = new URL(location.href);
-        url.searchParams.set('job', entry.id);
-        url.hash = 'result';
-        location.assign(url);
+        showJob(entry.id);
+        open.disabled = false;
+        open.textContent = 'Open model';
       } catch (reason) {
         error.textContent = reason instanceof TypeError ? 'Cannot reach the server right now.' : reason.message;
         open.disabled = false;
@@ -192,6 +191,7 @@ function shots(urls) {
     img.src = url;
     img.alt = 'Model render';
     img.addEventListener('click', () => zoom(url));
+    img.onerror = () => { img.remove(); if (!box.children.length) box.remove(); };  // the agent deletes its scratch renders
     box.append(img);
   }
 }
@@ -222,7 +222,7 @@ function working(on, note) {
   if (!model) {
     $('status').hidden = false;
     $('status').querySelector('b').textContent = on ? 'Building…' : 'No model yet';
-    $('status-note').textContent = on ? '' : 'A build takes about ten minutes.';
+    $('status-note').textContent = on ? '' : 'A build takes a few minutes.';
   }
 }
 
@@ -413,16 +413,15 @@ addEventListener('keydown', event => {
 
 /* ---------- Starting over ---------- */
 
-function reset() {
-  unattach();
-  $('resume').hidden = true;
+/** Take whatever is on screen down, without deciding what goes up next. Switching models and
+ *  starting over both pass through here, which is why neither reloads the page. */
+function clearView() {
   source?.close();
   source = null;
-  job = null;
   model = null;
-  localStorage.removeItem('brickstudio.job');
   log.innerHTML = '';
   viewer.clear();
+  resetProgress();
   $('status-shot').hidden = true;
   for (const id of ['hint', 'compass', 'rail']) $(id).hidden = true;
   for (const id of ['st-parts', 'st-kinds', 'st-size', 'st-steps']) $(id).textContent = '–';
@@ -432,10 +431,24 @@ function reset() {
   $('card-body').innerHTML = '';
   $('ref-shot').hidden = true;
   $('allBody').innerHTML = '';
-  $('jobline').textContent = '';
-  $('fresh').hidden = true;
   $('text').placeholder = 'What should it build?';
   working(false);
+}
+
+/** Put another model and its conversation on screen: only the slot and the chat change. */
+function showJob(id) {
+  clearView();
+  resume(id);
+  $('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function reset() {
+  unattach();
+  clearView();
+  job = null;
+  localStorage.removeItem('brickstudio.job');
+  $('resume').hidden = true;
+  $('jobline').textContent = '';
 }
 
 $('fresh').onclick = () => { if (!busy || confirm('This one is still running. Leave it and start another?')) reset(); };
@@ -524,7 +537,6 @@ $('composer').addEventListener('submit', async event => {
       job = data.id;
       $('resume').hidden = true;
       localStorage.setItem('brickstudio.job', job);
-      $('fresh').hidden = false;
       log.innerHTML = '';
       $('jobline').textContent = `Job ${job}`;
       listen(job);
@@ -545,7 +557,6 @@ function resume(id) {
   $('resume').hidden = true;
   localStorage.setItem('brickstudio.job', id);
   $('jobline').textContent = `Job ${id}`;
-  $('fresh').hidden = false;
   listen(id);
 }
 
@@ -554,7 +565,7 @@ function offerResume(id) {
   const open = document.createElement('button');
   open.type = 'button';
   open.textContent = 'Open last model';
-  open.onclick = () => { working(false); resume(id); };
+  open.onclick = () => showJob(id);
   $('resume').replaceChildren(open);
   $('resume').hidden = false;
 }

@@ -65,6 +65,7 @@ function shots(urls) {
   for (const url of urls) {
     const img = Object.assign(document.createElement('img'), { src: url, alt: 'Model render' });
     img.addEventListener('click', () => zoom(url));
+    img.onerror = () => { img.remove(); if (!box.children.length) box.remove(); };  // the agent deletes its scratch renders
     box.append(img);
   }
 }

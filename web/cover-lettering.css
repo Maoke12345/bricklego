@@ -80,3 +80,11 @@
   #cover .lego-piece.blue .piece-label { font-size: clamp(14px, 3.9vw, 22px); }
   #cover .lego-piece.black-showcase .piece-label { font-size: clamp(9px, 2.4vw, 12px); }
 }
+
+/* The top strip is a one-plate brick, a fifth the height of the others, but it carried
+   the same 14px front face — a quarter of it — so its yellow top sat low and the studs
+   rode down onto the lip. Scale the lip to the piece and lift the studs with it. */
+#cover .lego-piece.yellow-strip {
+  box-shadow: inset 2px 2px 0 #fff2, inset -5px -5px 0 var(--side), inset -7px -7px 0 var(--dark);
+}
+#cover .lego-piece.yellow-strip .stud-grid { inset: 1% 4.5% 12% 4.5%; }

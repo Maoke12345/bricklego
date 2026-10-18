@@ -78,7 +78,10 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-Type", kind)
         self.send_header("Content-Length", str(len(body)))
-        self.send_header("Cache-Control", "no-cache" if path.suffix in (".html", ".js") else "max-age=600")
+        # Source the page is built from changes constantly while we work on it; two browsers
+        # that loaded ten minutes apart must not disagree about what the product looks like.
+        fresh = path.suffix in (".html", ".js", ".css", ".svg", ".json")
+        self.send_header("Cache-Control", "no-cache" if fresh else "max-age=600")
         self.end_headers()
         self.wfile.write(body)
 

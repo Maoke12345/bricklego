@@ -362,7 +362,6 @@ async function showModel(event) {
     if (event.card?.eyebrow) $('eyebrow').textContent = event.card.eyebrow;
     $('card-sub').textContent = event.card?.summary || '';
     $('card-body').innerHTML = `<span class="badge ${event.valid ? 'ok' : ''}">${event.valid ? 'No collisions · physically stable' : 'Rendered only, checks not passed'}</span>`;
-    if (event.reference) { $('ref-shot').src = event.reference; $('ref-shot').hidden = false; }
 
     const body = $('allBody');
     body.innerHTML = '';
@@ -429,7 +428,6 @@ function clearView() {
   $('eyebrow').textContent = '';
   $('card-sub').textContent = 'No model yet.';
   $('card-body').innerHTML = '';
-  $('ref-shot').hidden = true;
   $('allBody').innerHTML = '';
   $('text').placeholder = 'What should it build?';
   working(false);

@@ -136,7 +136,6 @@ if (__CARD.title) {
 if (__CARD.eyebrow) $('eyebrow').textContent = __CARD.eyebrow;
 $('card-sub').textContent = __CARD.summary || '';
 $('card-body').innerHTML = `<span class="badge ${__VALID ? 'ok' : ''}">${__VALID ? 'No collisions · physically stable' : 'Rendered only, checks not passed'}</span>`;
-if (__REF) { $('ref-shot').src = __REF; $('ref-shot').hidden = false; }
 
 const body = $('allBody');
 for (const row of __PARTS.rows) {

@@ -152,7 +152,6 @@ def pack(job, out):
     if not model:
         raise SystemExit(f"{job}: no model was built yet")
 
-    reference = next((local(job, model[k]) for k in ("reference",) if model.get(k)), None)
     data = {
         "__JOB": job.name,
         "__MPD": (job / "packed.mpd").read_text(),
@@ -160,7 +159,6 @@ def pack(job, out):
         "__PARTS": json.loads((job / "manifest.json").read_text()),
         "__CARD": model.get("card") or {},
         "__VALID": bool(model.get("valid")),
-        "__REF": data_uri(reference) if reference else None,
         "__CHAT": transcript(job, events),
     }
     block = "\n".join(f"const {k} = {json.dumps(v, ensure_ascii=False)};" for k, v in data.items())

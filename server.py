@@ -90,7 +90,7 @@ class Handler(BaseHTTPRequestHandler):
     def body(self) -> dict:
         length = int(self.headers.get("Content-Length") or 0)
         if length > MAX_BODY:
-            raise ValueError("请求太大了（照片请控制在几 MB 以内）")
+            raise ValueError("Request too large. Keep the photo to a few MB.")
         return json.loads(self.rfile.read(length) or b"{}")
 
     # ---------- routes ----------
@@ -103,7 +103,7 @@ class Handler(BaseHTTPRequestHandler):
             return self.serve_job_file(path)
         if match := re.fullmatch(r"/api/jobs/([\w-]+)", path):
             job = get_job(match.group(1))
-            return self.send_json({"id": job.id, "busy": job.busy, "turn": job.turn} if job else {"error": "没有这个任务"}, 200 if job else 404)
+            return self.send_json({"id": job.id, "busy": job.busy, "turn": job.turn} if job else {"error": "Job not found."}, 200 if job else 404)
         if match := re.fullmatch(r"/api/jobs/([\w-]+)/events", path):
             return self.stream(match.group(1))
         target = self.under(WEB, path)
@@ -127,9 +127,9 @@ class Handler(BaseHTTPRequestHandler):
         if match := re.fullmatch(r"/api/jobs/([\w-]+)/messages", path):
             job = get_job(match.group(1))
             if not job:
-                return self.send_json({"error": "没有这个任务"}, 404)
+                return self.send_json({"error": "Job not found."}, 404)
             if job.busy:
-                return self.send_json({"error": "这一轮还在跑，等它结束再说"}, 409)
+                return self.send_json({"error": "This build is still running. Wait for it to finish."}, 409)
             job.submit((payload.get("text") or "").strip()[:4000], payload.get("image"))
             return self.send_json({"id": job.id})
 
@@ -146,7 +146,7 @@ class Handler(BaseHTTPRequestHandler):
         """Server-sent events: the whole transcript so far, then everything as it happens."""
         job = get_job(job_id)
         if not job:
-            return self.send_json({"error": "没有这个任务"}, 404)
+            return self.send_json({"error": "Job not found."}, 404)
         resumed = self.headers.get("Last-Event-ID")
         asked = re.search(r"[?&]from=(\d+)", self.path)
         resume = int(resumed) + 1 if (resumed or "").isdigit() else int(asked.group(1)) if asked else 0

@@ -1,14 +1,14 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BRICKFORM · 照片变积木</title>
+<title>BRICKFORM · Photo to bricks</title>
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="./cover.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500&family=Noto+Serif+SC:wght@700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;0,800;1,800&family=IM+Fell+English:ital@0;1&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <script type="importmap">{"imports":{"three":"./vendor/three/build/three.module.js","three/addons/":"./vendor/three/examples/jsm/"}}</script>
 <style>
 /* 图册式版面：标题牌记 — 可转的模型 + 搭建回放 — 对话框 — 零件清单 */
@@ -21,10 +21,10 @@
   --accent: #e74731;
   --sea-top: #343f46;
   --sea-bot: #263037;
-  --font-display: "Noto Serif SC", "Songti SC", serif;
-  --font-latin: "IM Fell English", Georgia, "Noto Serif SC", "Songti SC", serif;
-  --font-body: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
-  --font-mono: "JetBrains Mono", Consolas, "Noto Sans SC", "PingFang SC", monospace;
+  --font-display: "DM Sans", sans-serif;
+  --font-latin: "IM Fell English", Georgia, serif;
+  --font-body: "DM Sans", sans-serif;
+  --font-mono: "JetBrains Mono", Consolas, monospace;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -74,19 +74,19 @@ button { font: inherit; font-size: 13px; color: var(--ink); background: transpar
 button:hover:not(:disabled) { border-color: var(--accent); }
 button:disabled { opacity: .45; cursor: default; }
 button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--ink); }
-button.primary { background: #ffc61a; border-color: #ffc61a; color: #111; font-size: 14px; font-weight: 800; padding: 8px 18px; }
-button.primary:hover:not(:disabled) { background: #ffd93b; border-color: #ffc61a; }
+button.primary { background: transparent; border: 2px solid #ffc61a; color: #ffc61a; font-size: 14px; font-weight: 800; padding: 7px 17px; }
+button.primary:hover:not(:disabled) { background: #ffc61a1c; border-color: #ffd93b; color: #ffd93b; }
 button.primary:focus-visible { outline-color: #ffc61a; }
 button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 @media (max-width: 640px) { .rail { grid-template-columns: 1fr; } .rail .btns { justify-content: flex-start; } }
 
-/* 对话框 */
-.chat { border: 1px solid var(--rule); border-radius: 6px; background: var(--panel); display: grid; }
-.chat-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--rule); }
-.chat-head h2 { margin: 0; }
+/* The working input stays fully clickable below the decorative gesture. */
+.chat { border: 1px solid var(--rule); border-radius: 6px; background: var(--panel); display: flex; flex-direction: column; }
+.chat-head { display: flex; justify-content: flex-end; align-items: baseline; gap: 12px; padding: 8px 16px; }
 .chat-head .state { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
 .chat-head .state.live b { color: var(--accent); }
-#log { max-height: 46vh; min-height: 120px; overflow-y: auto; padding: 16px; display: grid; gap: 12px; align-content: start; scroll-behavior: smooth; }
+#log { max-height: 46vh; overflow-y: auto; padding: 16px; display: grid; gap: 12px; align-content: start; scroll-behavior: smooth; border-top: 1px solid var(--rule); }
+#log:empty { display: none; }
 .msg { display: grid; gap: 6px; max-width: 760px; }
 .msg .who { font-size: 11px; letter-spacing: .1em; color: var(--muted); text-transform: uppercase; }
 .msg .body { white-space: pre-wrap; overflow-wrap: anywhere; }
@@ -103,9 +103,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .renders { display: flex; gap: 8px; flex-wrap: wrap; }
 .renders img { width: 160px; border-radius: 4px; border: 1px solid var(--rule); background: #000; cursor: zoom-in; }
 
-.composer { border-top: 1px solid var(--rule); padding: 12px 16px; display: grid; gap: 10px; }
+.composer { padding: 4px 16px 16px; display: grid; gap: 10px; }
 .composer .row { display: flex; gap: 10px; align-items: flex-end; }
-textarea { flex: 1; font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--rule); border-radius: 6px; padding: 9px 12px; resize: vertical; min-height: 46px; max-height: 180px; }
+textarea { flex: 1; font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--rule); border-radius: 6px; padding: 9px 12px; resize: vertical; min-height: 62px; max-height: 180px; }
 .composer .opts { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; font-size: 13px; color: var(--muted); }
 .composer select { font: inherit; font-size: 13px; color: var(--ink); background: var(--bg); border: 1px solid var(--rule); border-radius: 4px; padding: 4px 8px; }
 .thumb { position: relative; }
@@ -139,6 +139,17 @@ html { scroll-behavior: smooth; }
 .section-intro > div > span:first-child { display:table; padding: 4px 8px; background: #eae5d9; font: 800 11px/1.4 var(--font-mono); letter-spacing: .14em; color: #2825bd; }
 .section-intro h2 { font: 900 clamp(24px,3vw,38px)/1.2 var(--font-body); margin: 8px 0 5px; letter-spacing: -.03em; }
 .section-intro p { margin:0; color:var(--muted); }
+.studio-intro { position: relative; min-height: 225px; overflow: visible; border-top: 0; padding-top: 0; }
+.studio-intro > span:first-child { background: transparent; color: var(--ink); padding: 0; font-size: 12px; letter-spacing: .11em; }
+.studio-intro .studio-gesture { position: absolute; left: 50%; bottom: -37px; transform: translateX(-50%); width: min(100%, 660px); height: 138px; pointer-events: none; }
+.studio-intro .studio-gesture img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; z-index: 2; }
+.studio-intro .studio-gesture .hand-left { clip-path: inset(0 50% 0 0); transform: translateX(-30px); }
+.studio-intro .studio-gesture .hand-right { clip-path: inset(0 0 0 50%); transform: translateX(30px); }
+.studio-intro .studio-gesture > span:first-child { position: absolute; inset: 0; display: grid; place-items: center; width: 100%; height: 100%; padding: 0; background: transparent; color: var(--ink); font: italic 800 clamp(88px, 12vw, 116px)/1 var(--font-display); letter-spacing: -.045em; text-indent: -.045em; transform: translateY(14px); z-index: 1; }
+@supports (-webkit-background-clip: text) { .studio-intro .studio-gesture > span:first-child { background: radial-gradient(circle, #5b6062 .55px, #eae5d9 1.1px) 0 0 / 4px 4px; -webkit-background-clip: text; background-clip: text; color: transparent; } }
+.studio-intro::after { display: none; }
+#result { margin-top: 78px; border-top: 0; padding-top: 0; }
+@media (max-width: 640px) { .studio-intro { min-height: 170px; } .studio-intro .studio-gesture { height: 108px; bottom: -27px; } .studio-intro .studio-gesture > span:first-child { font-size: clamp(58px, 13vw, 78px); } .studio-intro .studio-gesture .hand-left { transform: translateX(-16px); } .studio-intro .studio-gesture .hand-right { transform: translateX(16px); } #result { margin-top: 58px; } .composer .row { flex-wrap: wrap; } .composer textarea { flex-basis: 100%; } }
 .history-head { display:flex; align-items:end; justify-content:space-between; gap:16px; }
 .history-count { color:#b8b5ff; font:700 13px/1.4 var(--font-mono); white-space:nowrap; }
 .history-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; }
@@ -161,11 +172,11 @@ html { scroll-behavior: smooth; }
 <div id="cover">
 <div class="shell">
     <div class="topbar">
-      <a class="brand" href="#top" aria-label="BRICKFORM 首页"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>BRICKFORM</span><small>PHOTO TO BRICKS</small></a>
-      <nav class="nav" aria-label="页面导航"><a href="#top">首页</a><a href="#studio">创作工作台</a><a href="#result">结果展示</a><a href="#history">模型历史</a></nav>
+      <a class="brand" href="#top" aria-label="BRICKFORM home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>BRICKFORM</span><small>PHOTO TO BRICKS</small></a>
+      <nav class="nav" aria-label="Main navigation"><a href="#top">Home</a><a href="#studio">Build studio</a><a href="#result">Your model</a><a href="#history">History</a></nav>
     </div>
     <div id="top">
-      <section class="hero" aria-label="产品首页">
+      <section class="hero" aria-label="BRICKFORM home">
         <div class="cover-frame"><div class="cover-board">
           <span class="cover-outside outside-top-left" aria-hidden="true"></span>
           <span class="cover-outside outside-left-upper" aria-hidden="true"></span>
@@ -185,11 +196,11 @@ html { scroll-behavior: smooth; }
           <span class="cover-cell cell-bottom-a" aria-hidden="true"></span>
           <span class="cover-cell cell-bottom-b" aria-hidden="true"></span>
           <span class="cover-cell cell-bottom-c" aria-hidden="true"></span>
-          <button class="lego-piece red" id="start-project-brick" type="button" aria-label="Starting a project，点击进入照片创作工作台"><span class="stud-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="piece-label">Starting a project</span></button>
-          <button class="lego-piece black-showcase" id="showcase-brick" type="button" aria-label="Showcase，点击查看 BrickAgent 模型展示"><span class="stud-grid" aria-hidden="true"><i></i><i></i></span><span class="piece-label">Showcase</span></button>
+          <button class="lego-piece red" id="start-project-brick" type="button" aria-label="Starting a project: open the build studio"><span class="stud-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="piece-label">Starting a project</span></button>
+          <button class="lego-piece black-showcase" id="showcase-brick" type="button" aria-label="Showcase: view featured brick models"><span class="stud-grid" aria-hidden="true"><i></i><i></i></span><span class="piece-label">Showcase</span></button>
           <div class="lego-piece yellow-strip" aria-hidden="true"><span class="stud-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></div>
-          <button class="lego-piece yellow-main" id="your-model-brick" type="button" aria-label="Your model，点击进入模型结果区域"><span class="stud-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="piece-label">Your model</span></button>
-          <button class="lego-piece blue" id="history-brick" type="button" aria-label="Model history，点击查看以前做过的模型"><span class="stud-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="piece-label">Model history</span></button>
+          <button class="lego-piece yellow-main" id="your-model-brick" type="button" aria-label="Your model: jump to results"><span class="stud-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="piece-label">Your model</span></button>
+          <button class="lego-piece blue" id="history-brick" type="button" aria-label="Model history: view earlier models"><span class="stud-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="piece-label">Model history</span></button>
           </div>
         </div></div>
       </section>
@@ -202,137 +213,136 @@ html { scroll-behavior: smooth; }
     <div class="showcase-heading">
       <span class="showcase-index">NINE BRICK STUDIES</span>
       <h2 id="showcase-title">Small forms.<br>Big ideas.</h2>
-      <p>九件精选作品，从简单的角色到复杂的建筑。积木落下，拼成一个小世界。</p>
+      <p>Nine selected studies, from simple characters to intricate architecture. Watch the pieces fall into place.</p>
     </div>
-    <div class="showcase-grid" aria-label="九件积木作品展示">
+    <div class="showcase-grid" aria-label="Nine featured brick models">
       <article class="showcase-card showcase-feature" style="--delay:0ms">
-        <div class="showcase-art architecture-art" role="img" aria-label="米白与浅灰色积木搭成的圆顶建筑，带四座细长塔楼"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
+        <div class="showcase-art architecture-art" role="img" aria-label="Cream and light gray brick dome with four slender towers"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
         <div class="showcase-card-copy"><span>Architecture · complex build</span><h3>Hagia Sophia</h3></div>
       </article>
       <article class="showcase-card" style="--tile-x:20%;--tile-y:100%;--delay:70ms">
-        <div class="showcase-art mosaic-art" role="img" aria-label="灰白色圆润的积木兔子"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
+        <div class="showcase-art mosaic-art" role="img" aria-label="Rounded gray and white brick rabbit"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
         <div class="showcase-card-copy"><span>Character · simple form</span><h3>Soft rabbit</h3></div>
       </article>
       <article class="showcase-card" style="--tile-x:100%;--tile-y:100%;--delay:120ms">
-        <div class="showcase-art mosaic-art" role="img" aria-label="灰色盔甲的积木小机器人"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
+        <div class="showcase-art mosaic-art" role="img" aria-label="Small armored gray brick robot"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
         <div class="showcase-card-copy"><span>Character · simple form</span><h3>Little guardian</h3></div>
       </article>
       <article class="showcase-card" style="--tile-x:60%;--tile-y:0%;--delay:170ms">
-        <div class="showcase-art mosaic-art" role="img" aria-label="白色鸟与深色车轮组成的积木自行车"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
+        <div class="showcase-art mosaic-art" role="img" aria-label="Brick bicycle with a white bird and dark wheels"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
         <div class="showcase-card-copy"><span>Object · fine detail</span><h3>Bird on wheels</h3></div>
       </article>
       <article class="showcase-card" style="--tile-x:60%;--tile-y:50%;--delay:220ms">
-        <div class="showcase-art mosaic-art" role="img" aria-label="灰黑色岩石底座上的积木探险者场景"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
+        <div class="showcase-art mosaic-art" role="img" aria-label="Brick explorer scene on a dark rocky base"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
         <div class="showcase-card-copy"><span>Scene · detailed build</span><h3>Rocky outpost</h3></div>
       </article>
       <article class="showcase-card" style="--tile-x:0%;--tile-y:100%;--delay:270ms">
-        <div class="showcase-art mosaic-art" role="img" aria-label="灰色身体、棕色头发的积木角色"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
+        <div class="showcase-art mosaic-art" role="img" aria-label="Brick character with gray body and brown hair"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
         <div class="showcase-card-copy"><span>Character · geometric</span><h3>Block figure</h3></div>
       </article>
       <article class="showcase-card" style="--tile-x:80%;--tile-y:0%;--delay:320ms">
-        <div class="showcase-art mosaic-art" role="img" aria-label="浅薄荷色积木头像立在棕色底座上"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
+        <div class="showcase-art mosaic-art" role="img" aria-label="Pale mint brick portrait on a brown base"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
         <div class="showcase-card-copy"><span>Sculpture · quiet colour</span><h3>Mint portrait</h3></div>
       </article>
       <article class="showcase-card" style="--tile-x:20%;--tile-y:50%;--delay:370ms">
-        <div class="showcase-art mosaic-art" role="img" aria-label="透明浅蓝色盒子中的小动物积木场景"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
+        <div class="showcase-art mosaic-art" role="img" aria-label="Small brick animal scene inside a translucent blue box"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
         <div class="showcase-card-copy"><span>Scene · layered build</span><h3>Glass habitat</h3></div>
       </article>
       <article class="showcase-card" style="--tile-x:100%;--tile-y:0%;--delay:420ms">
-        <div class="showcase-art mosaic-art" role="img" aria-label="棕色小恐龙与叶片组成的积木场景"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
+        <div class="showcase-art mosaic-art" role="img" aria-label="Brown brick dinosaur among leaves"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
         <div class="showcase-card-copy"><span>Nature · scene build</span><h3>Small wilderness</h3></div>
       </article>
     </div>
-    <div class="showcase-credit"><p>静态参考作品，不是本站根据照片新生成的模型。8 件来自 <a href="https://gallery.brickben.ch/" target="_blank" rel="noopener noreferrer">BrickAgent / BrickBench</a>；建筑模型 “Ayasofya custom model” 由 <a href="https://github.com/saidsurucu/lego-hagia-sophia" target="_blank" rel="noopener noreferrer">Said Sürücü</a> 创作，原图仅转换为 WebP，依 <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a> 授权展示。</p></div>
+    <div class="showcase-credit"><p>Static reference works, not models generated from photos on this site. Eight are from <a href="https://gallery.brickben.ch/" target="_blank" rel="noopener noreferrer">BrickAgent / BrickBench</a>. The architectural model “Ayasofya custom model” is by <a href="https://github.com/saidsurucu/lego-hagia-sophia" target="_blank" rel="noopener noreferrer">Said Sürücü</a>; its image was converted to WebP and is shown under a <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a> license.</p></div>
     <a class="showcase-next" href="#studio">Start your own project <span aria-hidden="true">↗</span></a>
   </div>
 </section>
 <div class="wrap">
   <header>
     <div class="title">
-      <span class="eyebrow" id="eyebrow">拍一张照片，说一句话，变成真能搭出来的乐高</span>
-      <h1 id="h1">砖语<small>BrickStudio</small></h1>
+      <span class="eyebrow" id="eyebrow">A photo and an idea become a brick model you can build.</span>
+      <h1 id="h1">BRICKFORM<small>Brick Studio</small></h1>
     </div>
     <dl class="stats">
-      <div><dt>零件</dt><dd id="st-parts">–</dd></div>
-      <div><dt>种类</dt><dd id="st-kinds">–</dd></div>
-      <div><dt>尺寸</dt><dd id="st-size">–</dd></div>
-      <div><dt>查看层数</dt><dd id="st-steps">–</dd></div>
+      <div><dt>Parts</dt><dd id="st-parts">–</dd></div>
+      <div><dt>Types</dt><dd id="st-kinds">–</dd></div>
+      <div><dt>Size</dt><dd id="st-size">–</dd></div>
+      <div><dt>Layers</dt><dd id="st-steps">–</dd></div>
     </dl>
   </header>
 
-  <div class="section-intro" id="studio"><span>01 / START WITH A PHOTO</span><h2>把眼前的东西，变成可以搭的模型。</h2><p>选一张照片，告诉我们你想保留的形状和细节。</p></div>
-  <section class="chat" aria-label="照片创作工作台">
+  <div class="section-intro studio-intro" id="studio"><span>01 / START WITH A PHOTO</span><div class="studio-gesture" aria-hidden="true"><span>BUILD</span><img class="hand-left" src="./gesture-hands.png" alt=""><img class="hand-right" src="./gesture-hands.png" alt=""></div></div>
+  <section class="chat" aria-label="Photo build studio">
     <div class="chat-head">
-      <h2>对话</h2>
       <span style="display:flex;align-items:center;gap:12px">
-        <span class="state" id="state">闲置</span>
-        <button type="button" id="fresh" hidden>搭个新的</button>
+        <span class="state" id="state">Ready</span>
+        <button type="button" id="fresh" hidden>New project</button>
       </span>
     </div>
-    <div id="log" aria-live="polite"></div>
     <form class="composer" id="composer">
       <div class="row">
-        <div class="thumb" id="thumb" hidden><img id="thumb-img" alt="参考照片"><button type="button" id="thumb-x" title="移除照片">×</button></div>
-        <textarea id="text" rows="1" placeholder="想搭什么？例如：按这张照片搭我家的猫，姿势是趴着的，颜色偏橘。"></textarea>
-        <button type="button" id="pick" title="上传或拍摄照片">照片</button>
-        <button type="submit" class="primary" id="send">生成</button>
+        <div class="thumb" id="thumb" hidden><img id="thumb-img" alt="Reference photo"><button type="button" id="thumb-x" title="Remove photo">×</button></div>
+        <textarea id="text" rows="1" placeholder="What would you like to build? For example: my orange cat curled up in this photo."></textarea>
+        <button type="button" id="pick" title="Upload or take a photo">Photo</button>
+        <button type="submit" class="primary" id="send">Generate</button>
       </div>
       <div class="opts">
-        <label>规模 <select id="size">
-          <option value="quick">速写 · 约 80 件 · 较快</option>
-          <option value="model" selected>标准 · 不超过 400 件</option>
-          <option value="set">大型套装 · 400–4000 件 · 很慢</option>
+        <label>Size <select id="size">
+          <option value="quick">Quick sketch · about 80 parts</option>
+          <option value="model" selected>Standard · up to 400 parts</option>
+          <option value="set">Large set · 400–4000 parts · slow</option>
         </select></label>
         <span id="jobline"></span>
       </div>
       <input type="file" id="file" accept="image/*" capture="environment" hidden>
     </form>
+    <div id="log" aria-live="polite"></div>
   </section>
 
 
-  <div class="section-intro" id="result"><span>02 / YOUR BRICK MODEL</span><h2>从照片到模型</h2><p>模型出现后，可以旋转查看、浏览零件，并查看本次检查结果。</p></div>
-  <section class="viewer" aria-label="3D 模型">
+  <div class="section-intro" id="result"><span>02 / YOUR BRICK MODEL</span><h2>From photo to model</h2><p>When your model is ready, rotate it, explore its parts, and see the check result.</p></div>
+  <section class="viewer" aria-label="3D model">
     <div id="stage"></div>
     <div class="status" id="status">
-      <b>上传一张照片，告诉我你想要什么</b>
-      <img id="status-shot" alt="最新的渲染" hidden>
-      <span id="status-note">上方的创作工作台里写一句话即可。生成一个模型大约十来分钟，过程会实时显示。</span>
+      <b>Upload a photo and describe what you want to build</b>
+      <img id="status-shot" alt="Latest render" hidden>
+      <span id="status-note">Add a photo or a short description above. Building may take about ten minutes; progress appears live.</span>
       <span class="bar" id="status-bar" hidden><i></i></span>
     </div>
-    <div class="hint" id="hint" hidden>拖动旋转 · 滚轮缩放 · 右键平移</div>
-    <div class="compass" id="compass" hidden>真实零件 · 已通过 BrickAgent 检查</div>
+    <div class="hint" id="hint" hidden>Drag to rotate · scroll to zoom · right-click to pan</div>
+    <div class="compass" id="compass" hidden>Real parts · BrickAgent check passed</div>
     <div class="rail" id="rail" hidden>
-      <div class="step">第 <b id="stepNo">–</b> / <span id="stepMax">–</span> 层</div>
-      <input id="slider" type="range" min="0" max="1" value="1" aria-label="模型分层查看">
+      <div class="step">Layer <b id="stepNo">–</b> / <span id="stepMax">–</span></div>
+      <input id="slider" type="range" min="0" max="1" value="1" aria-label="View model by layer">
       <div class="btns">
-        <button id="prev" type="button">上一层</button>
-        <button id="next" type="button">下一层</button>
-        <button id="play" type="button" aria-pressed="false">播放</button>
-        <button id="hl" type="button" aria-pressed="true">高亮本层</button>
-        <button id="dl" type="button">下载 .mpd</button>
+        <button id="prev" type="button">Previous</button>
+        <button id="next" type="button">Next</button>
+        <button id="play" type="button" aria-pressed="false">Play</button>
+        <button id="hl" type="button" aria-pressed="true">Highlight layer</button>
+        <button id="dl" type="button">Download .mpd</button>
       </div>
     </div>
   </section>
 
   <div class="cols">
     <section>
-      <h2>这一件</h2>
-      <p class="sub" id="card-sub">还没有模型。</p>
+      <h2>This model</h2>
+      <p class="sub" id="card-sub">No model yet.</p>
       <div id="card-body"></div>
-      <img class="ref-shot" id="ref-shot" alt="参考照片" hidden>
+      <img class="ref-shot" id="ref-shot" alt="Reference photo" hidden>
     </section>
     <section>
-      <h2>零件清单</h2>
-      <p class="sub">LDraw 编号 · 全部为真实存在的零件</p>
-      <div class="tbl"><table><thead><tr><th>零件</th><th>编号</th><th>颜色</th><th class="num">数量</th></tr></thead><tbody id="allBody"></tbody></table></div>
+      <h2>Parts list</h2>
+      <p class="sub">LDraw IDs · available physical parts</p>
+      <div class="tbl"><table><thead><tr><th>Parts</th><th>ID</th><th>Color</th><th class="num">Quantity</th></tr></thead><tbody id="allBody"></tbody></table></div>
     </section>
   </div>
 
-  <div class="section-intro history-head" id="history"><div><span>03 / MODEL HISTORY</span><h2>以前做过的模型</h2><p>从这里重新打开你完成过的作品。</p></div><span class="history-count" id="history-count">0 件作品</span></div>
-  <section class="history-page" aria-label="模型历史">
-    <div class="history-empty" id="history-empty"><strong>这里还没有完成的模型</strong><p>完成第一件作品后，它会出现在这里。</p><a href="#studio">开始第一件作品</a></div>
+  <div class="section-intro history-head" id="history"><div><span>03 / MODEL HISTORY</span><h2>Earlier models</h2><p>Reopen a model you made earlier.</p></div><span class="history-count" id="history-count">0 models</span></div>
+  <section class="history-page" aria-label="Model history">
+    <div class="history-empty" id="history-empty"><strong>No completed models yet</strong><p>Your first finished model will appear here.</p><a href="#studio">Start your first project</a></div>
     <div class="history-list" id="history-list" hidden></div>
-    <p class="sub">历史目录保存在此浏览器；重新打开模型需要原始任务仍在当前服务中。</p>
+    <p class="sub">History is saved in this browser. Reopening a model requires its original job on this server.</p>
   </section>
 </div>
 <dialog id="lightbox"><img id="lightbox-img" alt=""></dialog>

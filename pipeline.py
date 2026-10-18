@@ -51,9 +51,9 @@ They are watching this page while you work, so:
 - Render as you go with `view(model, "/work/preview.png")`. Every PNG you write under `/work` appears
   on their screen within seconds, so render whenever the shape changes meaningfully.
 - Write `/work/card.json` before you finish:
-  `{{"title": "四字以内的中文名字", "subtitle": "English name", "eyebrow": "一句话副标题",
-    "summary": "2-4 句中文介绍：这是什么、有哪些细节、为了结实做了哪些取舍"}}`
-- Write your closing message to them **in Chinese**, the way you would tell a friend what you built.
+  `{{"title": "short English name", "subtitle": "optional alternate English name", "eyebrow": "one-line English subtitle",
+    "summary": "2–4 English sentences: what it is, its details, and any compromises made for sturdiness"}}`
+- Write your closing message to them **in English**, the way you would tell a friend what you built.
   No code, no API names, no part numbers — what it looks like and what you had to compromise on.
 {scale}"""
 
@@ -63,7 +63,7 @@ LATER_TURN = """The person is looking at the model you just built and asks for t
 {photo}
 Change `/work/build.py`, keep it passing `check()`, write `/work/model.mpd` again, refresh
 `/work/card.json`, and render a new `/work/preview.png`. Keep everything they did not ask you to change.
-Reply to them in Chinese, briefly, saying what you changed.
+Reply to them in English, briefly, saying what you changed.
 """
 
 SCALE = {
@@ -158,7 +158,7 @@ class Job:
             self.emit(type="user", text=text, image=self._url(photo) if photo else None)
             try:
                 prompt = self._prompt(text, photo)
-                self.emit(type="stage", text="正在读你的照片，挑零件…" if photo else "正在想怎么搭…")
+                self.emit(type="stage", text="Reading your photo and choosing parts…" if photo else "Planning the build…")
                 self._run_agent(prompt)
                 self._finish()
             except Exception as error:                       # noqa: BLE001 - the page shows every failure
@@ -179,7 +179,7 @@ class Job:
     def _prompt(self, text: str, photo: Path | None) -> str:
         if self.turn > 1:
             mention = f"\nThey attached another photo: /work/{photo.name} — look at it with Read.\n" if photo else ""
-            return LATER_TURN.format(text=text or "(照片见附件)", photo=mention)
+            return LATER_TURN.format(text=text or "(See attached photo)", photo=mention)
         description = text or "the object in the attached reference photo"
         rendered = subprocess.run(
             [str(PROMPT_PYTHON), str(REPO / "scripts" / "prompt.py"), description, "--split", SPLITS[self.size]],
@@ -213,7 +213,7 @@ class Job:
                 spoke = spoke or '"type":"assistant"' in line.replace(" ", "")
                 if time.time() - started > TURN_TIMEOUT:
                     process.kill()
-                    raise TimeoutError("这次搭得太久，已经停下了")
+                    raise TimeoutError("This build took too long and was stopped.")
                 try:
                     self._translate(json.loads(line))
                 except json.JSONDecodeError:
@@ -265,16 +265,16 @@ class Job:
     def _finish(self) -> None:
         mpd = self.work / "model.mpd"
         if not mpd.exists():
-            self.emit(type="error", text="这一轮没有写出模型文件，可以再说一次要求试试。")
+            self.emit(type="error", text="No model file was created. Try describing the build again.")
             return
         digest = hashlib.sha256(mpd.read_bytes()).hexdigest()
         if digest == self.model_hash:
             return                                            # nothing changed: leave the viewer alone
         self.model_hash = digest
 
-        self.emit(type="stage", text="在检查碰撞和稳定性…")
+        self.emit(type="stage", text="Checking collisions and stability…")
         valid = self._verify()
-        self.emit(type="stage", text="在整理零件清单…")
+        self.emit(type="stage", text="Preparing the parts list…")
         self._export()
         self.emit(
             type="model",
@@ -296,7 +296,7 @@ class Job:
             "-v", f"{self.dir}:/job", "-v", f"{HERE / 'container'}:/ctr:ro",
         ], ["python", "/ctr/export_model.py", "/job/work/model.mpd", "/job/packed.mpd", "/job/manifest.json"])
         if done.returncode != 0:
-            raise RuntimeError("打包模型失败：" + done.stderr.strip()[-300:])
+            raise RuntimeError("Model export failed: " + done.stderr.strip()[-300:])
 
     def _card(self) -> dict:
         try:

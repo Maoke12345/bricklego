@@ -1,22 +1,26 @@
-/* A short arc of tiny ivory bricks travels between the two hands above BUILD. */
+/* Six red, yellow and blue six-stud bricks flow across the middle of BUILD. */
 .studio-intro .studio-gesture .brick-flow {
   position: absolute;
   inset: 0;
   display: block;
-  z-index: 0;
+  z-index: 2;
   pointer-events: none;
 }
 .studio-intro .studio-gesture .brick-flow i {
   --tilt: 0deg;
+  --face: #d71b17;
+  --light: #f1493d;
+  --edge: #93100c;
+  --stud: #e54339;
   position: absolute;
   left: var(--x);
   top: var(--y);
-  width: clamp(16px, 2.2vw, 23px);
-  height: clamp(11px, 1.35vw, 15px);
-  border: 1px solid #686862;
+  width: clamp(20px, 2.65vw, 27px);
+  height: clamp(13px, 1.65vw, 17px);
+  border: 1px solid var(--edge);
   border-radius: 2px;
-  background: linear-gradient(145deg, #fffef8, #c6c6bd 78%);
-  box-shadow: inset 1px 1px 0 #fff, 1px 3px 0 #77766e, 2px 5px 4px #1618156b;
+  background: linear-gradient(145deg, var(--light), var(--face) 72%, var(--edge));
+  box-shadow: inset 1px 1px 0 #ffffff75, 1px 3px 0 var(--edge), 2px 5px 4px #1618156b;
   transform: rotate(var(--tilt));
   animation: brick-current 3.1s ease-in-out infinite;
   animation-delay: var(--delay);
@@ -24,25 +28,21 @@
 .studio-intro .studio-gesture .brick-flow i::before {
   content: "";
   position: absolute;
-  left: 2px;
-  right: 2px;
-  top: -5px;
-  height: 7px;
-  background:
-    radial-gradient(ellipse at 25% 55%, #fffdf5 0 27%, #8c8c82 33% 42%, transparent 44%),
-    radial-gradient(ellipse at 75% 55%, #fffdf5 0 27%, #8c8c82 33% 42%, transparent 44%);
+  inset: 1px;
+  background: radial-gradient(circle at 48% 42%, var(--stud) 0 2px, var(--edge) 2.6px 3.2px, transparent 3.6px) 0 0 / 33.333% 50% repeat;
 }
-.studio-intro .studio-gesture .brick-flow i:nth-child(1) { --x: 39%; --y: 44%; --tilt: -30deg; --delay: 0s; }
-.studio-intro .studio-gesture .brick-flow i:nth-child(2) { --x: 43%; --y: 31%; --tilt: -16deg; --delay: -.24s; }
-.studio-intro .studio-gesture .brick-flow i:nth-child(3) { --x: 47%; --y: 24%; --tilt: -3deg; --delay: -.48s; }
-.studio-intro .studio-gesture .brick-flow i:nth-child(4) { --x: 51%; --y: 28%; --tilt: 13deg; --delay: -.72s; }
-.studio-intro .studio-gesture .brick-flow i:nth-child(5) { --x: 55%; --y: 41%; --tilt: 27deg; --delay: -.96s; }
+.studio-intro .studio-gesture .brick-flow i:nth-child(1) { --x: 39%; --y: 56%; --tilt: -24deg; --delay: 0s; }
+.studio-intro .studio-gesture .brick-flow i:nth-child(2) { --x: 43%; --y: 44%; --tilt: -14deg; --delay: -.24s; --face: #f2c01b; --light: #ffe361; --edge: #b4860d; --stud: #ffd548; }
+.studio-intro .studio-gesture .brick-flow i:nth-child(3) { --x: 47%; --y: 38%; --tilt: -4deg; --delay: -.48s; --face: #2929b8; --light: #5353e5; --edge: #15156d; --stud: #4341d5; }
+.studio-intro .studio-gesture .brick-flow i:nth-child(4) { --x: 51%; --y: 39%; --tilt: 5deg; --delay: -.72s; }
+.studio-intro .studio-gesture .brick-flow i:nth-child(5) { --x: 55%; --y: 47%; --tilt: 15deg; --delay: -.96s; --face: #f2c01b; --light: #ffe361; --edge: #b4860d; --stud: #ffd548; }
+.studio-intro .studio-gesture .brick-flow i:nth-child(6) { --x: 59%; --y: 58%; --tilt: 24deg; --delay: -1.2s; --face: #2929b8; --light: #5353e5; --edge: #15156d; --stud: #4341d5; }
 @keyframes brick-current {
   0%, 100% { transform: translateY(1px) rotate(var(--tilt)); }
   50% { transform: translateY(-7px) rotate(calc(var(--tilt) + 4deg)); }
 }
 @media (max-width: 640px) {
-  .studio-intro .studio-gesture .brick-flow i { width: 15px; height: 10px; }
+  .studio-intro .studio-gesture .brick-flow i { width: 18px; height: 12px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .studio-intro .studio-gesture .brick-flow i { animation: none; }

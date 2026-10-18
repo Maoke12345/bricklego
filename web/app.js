@@ -203,7 +203,7 @@ function peek(url) {
   $('status-shot').src = url;
   $('status-shot').hidden = false;
   $('status').querySelector('b').textContent = 'Building…';
-  $('status-note').textContent = 'This is how it looks right now. It is still working.';
+  $('status-note').textContent = 'Still working on it.';
 }
 
 function zoom(src) {
@@ -222,10 +222,8 @@ function working(on, note) {
   $('status-bar').hidden = !on;
   if (!model) {
     $('status').hidden = false;
-    $('status').querySelector('b').textContent = on ? 'Building…' : 'Upload a photo and tell me what you want';
-    $('status-note').textContent = on
-      ? 'You can watch it happen in the chat above.'
-      : 'Write one line in the studio above. A model takes about ten minutes, and you can watch it happen.';
+    $('status').querySelector('b').textContent = on ? 'Building…' : 'No model yet';
+    $('status-note').textContent = on ? '' : 'A build takes about ten minutes.';
   }
 }
 
@@ -373,7 +371,7 @@ async function showModel(event) {
       cells[3].textContent = row.n;
       body.append(tr);
     }
-    $('text').placeholder = 'Change anything? For example: make the roof red and add a window.';
+    $('text').placeholder = 'Change anything?';
     rememberModel(event, info);
   } catch (error) {
     $('status').querySelector('b').textContent = 'Could not load the model';
@@ -410,6 +408,7 @@ addEventListener('keydown', event => {
 /* ---------- Starting over ---------- */
 
 function reset() {
+  unattach();
   source?.close();
   source = null;
   job = null;
@@ -420,15 +419,15 @@ function reset() {
   $('status-shot').hidden = true;
   for (const id of ['hint', 'compass', 'rail']) $(id).hidden = true;
   for (const id of ['st-parts', 'st-kinds', 'st-size', 'st-steps']) $(id).textContent = '–';
-  $('h1').innerHTML = 'BRICKFORM<small>Photo to bricks</small>';
-  $('eyebrow').textContent = 'Take a photo, say one line, get a model you can really build';
+  $('h1').textContent = 'BRICKFORM';
+  $('eyebrow').textContent = '';
   $('card-sub').textContent = 'No model yet.';
   $('card-body').innerHTML = '';
   $('ref-shot').hidden = true;
   $('allBody').innerHTML = '';
   $('jobline').textContent = '';
   $('fresh').hidden = true;
-  $('text').placeholder = 'What should it build? For example: my cat from this photo, lying down, mostly orange.';
+  $('text').placeholder = 'What should it build?';
   working(false);
 }
 
@@ -453,6 +452,15 @@ async function take(file) {
   photo = await shrink(file);
   $('thumb-img').src = photo;
   $('thumb').hidden = false;
+  $('pick').hidden = true;                      // one photo at a time: the thumbnail takes its place
+}
+
+/** Drop the attached photo and bring the + back. */
+function unattach() {
+  photo = null;
+  $('thumb').hidden = true;
+  $('pick').hidden = false;
+  $('file').value = '';
 }
 
 for (const id of ['model', 'effort', 'size']) {               // remember what you picked last
@@ -467,7 +475,7 @@ for (const eg of document.querySelectorAll('.eg')) {
 
 $('pick').onclick = () => $('file').click();
 $('file').addEventListener('change', event => take(event.target.files[0]));
-$('thumb-x').onclick = () => { photo = null; $('thumb').hidden = true; $('file').value = ''; };
+$('thumb-x').onclick = unattach;
 addEventListener('paste', event => {
   const item = [...(event.clipboardData?.files || [])][0];
   if (item) take(item);
@@ -499,9 +507,7 @@ $('composer').addEventListener('submit', async event => {
   working(true);
   $('text').value = '';
   if (!job) say('me', 'You', text, photo);     // the server echoes this back, but show it at once so the page reacts
-  photo = null;
-  $('thumb').hidden = true;
-  $('file').value = '';
+  unattach();
 
   try {
     const response = await fetch(url, {

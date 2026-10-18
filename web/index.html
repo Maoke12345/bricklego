@@ -105,6 +105,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 
 .composer { border-top: 1px solid var(--rule); padding: 12px 16px; display: grid; gap: 10px; }
 .composer .row { display: flex; gap: 10px; align-items: flex-end; }
+#pick { width: 44px; height: 44px; padding: 0; font-size: 22px; font-weight: 300; line-height: 1;
+        display: grid; place-items: center; flex: none; }
 textarea { flex: 1; font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--rule); border-radius: 6px; padding: 9px 12px; resize: vertical; min-height: 46px; max-height: 180px; }
 .composer .opts { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; font-size: 13px; color: var(--muted); }
 .composer select { font: inherit; font-size: 13px; color: var(--ink); background: var(--bg); border: 1px solid var(--rule); border-radius: 4px; padding: 4px 8px; }
@@ -304,8 +306,8 @@ html { scroll-behavior: smooth; }
 <div class="wrap">
   <header>
     <div class="title">
-      <span class="eyebrow" id="eyebrow">Take a photo, say one line, get a model you can really build</span>
-      <h1 id="h1">BRICKFORM<small>Photo to bricks</small></h1>
+      <span class="eyebrow" id="eyebrow"></span>
+      <h1 id="h1">BRICKFORM</h1>
     </div>
     <dl class="stats">
       <div><dt>Parts</dt><dd id="st-parts">–</dd></div>
@@ -315,7 +317,7 @@ html { scroll-behavior: smooth; }
     </dl>
   </header>
 
-  <div class="section-intro" id="studio"><span>01 / START WITH A PHOTO</span><h2>Turn what is in front of you into something you can build.</h2><p>Pick a photo and tell us which shapes and details to keep.</p></div>
+  <div class="section-intro" id="studio"><span>01 / START WITH A PHOTO</span><h2>Turn what is in front of you into something you can build.</h2></div>
   <section class="chat" aria-label="Studio">
     <div class="chat-head">
       <h2>Chat</h2>
@@ -335,19 +337,17 @@ html { scroll-behavior: smooth; }
       <div class="meters"><span id="pg-time">00:00</span><span id="pg-counts"></span></div>
     </div>
     <div id="log" aria-live="polite"><div class="empty">
-      <p>One line is enough. Short of ideas? Try one of these:</p>
       <div class="egs">
         <button type="button" class="eg">An orange tabby cat</button>
         <button type="button" class="eg">A water bottle, in red</button>
         <button type="button" class="eg">A small wooden bridge over a stream</button>
       </div>
-      <p class="fine">You can also drop a photo in, or press Photo to upload one &mdash; it will build from that.</p>
     </div></div>
     <form class="composer" id="composer">
       <div class="row">
-        <div class="thumb" id="thumb" hidden><img id="thumb-img" alt="Reference photo"><button type="button" id="thumb-x" title="Remove photo">×</button></div>
-        <textarea id="text" rows="1" placeholder="What should it build? For example: my cat from this photo, lying down, mostly orange."></textarea>
-        <button type="button" id="pick" title="Upload or take a photo">Photo</button>
+        <button type="button" id="pick" title="Attach a photo" aria-label="Attach a photo">+</button>
+        <div class="thumb" id="thumb" hidden><img id="thumb-img" alt="Attached photo"><button type="button" id="thumb-x" title="Remove photo">×</button></div>
+        <textarea id="text" rows="1" placeholder="What should it build?"></textarea>
         <button type="submit" class="primary" id="send">Build</button>
       </div>
       <div class="opts">
@@ -378,13 +378,13 @@ html { scroll-behavior: smooth; }
   </section>
 
 
-  <div class="section-intro" id="result"><span>02 / YOUR BRICK MODEL</span><h2>From photo to model</h2><p>Once it appears you can turn it, browse the parts, and see how it passed the checks.</p></div>
+  <div class="section-intro" id="result"><span>02 / YOUR BRICK MODEL</span><h2>From photo to model</h2></div>
   <section class="viewer" aria-label="3D model">
     <div id="stage"></div>
     <div class="status" id="status">
-      <b>Upload a photo and tell me what you want</b>
+      <b>No model yet</b>
       <img id="status-shot" alt="Latest render" hidden>
-      <span id="status-note">Write one line in the studio above. A model takes about ten minutes, and you can watch it happen.</span>
+      <span id="status-note">A build takes about ten minutes.</span>
       <span class="bar" id="status-bar" hidden><i></i></span>
     </div>
     <div class="hint" id="hint" hidden>Drag to turn &middot; scroll to zoom &middot; right-drag to pan</div>
@@ -411,16 +411,15 @@ html { scroll-behavior: smooth; }
     </section>
     <section>
       <h2>Part list</h2>
-      <p class="sub">LDraw numbers &middot; every part really exists</p>
+      <p class="sub">Real LDraw parts</p>
       <div class="tbl"><table><thead><tr><th>Part</th><th>ID</th><th>Colour</th><th class="num">Qty</th></tr></thead><tbody id="allBody"></tbody></table></div>
     </section>
   </div>
 
-  <div class="section-intro history-head" id="history"><div><span>03 / MODEL HISTORY</span><h2>What you have built</h2><p>Reopen anything you finished from here.</p></div><span class="history-count" id="history-count">0 models</span></div>
+  <div class="section-intro history-head" id="history"><div><span>03 / MODEL HISTORY</span><h2>What you have built</h2></div><span class="history-count" id="history-count">0 models</span></div>
   <section class="history-page" aria-label="Model history">
-    <div class="history-empty" id="history-empty"><strong>Nothing finished yet</strong><p>Your first model will show up here.</p><a href="#studio">Build the first one</a></div>
+    <div class="history-empty" id="history-empty"><strong>Nothing finished yet</strong><a href="#studio">Build the first one</a></div>
     <div class="history-list" id="history-list" hidden></div>
-    <p class="sub">This list lives in your browser. Reopening a model needs its original job to still be on the server.</p>
   </section>
 </div>
 <dialog id="lightbox"><img id="lightbox-img" alt=""></dialog>

@@ -1,32 +1,14 @@
-/* Faint, discontinuous Mondrian-like rules behind the ivory product sections. */
+/* Quiet, hollow brick sketches in Mondrian's primary colors. */
 .wrap {
-  --background-rule: #7771672b;
-  background-image:
-    linear-gradient(var(--background-rule), var(--background-rule)),
-    linear-gradient(var(--background-rule), var(--background-rule)),
-    linear-gradient(var(--background-rule), var(--background-rule)),
-    linear-gradient(var(--background-rule), var(--background-rule)),
-    linear-gradient(var(--background-rule), var(--background-rule)),
-    linear-gradient(var(--background-rule), var(--background-rule));
-  background-repeat: no-repeat;
-  background-size:
-    1px 18%,
-    30% 1px,
-    1px 22%,
-    29% 1px,
-    1px 18%,
-    25% 1px;
-  background-position:
-    10% 3%,
-    10% 21%,
-    83% 28%,
-    60% 49%,
-    27% 65%,
-    2% 83%;
+  background-image: url("./brick-linework.svg?v=3");
+  background-repeat: repeat-y;
+  background-size: 100% auto;
+  background-position: center top;
 }
+
 @media (max-width: 680px) {
   .wrap {
-    --background-rule: #7771671c;
-    background-size: 1px 18%, 30% 1px, 1px 22%, 29% 1px, 1px 18%, 25% 1px;
+    background-size: 145% auto;
+    background-position: 49% top;
   }
 }

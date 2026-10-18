@@ -1,0 +1,14 @@
+/* Quiet, hollow brick sketches in Mondrian's primary colors. */
+.wrap {
+  background-image: url("./brick-linework.svg?v=3");
+  background-repeat: repeat-y;
+  background-size: 100% auto;
+  background-position: center top;
+}
+
+@media (max-width: 680px) {
+  .wrap {
+    background-size: 145% auto;
+    background-position: 49% top;
+  }
+}

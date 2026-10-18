@@ -44,8 +44,12 @@
 }
 #cover .lego-piece.yellow-main .piece-label {
   font-size: clamp(18px, 2.2vw, 27px);
-  bottom: 26%;
-  right: 8%;
+  left: 7%;
+  right: 7%;
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
+  text-align: center;
 }
 #cover .lego-piece.blue {
   --letter-face: #d2d0f4;
@@ -55,6 +59,7 @@
 #cover .lego-piece.blue .piece-label {
   font-size: clamp(20px, 2.2vw, 27px);
   line-height: 1.1;
+  text-align: center;
 }
 #cover .lego-piece.black-showcase {
   --letter-face: #dadbd7;

@@ -179,10 +179,7 @@ html { scroll-behavior: smooth; }
 #pg-time { font-size: 17px; color: var(--ink); font-variant-numeric: tabular-nums; }
 
 /* ---- Empty chat ---- */
-.egs { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-.egs .eg { font-size: 12.5px; }
-.egs .resume { color: var(--muted); font-size: 12.5px; margin-left: auto;
-               display: flex; align-items: center; gap: 9px; }
+.resume { display: inline-flex; align-items: center; gap: 9px; text-transform: none; letter-spacing: 0; }
 
 /* ---- The commands it runs: folded away ---- */
 .raw { border-left: 1px solid var(--rule); padding-left: 12px; }
@@ -257,46 +254,44 @@ html { scroll-behavior: smooth; }
 <section class="showcase-page" id="showcase" aria-labelledby="showcase-title">
   <div class="showcase-inner">
     <div class="showcase-heading">
-      <span class="showcase-index">NINE BRICK STUDIES</span>
       <h2 id="showcase-title">Small forms.<br>Big ideas.</h2>
-      <p>Nine selected builds, from simple characters to complex architecture. Bricks fall into place and a small world appears.</p>
     </div>
     <div class="showcase-grid" aria-label="Nine brick studies">
       <article class="showcase-card showcase-feature" style="--delay:0ms">
         <div class="showcase-art architecture-art" role="img" aria-label="A domed building in cream and pale grey bricks, with four slender minarets"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
-        <div class="showcase-card-copy"><span>Architecture · complex build</span><h3>Hagia Sophia</h3></div>
+        <div class="showcase-card-copy"><h3>Hagia Sophia</h3></div>
       </article>
       <article class="showcase-card" style="--tile-x:20%;--tile-y:100%;--delay:70ms">
         <div class="showcase-art mosaic-art" role="img" aria-label="A rounded rabbit in white and grey bricks"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
-        <div class="showcase-card-copy"><span>Character · simple form</span><h3>Soft rabbit</h3></div>
+        <div class="showcase-card-copy"><h3>Soft rabbit</h3></div>
       </article>
       <article class="showcase-card" style="--tile-x:100%;--tile-y:100%;--delay:120ms">
         <div class="showcase-art mosaic-art" role="img" aria-label="A small armoured figure in grey bricks"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
-        <div class="showcase-card-copy"><span>Character · simple form</span><h3>Little guardian</h3></div>
+        <div class="showcase-card-copy"><h3>Little guardian</h3></div>
       </article>
       <article class="showcase-card" style="--tile-x:60%;--tile-y:0%;--delay:170ms">
         <div class="showcase-art mosaic-art" role="img" aria-label="A white bird riding a bicycle with dark wheels"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
-        <div class="showcase-card-copy"><span>Object · fine detail</span><h3>Bird on wheels</h3></div>
+        <div class="showcase-card-copy"><h3>Bird on wheels</h3></div>
       </article>
       <article class="showcase-card" style="--tile-x:60%;--tile-y:50%;--delay:220ms">
         <div class="showcase-art mosaic-art" role="img" aria-label="An explorer scene on a dark rocky base"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
-        <div class="showcase-card-copy"><span>Scene · detailed build</span><h3>Rocky outpost</h3></div>
+        <div class="showcase-card-copy"><h3>Rocky outpost</h3></div>
       </article>
       <article class="showcase-card" style="--tile-x:0%;--tile-y:100%;--delay:270ms">
         <div class="showcase-art mosaic-art" role="img" aria-label="A brick figure with a grey body and brown hair"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
-        <div class="showcase-card-copy"><span>Character · geometric</span><h3>Block figure</h3></div>
+        <div class="showcase-card-copy"><h3>Block figure</h3></div>
       </article>
       <article class="showcase-card" style="--tile-x:80%;--tile-y:0%;--delay:320ms">
         <div class="showcase-art mosaic-art" role="img" aria-label="A mint-green brick portrait on a brown base"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
-        <div class="showcase-card-copy"><span>Sculpture · quiet colour</span><h3>Mint portrait</h3></div>
+        <div class="showcase-card-copy"><h3>Mint portrait</h3></div>
       </article>
       <article class="showcase-card" style="--tile-x:20%;--tile-y:50%;--delay:370ms">
         <div class="showcase-art mosaic-art" role="img" aria-label="A small animal scene inside a translucent blue case"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
-        <div class="showcase-card-copy"><span>Scene · layered build</span><h3>Glass habitat</h3></div>
+        <div class="showcase-card-copy"><h3>Glass habitat</h3></div>
       </article>
       <article class="showcase-card" style="--tile-x:100%;--tile-y:0%;--delay:420ms">
         <div class="showcase-art mosaic-art" role="img" aria-label="A small brown dinosaur among brick foliage"><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span><span class="model-slice"></span></div>
-        <div class="showcase-card-copy"><span>Nature · scene build</span><h3>Small wilderness</h3></div>
+        <div class="showcase-card-copy"><h3>Small wilderness</h3></div>
       </article>
     </div>
     <div class="showcase-credit"><p>Reference builds shown as-is, not models this site generated from a photo. Eight come from <a href="https://gallery.brickben.ch/" target="_blank" rel="noopener noreferrer">BrickAgent / BrickBench</a>; the architectural model &ldquo;Ayasofya custom model&rdquo; is by <a href="https://github.com/saidsurucu/lego-hagia-sophia" target="_blank" rel="noopener noreferrer">Said Sürücü</a>, converted to WebP and shown under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>.</p></div>
@@ -360,11 +355,6 @@ html { scroll-behavior: smooth; }
     </div>
     <div id="log" aria-live="polite"></div>
     <form class="composer" id="composer">
-      <div class="egs" id="suggest">
-        <button type="button" class="eg">An orange tabby cat</button>
-        <button type="button" class="eg">A water bottle, in red</button>
-        <button type="button" class="eg">A small wooden bridge over a stream</button>
-      </div>
       <div class="row">
         <button type="button" id="pick" title="Attach a photo" aria-label="Attach a photo">+</button>
         <div class="thumb" id="thumb" hidden><img id="thumb-img" alt="Attached photo"><button type="button" id="thumb-x" title="Remove photo">×</button></div>
@@ -392,6 +382,7 @@ html { scroll-behavior: smooth; }
           <option value="xhigh">Extra high</option>
           <option value="max">Max &middot; slowest</option>
         </select></label>
+        <span class="resume" id="resume" hidden></span>
         <span id="jobline"></span>
       </div>
       <input type="file" id="file" accept="image/*" capture="environment" hidden>

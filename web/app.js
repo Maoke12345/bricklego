@@ -415,8 +415,7 @@ addEventListener('keydown', event => {
 
 function reset() {
   unattach();
-  $('suggest').hidden = false;
-  $('suggest').querySelector('.resume')?.remove();
+  $('resume').hidden = true;
   source?.close();
   source = null;
   job = null;
@@ -477,10 +476,6 @@ for (const id of ['model', 'effort', 'size']) {               // remember what y
   $(id).addEventListener('change', () => localStorage.setItem('brickstudio.' + id, $(id).value));
 }
 
-for (const eg of document.querySelectorAll('.eg')) {
-  eg.onclick = () => { $('text').value = eg.textContent; $('text').focus(); };
-}
-
 $('pick').onclick = () => $('file').click();
 $('file').addEventListener('change', event => take(event.target.files[0]));
 $('thumb-x').onclick = unattach;
@@ -527,7 +522,7 @@ $('composer').addEventListener('submit', async event => {
     if (!response.ok) throw new Error(data.error || response.statusText);
     if (!job) {
       job = data.id;
-      $('suggest').hidden = true;
+      $('resume').hidden = true;
       localStorage.setItem('brickstudio.job', job);
       $('fresh').hidden = false;
       log.innerHTML = '';
@@ -547,25 +542,21 @@ $('composer').addEventListener('submit', async event => {
 
 function resume(id) {
   job = id;
-  $('suggest').hidden = true;
+  $('resume').hidden = true;
   localStorage.setItem('brickstudio.job', id);
   $('jobline').textContent = `Job ${id}`;
   $('fresh').hidden = false;
   listen(id);
 }
 
-/** The last one is finished: do not interrupt, just leave a way back to it beside the examples. */
+/** The last one is finished: do not interrupt, just leave a way back to it. */
 function offerResume(id) {
-  const line = document.createElement('span');
-  line.className = 'resume';
-  line.append('Last model');
   const open = document.createElement('button');
   open.type = 'button';
-  open.className = 'eg';
-  open.textContent = 'Open it';
+  open.textContent = 'Open last model';
   open.onclick = () => { working(false); resume(id); };
-  line.append(open);
-  $('suggest').append(line);
+  $('resume').replaceChildren(open);
+  $('resume').hidden = false;
 }
 
 const asked = new URLSearchParams(location.search).get('job');

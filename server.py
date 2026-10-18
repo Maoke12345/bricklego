@@ -121,7 +121,8 @@ class Handler(BaseHTTPRequestHandler):
             job = Job.create(size)
             with jobs_lock:
                 jobs[job.id] = job
-            job.submit((payload.get("text") or "").strip()[:4000], payload.get("image"))
+            job.submit((payload.get("text") or "").strip()[:4000], payload.get("image"),
+                       payload.get("model"), payload.get("effort"))
             return self.send_json({"id": job.id})
 
         if match := re.fullmatch(r"/api/jobs/([\w-]+)/messages", path):
@@ -130,7 +131,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send_json({"error": "no such job"}, 404)
             if job.busy:
                 return self.send_json({"error": "that job is still running; wait for it to finish"}, 409)
-            job.submit((payload.get("text") or "").strip()[:4000], payload.get("image"))
+            job.submit((payload.get("text") or "").strip()[:4000], payload.get("image"),
+                       payload.get("model"), payload.get("effort"))
             return self.send_json({"id": job.id})
 
         return self.send_json({"error": "not found"}, 404)

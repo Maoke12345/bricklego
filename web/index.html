@@ -356,6 +356,21 @@ html { scroll-behavior: smooth; }
           <option value="model" selected>Standard &middot; up to 400 parts</option>
           <option value="set">Large set &middot; 400&ndash;4000 parts &middot; slow</option>
         </select></label>
+        <label>Model <select id="model">
+          <option value="" selected>Default</option>
+          <option value="anthropic/claude-opus-5-5">Opus 5.5 &middot; builds best</option>
+          <option value="anthropic/claude-opus-5">Opus 5</option>
+          <option value="anthropic/claude-sonnet-5-5">Sonnet 5.5 &middot; faster</option>
+          <option value="anthropic/claude-haiku-5-5">Haiku 5.5 &middot; fastest</option>
+        </select></label>
+        <label>Thinking <select id="effort">
+          <option value="" selected>Default</option>
+          <option value="low">Low &middot; quickest</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+          <option value="xhigh">Extra high</option>
+          <option value="max">Max &middot; slowest</option>
+        </select></label>
         <span id="jobline"></span>
       </div>
       <input type="file" id="file" accept="image/*" capture="environment" hidden>

@@ -29,6 +29,16 @@ BASE_IMAGE = os.environ.get("BRICKSTUDIO_BASE_IMAGE", "brickagent")
 TURN_TIMEOUT = int(os.environ.get("BRICKSTUDIO_TURN_TIMEOUT", 60 * 60))
 
 SPLITS = {"quick": "model", "model": "model", "set": "set"}
+
+# What the page may ask for. The default model comes from .env; the default effort is
+# whatever Claude Code does on its own, which is what every job so far has used.
+MODELS = (
+    "anthropic/claude-opus-5-5",
+    "anthropic/claude-opus-5",
+    "anthropic/claude-sonnet-5-5",
+    "anthropic/claude-haiku-5-5",
+)
+EFFORTS = ("low", "medium", "high", "xhigh", "max")
 SETTINGS = {
     "permissions": {
         "defaultMode": "bypassPermissions",
@@ -94,6 +104,8 @@ class Job:
         self.waiters = threading.Condition()
         self.lock = threading.Lock()
         self.seen_png: dict[str, float] = {}
+        self.model: str | None = None                        # None -> AGENT_MODEL from .env
+        self.effort: str | None = None                       # None -> Claude Code's own default
         self.stats: dict | None = None                       # how many turns, how long, how much this one cost
         self.outcome: dict | None = None                     # whether this turn replaced the model, and with what
 
@@ -114,6 +126,7 @@ class Job:
             return None
         state = json.loads((JOBS / job_id / "state.json").read_text(encoding="utf-8"))
         job = cls(job_id, state.get("size", "model"))
+        job.model, job.effort = state.get("model"), state.get("effort")
         job.turn = state.get("turn", 0)
         job.model_hash = state.get("model_hash", "")
         log = JOBS / job_id / "events.jsonl"
@@ -123,7 +136,8 @@ class Job:
 
     def save(self) -> None:
         (self.dir / "state.json").write_text(
-            json.dumps({"size": self.size, "turn": self.turn, "model_hash": self.model_hash}), encoding="utf-8"
+            json.dumps({"size": self.size, "turn": self.turn, "model_hash": self.model_hash,
+                        "model": self.model, "effort": self.effort}), encoding="utf-8"
         )
 
     def emit(self, **event: object) -> None:
@@ -149,8 +163,12 @@ class Job:
 
     # ---------- a turn ----------
 
-    def submit(self, text: str, image: str | None) -> None:
+    def submit(self, text: str, image: str | None, model: str | None = None, effort: str | None = None) -> None:
         """Queue one turn; returns as soon as the worker thread is running."""
+        if model in MODELS:
+            self.model = model
+        if effort in EFFORTS:
+            self.effort = effort
         threading.Thread(target=self._turn, args=(text, image), daemon=True).start()
 
     def _turn(self, text: str, image: str | None) -> None:
@@ -207,8 +225,9 @@ class Job:
             "-v", f"{self.config}:/agent/.claude",
             *_proxy_env(),
             IMAGE, "claude", "--print", "--verbose", "--output-format", "stream-json",
-            "--model", os.environ["AGENT_MODEL"], "--permission-mode", "bypassPermissions",
+            "--model", self.model or os.environ["AGENT_MODEL"], "--permission-mode", "bypassPermissions",
         ]
+        command += ["--effort", self.effort] if self.effort else []
         command += ["--continue"] if self.turn > 1 else []
         command += [prompt]
 

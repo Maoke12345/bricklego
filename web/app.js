@@ -455,6 +455,12 @@ async function take(file) {
   $('thumb').hidden = false;
 }
 
+for (const id of ['model', 'effort', 'size']) {               // remember what you picked last
+  const saved = localStorage.getItem('brickstudio.' + id);
+  if (saved !== null && [...$(id).options].some(o => o.value === saved)) $(id).value = saved;
+  $(id).addEventListener('change', () => localStorage.setItem('brickstudio.' + id, $(id).value));
+}
+
 for (const eg of document.querySelectorAll('.eg')) {
   eg.onclick = () => { $('text').value = eg.textContent; $('text').focus(); };
 }
@@ -487,6 +493,8 @@ $('composer').addEventListener('submit', async event => {
   if (!text && !photo) return;
 
   const body = { text, image: photo, size: $('size').value };
+  if ($('model').value) body.model = $('model').value;        // empty -> leave the default alone
+  if ($('effort').value) body.effort = $('effort').value;
   const url = job ? `/api/jobs/${job}/messages` : '/api/jobs';
   working(true);
   $('text').value = '';

@@ -34,7 +34,7 @@ const PINNED = [
   { id: '1018-0739-12fe', built: 1792309140000, title: 'Little Red Car', parts: 44,
     prompt: 'A car  →  Make it red  →  Add a spoiler on the back' },
   { id: '1017-1744-8e34', built: 1792259040000, title: 'Sitting Orange Tabby Cat', parts: 284,
-    prompt: '生成一个橘猫积木' },
+    prompt: 'Generate an orange tabby cat out of bricks' },
 ].map(pin => ({ ...pin, valid: true, pinned: true,
                 savedAt: pin.built, updatedAt: pin.built,
                 preview: `/jobs/${pin.id}/work/preview.png` }));

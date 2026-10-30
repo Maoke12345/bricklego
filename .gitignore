@@ -1,11 +1,11 @@
-# 密钥：绝不入库
+# Secrets: never commit
 .env
 
-# 生成物：每次跑出来的任务和打包好的单文件网页
+# Generated: each run's job files and packed single-file pages
 jobs/
 out/
 
-# 随手放的参考材料
+# Reference material kept around
 ref/
 
 __pycache__/
